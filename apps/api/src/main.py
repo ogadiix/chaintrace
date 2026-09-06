@@ -7,7 +7,7 @@ from apps.api.src.api.v1.auth import seed_demo_users_if_needed
 from apps.api.src.api.v1.router import api_v1_router
 from apps.api.src.core.config import settings
 from apps.api.src.core.database import AsyncSessionLocal, Base, engine
-from apps.api.src.core.neo4j import close_neo4j_driver
+from apps.api.src.core.neo4j import close_neo4j_driver, init_neo4j_schema
 from apps.api.src.core.redis import close_redis
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,6 +21,8 @@ async def lifespan(app: FastAPI):
 
     async with AsyncSessionLocal() as session:
         await seed_demo_users_if_needed(session)
+
+    await init_neo4j_schema()
 
     yield
 

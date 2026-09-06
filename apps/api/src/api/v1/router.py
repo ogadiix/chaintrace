@@ -6,6 +6,7 @@ from apps.api.src.api.v1.audit import router as audit_router
 from apps.api.src.api.v1.auth import router as auth_router
 from apps.api.src.api.v1.blockchain import router as blockchain_router
 from apps.api.src.api.v1.cases import router as cases_router
+from apps.api.src.api.v1.graph import router as graph_router
 from apps.api.src.api.v1.health import router as health_router
 from fastapi import APIRouter
 
@@ -16,3 +17,4 @@ api_v1_router.include_router(cases_router)
 api_v1_router.include_router(audit_router)
 api_v1_router.include_router(adapters_router)
 api_v1_router.include_router(blockchain_router)
+api_v1_router.include_router(graph_router)

@@ -1,0 +1,5 @@
+# ChainTrace Root Docker Compose Configuration
+# Wraps infra/docker/docker-compose.yml for developer convenience.
+# Run: docker compose -f infra/docker/docker-compose.yml up -d neo4j
+include:
+  - infra/docker/docker-compose.yml
