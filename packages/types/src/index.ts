@@ -481,3 +481,53 @@ export interface RiskAnalysisRequest {
   // snake_case
   max_hops?: number;
 }
+
+export type CanvasNodeRole = 'VICTIM' | 'SUSPECT' | 'MULE' | 'CONSOLIDATOR' | 'VASP' | 'MIXER' | 'SANCTIONED' | 'SCAM' | 'UNKNOWN';
+
+export interface GraphCanvasNode {
+  id: string;
+  address: string;
+  chain: string;
+  label: string;
+  role: CanvasNodeRole;
+  hopLevel: number;
+  entityName?: string | null;
+  entityType?: EntityType | null;
+  riskScore?: number;
+  isDemo?: boolean;
+  totalInflow?: string;
+  totalOutflow?: string;
+  txCount?: number;
+  x?: number;
+  y?: number;
+}
+
+export interface GraphCanvasEdge {
+  id: string;
+  source: string;
+  target: string;
+  txHash: string;
+  chain: string;
+  asset: string;
+  amount: string;
+  timestamp: string;
+  hopNumber: number;
+  isDemo?: boolean;
+  highlighted?: boolean;
+}
+
+export interface GraphSelectionState {
+  selectedNodeId: string | null;
+  selectedEdgeId: string | null;
+  highlightedPathIds: string[];
+}
+
+export interface InvestigationTimelineEvent {
+  id: string;
+  timestamp: string;
+  action: string;
+  description: string;
+  actorEmail?: string;
+  metadata?: Record<string, unknown>;
+}
+
