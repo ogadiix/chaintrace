@@ -3,6 +3,7 @@ Neo4j Graph Database Driver & Schema Initialization
 Manages connection lifecycle, Cypher schema constraints, and health verification.
 Source of truth: Master Prompt Section 3, 5, 21
 """
+
 import logging
 
 from apps.api.src.core.config import settings

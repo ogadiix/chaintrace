@@ -3,6 +3,7 @@ Phase 2 Blockchain Adapters Comprehensive Test Suite
 Tests TRON, generic EVM (Ethereum, BSC, Polygon), Normalized Models, Resilience, and Integration.
 Source of truth: Master Prompt Sections 14 & 15
 """
+
 from datetime import UTC, datetime
 from decimal import Decimal
 from unittest.mock import AsyncMock, patch
@@ -27,15 +28,20 @@ from httpx import ASGITransport, AsyncClient
 # 1. TRON TESTS (Section 14)
 # ==============================================================================
 
+
 def test_tron_address_validation():
     # Valid Base58Check addresses
     assert validate_tron_base58check("TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t") is True
     assert validate_tron_base58check("TA4Wt1DUCqz6YegbnsmqsWC5uUfbdBqPxm") is True
 
     # Invalid addresses
-    assert validate_tron_base58check("0x71C7656EC7ab88b098defB751B7401B5f6d8976F") is False  # EVM address
-    assert validate_tron_base58check("TInvalidAddressWithBadChecksum111111") is False          # Bad checksum
-    assert validate_tron_base58check("TA4Wt1DUCqz6YegbnsmqsWC5uUfbdBqPx") is False            # Too short
+    assert (
+        validate_tron_base58check("0x71C7656EC7ab88b098defB751B7401B5f6d8976F") is False
+    )  # EVM address
+    assert (
+        validate_tron_base58check("TInvalidAddressWithBadChecksum111111") is False
+    )  # Bad checksum
+    assert validate_tron_base58check("TA4Wt1DUCqz6YegbnsmqsWC5uUfbdBqPx") is False  # Too short
     assert validate_tron_base58check("") is False
     assert validate_tron_base58check(None) is False  # type: ignore
 
@@ -88,7 +94,9 @@ async def test_tron_provider_error_translation():
 
     # Test HTTP 429 Rate Limit
     with patch("httpx.AsyncClient.get") as mock_get:
-        mock_get.return_value = httpx.Response(status_code=429, request=httpx.Request("GET", "http://test"))
+        mock_get.return_value = httpx.Response(
+            status_code=429, request=httpx.Request("GET", "http://test")
+        )
         with pytest.raises(RateLimitedError):
             await adapter.get_transactions(test_address)
 
@@ -103,6 +111,7 @@ async def test_tron_provider_error_translation():
 # 2. EVM TESTS (Section 14)
 # ==============================================================================
 
+
 def test_evm_address_validation():
     adapter = EvmAdapter(chain=BlockchainType.ETHEREUM)
     assert adapter.validate_address("0x71C7656EC7ab88b098defB751B7401B5f6d8976F") is True
@@ -110,8 +119,12 @@ def test_evm_address_validation():
 
     # Invalid addresses
     assert adapter.validate_address("TA4Wt1DUCqz6YegbnsmqsWC5uUfbdBqPxm") is False  # Tron address
-    assert adapter.validate_address("0x71C7656EC7ab88b098defB751B7401B5f6d8976") is False   # 39 chars
-    assert adapter.validate_address("0xZZC7656EC7ab88b098defB751B7401B5f6d8976F") is False  # Non-hex
+    assert (
+        adapter.validate_address("0x71C7656EC7ab88b098defB751B7401B5f6d8976") is False
+    )  # 39 chars
+    assert (
+        adapter.validate_address("0xZZC7656EC7ab88b098defB751B7401B5f6d8976F") is False
+    )  # Non-hex
     assert adapter.validate_address("") is False
 
 
@@ -143,7 +156,9 @@ async def test_evm_provider_failure_handling():
 
     # Test HTTP 500 error from RPC node
     with patch("httpx.AsyncClient.post") as mock_post:
-        mock_post.return_value = httpx.Response(status_code=500, request=httpx.Request("POST", "http://test"))
+        mock_post.return_value = httpx.Response(
+            status_code=500, request=httpx.Request("POST", "http://test")
+        )
         with pytest.raises(ProviderUnavailableError):
             await adapter._rpc_call("eth_blockNumber", [])
 
@@ -151,6 +166,7 @@ async def test_evm_provider_failure_handling():
 # ==============================================================================
 # 3. COMMON MODEL TESTS (Section 14)
 # ==============================================================================
+
 
 def test_normalized_model_precision_and_provenance():
     tx = NormalizedTransaction(
@@ -176,6 +192,7 @@ def test_normalized_model_precision_and_provenance():
 # ==============================================================================
 # 4. RESILIENCE: RETRY POLICY & CACHING TESTS (Sections 8, 10)
 # ==============================================================================
+
 
 @pytest.mark.asyncio
 async def test_retry_policy_retries_transient_but_skips_permanent():
@@ -225,6 +242,7 @@ async def test_blockchain_cache_immutability():
 # 5. INTEGRATION TEST (Section 15)
 # API -> Trace Service -> Adapter -> Mock Provider -> Normalized Transaction
 # ==============================================================================
+
 
 @pytest.mark.asyncio
 async def test_full_blockchain_service_and_api_integration():

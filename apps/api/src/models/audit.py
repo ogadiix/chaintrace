@@ -2,6 +2,7 @@
 Audit Log SQLAlchemy Model
 Maintains immutable evidentiary trail for investigator actions.
 """
+
 import uuid
 from datetime import UTC, datetime
 
@@ -17,7 +18,9 @@ class AuditLog(Base):
     actor_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
     actor_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     action: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
-    case_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("cases.id"), nullable=True, index=True)
+    case_id: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("cases.id"), nullable=True, index=True
+    )
     timestamp: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False, index=True
     )

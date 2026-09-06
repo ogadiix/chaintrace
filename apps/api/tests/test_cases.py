@@ -1,6 +1,7 @@
 """
 Comprehensive Phase 1 Tests: Authentication, RBAC, Case Management, and Audit Logs
 """
+
 import pytest
 from apps.api.src.main import app
 from httpx import ASGITransport, AsyncClient
@@ -10,17 +11,17 @@ from httpx import ASGITransport, AsyncClient
 async def test_auth_login_success_and_failure():
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         # Invalid credentials
-        res_fail = await ac.post("/api/v1/auth/login", json={
-            "email": "investigator@chaintrace.internal",
-            "password": "WrongPassword123!"
-        })
+        res_fail = await ac.post(
+            "/api/v1/auth/login",
+            json={"email": "investigator@chaintrace.internal", "password": "WrongPassword123!"},
+        )
         assert res_fail.status_code == 401
 
         # Valid credentials
-        res_ok = await ac.post("/api/v1/auth/login", json={
-            "email": "investigator@chaintrace.internal",
-            "password": "Investigator123!"
-        })
+        res_ok = await ac.post(
+            "/api/v1/auth/login",
+            json={"email": "investigator@chaintrace.internal", "password": "Investigator123!"},
+        )
         assert res_ok.status_code == 200
         data = res_ok.json()
         assert "accessToken" in data
@@ -32,10 +33,10 @@ async def test_auth_login_success_and_failure():
 async def test_case_lifecycle_and_validation():
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         # 1. Login as investigator
-        login_res = await ac.post("/api/v1/auth/login", json={
-            "email": "investigator@chaintrace.internal",
-            "password": "Investigator123!"
-        })
+        login_res = await ac.post(
+            "/api/v1/auth/login",
+            json={"email": "investigator@chaintrace.internal", "password": "Investigator123!"},
+        )
         token = login_res.json()["accessToken"]
         headers = {"Authorization": f"Bearer {token}"}
 
@@ -49,7 +50,7 @@ async def test_case_lifecycle_and_validation():
             "incidentDate": "2026-08-15",
             "targetChain": "tron",
             "suspectWallet": "InvalidTronWalletAddress123",
-            "priority": "HIGH"
+            "priority": "HIGH",
         }
         res_bad = await ac.post("/api/v1/cases", json=bad_case, headers=headers)
         assert res_bad.status_code == 422
@@ -64,7 +65,7 @@ async def test_case_lifecycle_and_validation():
             "incidentDate": "2026-09-01",
             "targetChain": "tron",
             "suspectWallet": "TJY5p7c1F4Z8n4wV6P8s3d2f1g9h7j5k3l",
-            "priority": "HIGH"
+            "priority": "HIGH",
         }
         res_create = await ac.post("/api/v1/cases", json=valid_case, headers=headers)
         assert res_create.status_code == 201
@@ -86,10 +87,11 @@ async def test_case_lifecycle_and_validation():
         assert res_get.json()["id"] == case_id
 
         # 6. Update case status to UNDER_REVIEW
-        res_patch = await ac.patch(f"/api/v1/cases/{case_id}", json={
-            "status": "UNDER_REVIEW",
-            "priority": "CRITICAL"
-        }, headers=headers)
+        res_patch = await ac.patch(
+            f"/api/v1/cases/{case_id}",
+            json={"status": "UNDER_REVIEW", "priority": "CRITICAL"},
+            headers=headers,
+        )
         assert res_patch.status_code == 200
         updated = res_patch.json()
         assert updated["status"] == "UNDER_REVIEW"
@@ -109,10 +111,10 @@ async def test_case_lifecycle_and_validation():
 async def test_rbac_restriction_for_viewer():
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         # Login as viewer
-        login_res = await ac.post("/api/v1/auth/login", json={
-            "email": "viewer@chaintrace.internal",
-            "password": "ViewerSecure123!"
-        })
+        login_res = await ac.post(
+            "/api/v1/auth/login",
+            json={"email": "viewer@chaintrace.internal", "password": "ViewerSecure123!"},
+        )
         token = login_res.json()["accessToken"]
         headers = {"Authorization": f"Bearer {token}"}
 
@@ -137,14 +139,16 @@ async def test_multichain_and_security_boundaries():
         assert res_unauth.status_code == 401
 
         # Invalid token fails (401)
-        res_bad_token = await ac.get("/api/v1/cases", headers={"Authorization": "Bearer invalid.jwt.token"})
+        res_bad_token = await ac.get(
+            "/api/v1/cases", headers={"Authorization": "Bearer invalid.jwt.token"}
+        )
         assert res_bad_token.status_code == 401
 
         # Login as analyst
-        login_res = await ac.post("/api/v1/auth/login", json={
-            "email": "analyst@chaintrace.internal",
-            "password": "AnalystSecure123!"
-        })
+        login_res = await ac.post(
+            "/api/v1/auth/login",
+            json={"email": "analyst@chaintrace.internal", "password": "AnalystSecure123!"},
+        )
         token = login_res.json()["accessToken"]
         headers = {"Authorization": f"Bearer {token}"}
 

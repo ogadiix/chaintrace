@@ -1,6 +1,7 @@
 """
 Case & Complaint Pydantic Schemas
 """
+
 from chaintrace_shared import BlockchainType, CasePriority, CaseStatus, is_valid_address
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 

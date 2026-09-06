@@ -1,6 +1,7 @@
 """
 Authentication Request & Response Schemas
 """
+
 from pydantic import BaseModel, ConfigDict, EmailStr
 
 

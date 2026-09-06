@@ -13,6 +13,12 @@ from apps.api.src.models.intelligence import (
     IntelligenceJob,
     WalletFeatures,
 )
+from apps.api.src.models.risk import (
+    ManualRiskOverride,
+    RiskAssessment,
+    RiskOverrideRequest,
+    RiskSignalContribution,
+)
 from apps.api.src.models.trace import TraceHop, TraceJob, TracePath, TraceRequest, TraceResult
 from apps.api.src.models.user import User
 
@@ -24,6 +30,10 @@ __all__ = [
     "IntelligenceAnalysisResult",
     "IntelligenceFinding",
     "IntelligenceJob",
+    "ManualRiskOverride",
+    "RiskAssessment",
+    "RiskOverrideRequest",
+    "RiskSignalContribution",
     "TraceHop",
     "TraceJob",
     "TracePath",

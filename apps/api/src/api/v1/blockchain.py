@@ -4,6 +4,7 @@ Provides normalized multi-chain transaction access to the frontend.
 Protected by server-side authentication; strictly shields provider keys and raw errors.
 Source of truth: Master Prompt Section 12 & docs/architecture.md Section 4.4
 """
+
 from typing import Any
 
 from apps.api.src.adapters.exceptions import BlockchainError
@@ -69,7 +70,9 @@ async def get_wallet_transactions(
 ) -> dict[str, Any]:
     """Retrieves paginated, normalized blockchain transactions for a target wallet address."""
     try:
-        transactions, next_cursor = await service.get_transactions(chain, address, limit=limit, cursor=cursor)
+        transactions, next_cursor = await service.get_transactions(
+            chain, address, limit=limit, cursor=cursor
+        )
         return {
             "chain": chain.lower(),
             "address": address,

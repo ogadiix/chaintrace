@@ -13,6 +13,7 @@ Validates:
 10. Intelligence REST Endpoints & Async Job Lifecycle Integration
 Source of truth: Master Prompt Phase 5 Sections 5-11, 22, 23
 """
+
 from datetime import UTC, datetime, timedelta
 
 import pytest
@@ -57,6 +58,7 @@ def _make_tx(
 # 1. RAPID FORWARDING TESTS (Section 5)
 # ==============================================================================
 
+
 @pytest.mark.asyncio
 async def test_rapid_forwarding_positive_and_negative():
     store = InMemoryGraphStore()
@@ -66,15 +68,23 @@ async def test_rapid_forwarding_positive_and_negative():
 
     t0 = datetime(2026, 3, 1, 12, 0, 0, tzinfo=UTC)
     t_rapid = t0 + timedelta(seconds=45)  # 45s delta -> Positive Rapid Forwarding
-    t_slow = t0 + timedelta(days=5)      # 5 days delta -> Negative (Normal)
+    t_slow = t0 + timedelta(days=5)  # 5 days delta -> Negative (Normal)
 
     # Positive scenario: Victim -> RapidIntermediary (12:00:00) -> Outflow (12:00:45)
-    tx1 = _make_tx("tx_in_rapid", "WalletVictim", "WalletRapid", amount="10000.0", timestamp=t0.isoformat())
-    tx2 = _make_tx("tx_out_rapid", "WalletRapid", "WalletDst", amount="9950.0", timestamp=t_rapid.isoformat())
+    tx1 = _make_tx(
+        "tx_in_rapid", "WalletVictim", "WalletRapid", amount="10000.0", timestamp=t0.isoformat()
+    )
+    tx2 = _make_tx(
+        "tx_out_rapid", "WalletRapid", "WalletDst", amount="9950.0", timestamp=t_rapid.isoformat()
+    )
 
     # Negative scenario: Victim -> SlowIntermediary (12:00:00) -> Outflow (5 days later)
-    tx3 = _make_tx("tx_in_slow", "WalletVictim", "WalletSlow", amount="10000.0", timestamp=t0.isoformat())
-    tx4 = _make_tx("tx_out_slow", "WalletSlow", "WalletDst2", amount="9950.0", timestamp=t_slow.isoformat())
+    tx3 = _make_tx(
+        "tx_in_slow", "WalletVictim", "WalletSlow", amount="10000.0", timestamp=t0.isoformat()
+    )
+    tx4 = _make_tx(
+        "tx_out_slow", "WalletSlow", "WalletDst2", amount="9950.0", timestamp=t_slow.isoformat()
+    )
 
     await graph_service.ingest_transactions([tx1, tx2, tx3, tx4])
 
@@ -97,6 +107,7 @@ async def test_rapid_forwarding_positive_and_negative():
 # ==============================================================================
 # 2. HIGH FAN-OUT & CONSOLIDATION FAN-IN TESTS (Sections 6 & 7)
 # ==============================================================================
+
 
 @pytest.mark.asyncio
 async def test_fan_out_dispersion_detection():
@@ -141,7 +152,9 @@ async def test_consolidation_fan_in_detection():
     await graph_service.ingest_transactions(txs)
 
     # Trace in reverse from WalletCollector
-    features = FeatureExtractor.extract_wallet_features("WalletCollector", "tron", store._edges.values())
+    features = FeatureExtractor.extract_wallet_features(
+        "WalletCollector", "tron", store._edges.values()
+    )
     assert features.fan_in == 4
 
     req = TraceRequest(
@@ -161,6 +174,7 @@ async def test_consolidation_fan_in_detection():
 # ==============================================================================
 # 3. PEEL CHAIN DETECTION (Section 8)
 # ==============================================================================
+
 
 @pytest.mark.asyncio
 async def test_peel_chain_pattern_detection():
@@ -191,6 +205,7 @@ async def test_peel_chain_pattern_detection():
 # ==============================================================================
 # 4. ROUND AMOUNT & REPEATED DESTINATIONS (Sections 9 & 10)
 # ==============================================================================
+
 
 @pytest.mark.asyncio
 async def test_round_amount_signal_and_repeated_destinations():
@@ -223,6 +238,7 @@ async def test_round_amount_signal_and_repeated_destinations():
 # ==============================================================================
 # 5. INTEGRATION TEST: CASE -> TRACE -> INTELLIGENCE API
 # ==============================================================================
+
 
 @pytest.mark.asyncio
 async def test_case_intelligence_api_integration():

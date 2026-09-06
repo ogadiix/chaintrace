@@ -4,6 +4,7 @@ Supports native TRX transfers and TRC-20 USDT token transfers via TronGrid.
 Features Base58Check address validation, exponential retries, rate limiting, and forensic provenance.
 Source of truth: Master Prompt Section 3, docs/architecture.md Section 4.4
 """
+
 import hashlib
 import logging
 from datetime import UTC, datetime
@@ -36,7 +37,12 @@ def validate_tron_base58check(address: str) -> bool:
     Validates TRON address according to Base58Check specification.
     Must start with 'T', be 34 characters long, have 0x41 prefix, and match double-SHA256 checksum.
     """
-    if not address or not isinstance(address, str) or len(address) != 34 or not address.startswith("T"):
+    if (
+        not address
+        or not isinstance(address, str)
+        or len(address) != 34
+        or not address.startswith("T")
+    ):
         return False
     try:
         num = 0
@@ -103,9 +109,13 @@ class TronAdapter(BlockchainAdapter):
         if response.status_code == 404:
             raise TransactionNotFoundError(f"Resource not found on TRON: {endpoint_desc}")
         if response.status_code in (400, 422):
-            raise InvalidWalletAddressError(f"TronGrid rejected request parameters: {endpoint_desc}")
+            raise InvalidWalletAddressError(
+                f"TronGrid rejected request parameters: {endpoint_desc}"
+            )
         if response.status_code >= 500:
-            raise ProviderUnavailableError(f"TronGrid server error ({response.status_code}) during {endpoint_desc}")
+            raise ProviderUnavailableError(
+                f"TronGrid server error ({response.status_code}) during {endpoint_desc}"
+            )
 
     async def _send_request(self, url: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
         """Executes rate-limited, retried HTTP GET request with defensive exception mapping."""
@@ -118,12 +128,16 @@ class TronAdapter(BlockchainAdapter):
                     self._handle_http_errors(res, url)
                     data = res.json()
                     if not isinstance(data, dict):
-                        raise MalformedResponseError(f"Unexpected non-dict response from TronGrid for {url}")
+                        raise MalformedResponseError(
+                            f"Unexpected non-dict response from TronGrid for {url}"
+                        )
                     return data
             except httpx.TimeoutException as exc:
                 raise ProviderTimeoutError(f"Timeout querying TronGrid: {url}") from exc
             except httpx.NetworkError as exc:
-                raise ProviderUnavailableError(f"Network error connecting to TronGrid: {url}") from exc
+                raise ProviderUnavailableError(
+                    f"Network error connecting to TronGrid: {url}"
+                ) from exc
 
         return await self._retry_policy.execute(_req, operation_name=f"TronGrid:{url}")
 
@@ -148,7 +162,9 @@ class TronAdapter(BlockchainAdapter):
                             if contract == TRON_USDT_CONTRACT:
                                 token_balances["USDT"] = str(Decimal(bal_str) / Decimal(10**6))
                             else:
-                                token_balances[contract[:8] + "..."] = str(Decimal(bal_str) / Decimal(10**6))
+                                token_balances[contract[:8] + "..."] = str(
+                                    Decimal(bal_str) / Decimal(10**6)
+                                )
 
                 return WalletBalance(
                     address=address,
@@ -248,7 +264,9 @@ class TronAdapter(BlockchainAdapter):
         ):
             raise
         except Exception as exc:
-            logger.debug("Tron live transactions fetch failed: %s. Using sandbox demo dataset.", exc)
+            logger.debug(
+                "Tron live transactions fetch failed: %s. Using sandbox demo dataset.", exc
+            )
 
         # High-Fidelity Sandbox Demo Fallback (Explicitly labeled is_demo=True)
         demo_txs = self._generate_demo_tron_transactions(address)

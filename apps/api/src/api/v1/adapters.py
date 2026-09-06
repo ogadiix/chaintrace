@@ -3,6 +3,7 @@ Blockchain Adapter REST Endpoints
 Safely exposes multi-chain blockchain operations behind the backend adapter layer.
 Source of truth: docs/architecture.md Section 4.4
 """
+
 from apps.api.src.adapters.factory import get_blockchain_adapter
 from apps.api.src.adapters.models import NormalizedTransaction, WalletBalance
 from apps.api.src.core.security import get_current_user

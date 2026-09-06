@@ -11,6 +11,7 @@ Implements deterministic, explainable pattern detection rules:
 
 Source of truth: Master Prompt Phase 5 Sections 5-11, 14, 15, 18
 """
+
 import uuid
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
@@ -43,6 +44,7 @@ def _parse_iso(ts_str: str) -> datetime | None:
 # ==============================================================================
 # 1. RAPID FORWARDING RULE (Section 5)
 # ==============================================================================
+
 
 class RapidForwardingRule(IntelligenceRule):
     """
@@ -100,7 +102,9 @@ class RapidForwardingRule(IntelligenceRule):
                             finding_id=finding_id,
                             investigation_id=context.investigation_id,
                             type=FindingType.RAPID_FORWARDING,
-                            severity=FindingSeverity.HIGH if delta_sec <= 60 else FindingSeverity.MEDIUM,
+                            severity=FindingSeverity.HIGH
+                            if delta_sec <= 60
+                            else FindingSeverity.MEDIUM,
                             title="Rapid Fund Forwarding Observed",
                             description=f"Funds moved through wallet {in_hop.to_wallet} within {delta_sec:.1f} seconds.",
                             observed_fact=fact,
@@ -137,6 +141,7 @@ class RapidForwardingRule(IntelligenceRule):
 # 2. HIGH FAN-OUT RULE (Section 6)
 # ==============================================================================
 
+
 class HighFanOutRule(IntelligenceRule):
     """
     Detects wallets distributing funds to multiple unique destination addresses.
@@ -171,7 +176,9 @@ class HighFanOutRule(IntelligenceRule):
                         finding_id=finding_id,
                         investigation_id=context.investigation_id,
                         type=FindingType.HIGH_FAN_OUT,
-                        severity=FindingSeverity.HIGH if features.fan_out >= 5 else FindingSeverity.MEDIUM,
+                        severity=FindingSeverity.HIGH
+                        if features.fan_out >= 5
+                        else FindingSeverity.MEDIUM,
                         title=f"High Fan-Out Pattern ({features.fan_out} Destinations)",
                         description=f"Wallet dispersed funds to {features.fan_out} distinct destination wallets.",
                         observed_fact=fact,
@@ -186,7 +193,10 @@ class HighFanOutRule(IntelligenceRule):
                         ],
                         rule_id=self.id,
                         rule_version=self.version,
-                        metadata={"fan_out": features.fan_out, "destinations": features.unique_destinations},
+                        metadata={
+                            "fan_out": features.fan_out,
+                            "destinations": features.unique_destinations,
+                        },
                         created_at=now_str,
                     )
                 )
@@ -197,6 +207,7 @@ class HighFanOutRule(IntelligenceRule):
 # ==============================================================================
 # 3. HIGH FAN-IN RULE (Section 7)
 # ==============================================================================
+
 
 class HighFanInRule(IntelligenceRule):
     """
@@ -232,7 +243,9 @@ class HighFanInRule(IntelligenceRule):
                         finding_id=finding_id,
                         investigation_id=context.investigation_id,
                         type=FindingType.HIGH_FAN_IN,
-                        severity=FindingSeverity.HIGH if features.fan_in >= 5 else FindingSeverity.MEDIUM,
+                        severity=FindingSeverity.HIGH
+                        if features.fan_in >= 5
+                        else FindingSeverity.MEDIUM,
                         title=f"Consolidation Fan-In Pattern ({features.fan_in} Sources)",
                         description=f"Wallet collected funds from {features.fan_in} separate source wallets.",
                         observed_fact=fact,
@@ -259,6 +272,7 @@ class HighFanInRule(IntelligenceRule):
 # 4. PEEL-CHAIN RULE (Section 8)
 # ==============================================================================
 
+
 class PeelChainRule(IntelligenceRule):
     """
     Detects peel chain behavior: sequential hops where a small portion is peeled off
@@ -274,7 +288,9 @@ class PeelChainRule(IntelligenceRule):
     def evaluate(self, context: RuleEvaluationContext) -> list[IntelligenceFinding]:
         findings: list[IntelligenceFinding] = []
         min_length = int(context.config.get("peel_chain_min_length", 3))
-        continuation_threshold = Decimal(str(context.config.get("peel_chain_continuation_ratio", "0.70")))
+        continuation_threshold = Decimal(
+            str(context.config.get("peel_chain_continuation_ratio", "0.70"))
+        )
 
         for path in context.trace_result.paths:
             hops = path.hops
@@ -296,7 +312,7 @@ class PeelChainRule(IntelligenceRule):
                             EvidenceReference(
                                 type="TRANSACTION",
                                 ref_id=hops[i + 1].tx_hash,
-                                description=f"Continuation hop {amt2} ({ratio*100:.1f}% of prior {amt1})",
+                                description=f"Continuation hop {amt2} ({ratio * 100:.1f}% of prior {amt1})",
                             )
                         )
 
@@ -306,7 +322,7 @@ class PeelChainRule(IntelligenceRule):
 
                 fact = (
                     f"Discovered a sequential chain of {len(hops)} hops where at least {consecutive_peels} "
-                    f"consecutive transfers forward >= {continuation_threshold*100:.0f}% of funds."
+                    f"consecutive transfers forward >= {continuation_threshold * 100:.0f}% of funds."
                 )
                 interpretation = (
                     "The fund movement is consistent with a peel-chain pattern, a common method of "
@@ -327,7 +343,10 @@ class PeelChainRule(IntelligenceRule):
                         evidence_refs=peel_evidence,
                         rule_id=self.id,
                         rule_version=self.version,
-                        metadata={"chain_length": len(hops), "consecutive_peels": consecutive_peels},
+                        metadata={
+                            "chain_length": len(hops),
+                            "consecutive_peels": consecutive_peels,
+                        },
                         created_at=now_str,
                     )
                 )
@@ -338,6 +357,7 @@ class PeelChainRule(IntelligenceRule):
 # ==============================================================================
 # 5. ROUND AMOUNT PATTERN RULE (Section 9)
 # ==============================================================================
+
 
 class RoundAmountRule(IntelligenceRule):
     """
@@ -356,16 +376,19 @@ class RoundAmountRule(IntelligenceRule):
         ratio_threshold = float(context.config.get("round_amount_ratio_threshold", 0.70))
 
         for addr, features in context.wallet_features.items():
-            if features.total_tx_count >= min_tx_count and features.round_amount_ratio >= ratio_threshold:
+            if (
+                features.total_tx_count >= min_tx_count
+                and features.round_amount_ratio >= ratio_threshold
+            ):
                 finding_id = f"find_ra_{uuid.uuid4().hex[:8]}"
                 now_str = datetime.now(UTC).isoformat()
 
                 fact = (
                     f"Wallet {addr} participated in {features.total_tx_count} transfers where "
-                    f"{features.round_amount_ratio*100:.1f}% were exact multiples of 100 asset units."
+                    f"{features.round_amount_ratio * 100:.1f}% were exact multiples of 100 asset units."
                 )
                 interpretation = (
-                    f"Repeated round-amount values observed ({features.round_amount_ratio*100:.1f}%). "
+                    f"Repeated round-amount values observed ({features.round_amount_ratio * 100:.1f}%). "
                     f"While sometimes typical for fiat-pegged transfers, frequent round integers can indicate structured transfers."
                 )
 
@@ -376,7 +399,7 @@ class RoundAmountRule(IntelligenceRule):
                         type=FindingType.ROUND_AMOUNT_PATTERN,
                         severity=FindingSeverity.LOW,
                         title="Repeated Round-Amount Transfers",
-                        description=f"{features.round_amount_ratio*100:.0f}% of transfers from {addr} are round figures.",
+                        description=f"{features.round_amount_ratio * 100:.0f}% of transfers from {addr} are round figures.",
                         observed_fact=fact,
                         interpretation=interpretation,
                         confidence=0.75,
@@ -400,6 +423,7 @@ class RoundAmountRule(IntelligenceRule):
 # ==============================================================================
 # 6. REPEATED DESTINATION RULE (Section 10)
 # ==============================================================================
+
 
 class RepeatedDestinationRule(IntelligenceRule):
     """
@@ -464,6 +488,7 @@ class RepeatedDestinationRule(IntelligenceRule):
 # ==============================================================================
 # 7. VELOCITY SPIKE RULE (Section 11)
 # ==============================================================================
+
 
 class VelocitySpikeRule(IntelligenceRule):
     """

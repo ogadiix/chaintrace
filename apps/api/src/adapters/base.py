@@ -3,6 +3,7 @@ Abstract Base Blockchain Adapter Interface
 Guarantees provider-independence across all blockchain integrations.
 Source of truth: docs/architecture.md Section 4.4
 """
+
 from abc import ABC, abstractmethod
 
 from apps.api.src.adapters.models import NormalizedTransaction, WalletBalance

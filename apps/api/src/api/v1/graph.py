@@ -79,13 +79,17 @@ async def get_case_graph(
     case = result.scalar_one_or_none()
 
     if not case:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Case '{case_id}' not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Case '{case_id}' not found"
+        )
 
     if not case.suspect_wallet:
         return GraphResponse()
 
     # Retrieve graph centered on suspect wallet
-    return await service.get_wallet_graph(case.target_chain, case.suspect_wallet, max_hops=2, limit=limit)
+    return await service.get_wallet_graph(
+        case.target_chain, case.suspect_wallet, max_hops=2, limit=limit
+    )
 
 
 @router.post("/demo-network", response_model=IngestionResult)
@@ -97,3 +101,14 @@ async def load_demo_fraud_network_endpoint(
 ) -> IngestionResult:
     """Loads a deterministic 5-hop fraud scenario (Victim -> Mule -> Consolidation -> VASP)."""
     return await service.load_demo_fraud_network(chain=chain, case_id=case_id)
+
+
+@router.post("/demo-risk-scenario", response_model=IngestionResult)
+async def load_demo_risk_scenario_endpoint(
+    chain: str = Query(default="tron", description="Blockchain for Section 25 demo risk scenario"),
+    case_id: str | None = Query(default=None),
+    service: GraphService = Depends(get_graph_service),
+    current_user: User = Depends(get_current_user),
+) -> IngestionResult:
+    """Loads Section 25 demo investigation network (Victim -> Suspect -> Rapid Forward -> Fan-Out -> Consolidation -> Sanctioned Mixer)."""
+    return await service.load_demo_risk_scenario(chain=chain, case_id=case_id)

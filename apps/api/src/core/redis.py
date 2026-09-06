@@ -1,6 +1,7 @@
 """
 Redis Client & Health Check
 """
+
 import redis.asyncio as redis
 from apps.api.src.core.config import settings
 
@@ -10,11 +11,7 @@ _redis_client: redis.Redis | None = None
 def get_redis_client() -> redis.Redis:
     global _redis_client
     if _redis_client is None:
-        _redis_client = redis.from_url(
-            settings.REDIS_URL,
-            encoding="utf-8",
-            decode_responses=True
-        )
+        _redis_client = redis.from_url(settings.REDIS_URL, encoding="utf-8", decode_responses=True)
     return _redis_client
 
 
@@ -29,7 +26,7 @@ async def check_redis_health() -> dict:
             return {
                 "status": "mock_mode",
                 "info": "Redis unavailable; local in-memory fallback active",
-                "details": str(exc)
+                "details": str(exc),
             }
         return {"status": "disconnected", "error": str(exc)}
 

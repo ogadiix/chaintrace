@@ -2,6 +2,7 @@
 Case Management REST Endpoints
 Implements US-01 through US-03 foundation (create, list, retrieve, update cases).
 """
+
 from datetime import UTC, datetime
 
 from apps.api.src.core.audit import log_audit_event

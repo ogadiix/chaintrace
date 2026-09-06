@@ -4,6 +4,7 @@ Aggregates graph topology, transfer timings, and amount distributions into struc
 All monetary calculations preserve exact decimal precision without IEEE 754 floating-point errors.
 Source of truth: Master Prompt Phase 5 Section 4
 """
+
 from collections import defaultdict
 from datetime import datetime
 from decimal import Decimal, InvalidOperation

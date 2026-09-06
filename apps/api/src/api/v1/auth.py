@@ -1,6 +1,7 @@
 """
 Authentication Endpoints & Demo User Seeding
 """
+
 from apps.api.src.core.audit import log_audit_event
 from apps.api.src.core.database import get_db
 from apps.api.src.core.security import (

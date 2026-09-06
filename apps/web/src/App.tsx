@@ -20,6 +20,7 @@ import { CaseDetailDrawer } from './components/CaseDetailDrawer';
 import { TraceConsole } from './components/TraceConsole';
 import { IntelligencePanel } from './components/IntelligencePanel';
 import { VaspAttributionPanel } from './components/VaspAttributionPanel';
+import { RiskEnginePanel } from './components/RiskEnginePanel';
 
 export const App: React.FC = () => {
   // Navigation & View
@@ -359,44 +360,10 @@ export const App: React.FC = () => {
                   <IntelligencePanel activeCase={activeCase} authToken={authToken} />
                 )}
 
-                {/* Risk Score Summary Panel */}
-                <div className="bg-navy-900/90 border border-navy-700/80 rounded-lg p-4 flex flex-col">
-                  <div className="flex items-center justify-between border-b border-navy-800 pb-3 mb-3">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                      Explainable Risk Score
-                    </span>
-                    <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                      Rule Engine v1.0
-                    </span>
-                  </div>
-                  <div className="flex items-baseline gap-3 mb-2">
-                    <span className="text-3xl font-bold font-mono text-slate-200">
-                      {activeCase?.priority === 'CRITICAL' ? '85' : activeCase?.priority === 'HIGH' ? '70' : '45'}
-                    </span>
-                    <span className="text-xs font-mono text-slate-400">/ 100</span>
-                    <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
-                      activeCase?.priority === 'CRITICAL' 
-                        ? 'text-rose-400 bg-rose-500/10 border-rose-500/20' 
-                        : 'text-amber-400 bg-amber-500/10 border-amber-500/20'
-                    }`}>
-                      {activeCase?.priority || 'MEDIUM'} RISK
-                    </span>
-                  </div>
-                  <div className="text-xs text-slate-400 space-y-1.5 font-mono">
-                    <div className="flex justify-between">
-                      <span>• Rapid Forwarding Pattern:</span>
-                      <span className="text-amber-400">+15</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>• High Fan-Out Dispersion:</span>
-                      <span className="text-amber-400">+10</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>• VASP Cluster Match:</span>
-                      <span className="text-cyan-400">+5</span>
-                    </div>
-                  </div>
-                </div>
+                {/* Explainable Risk Engine Panel */}
+                {activeCase && (
+                  <RiskEnginePanel activeCase={activeCase} authToken={authToken} />
+                )}
 
                 {/* VASP Attribution Panel */}
                 {activeCase && (

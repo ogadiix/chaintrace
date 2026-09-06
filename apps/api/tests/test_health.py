@@ -1,6 +1,7 @@
 """
 Health check & API initialization tests
 """
+
 import pytest
 from apps.api.src.main import app
 from httpx import ASGITransport, AsyncClient

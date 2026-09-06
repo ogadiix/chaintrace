@@ -4,6 +4,7 @@ Handles queuing, asynchronous task dispatching, safe progress reporting,
 and immutable result retrieval.
 Source of truth: Master Prompt Phase 4 Sections 13, 14, 15, 25
 """
+
 import asyncio
 import logging
 import uuid
@@ -42,7 +43,12 @@ class TraceJobManager:
             chain=request.chain,
             seed_wallet=request.seed_wallet,
             status=JobStatus.QUEUED,
-            progress={"nodes_processed": 0, "edges_processed": 0, "current_hop": 0, "elapsed_ms": 0.0},
+            progress={
+                "nodes_processed": 0,
+                "edges_processed": 0,
+                "current_hop": 0,
+                "elapsed_ms": 0.0,
+            },
             created_at=now,
             updated_at=now,
         )
@@ -64,7 +70,9 @@ class TraceJobManager:
         async with self._lock:
             return [j for j in self._jobs.values() if j.investigation_id == investigation_id]
 
-    async def _run_trace_job(self, job_id: str, request: TraceRequest, investigation_id: str | None) -> None:
+    async def _run_trace_job(
+        self, job_id: str, request: TraceRequest, investigation_id: str | None
+    ) -> None:
         now = datetime.now(UTC).isoformat()
 
         async with self._lock:
@@ -113,7 +121,9 @@ class TraceJobManager:
             async with self._lock:
                 if job_id in self._jobs:
                     self._jobs[job_id].status = JobStatus.FAILED
-                    self._jobs[job_id].error_message = "Trace execution encountered an unexpected internal error"
+                    self._jobs[
+                        job_id
+                    ].error_message = "Trace execution encountered an unexpected internal error"
                     self._jobs[job_id].updated_at = finish_now
 
 

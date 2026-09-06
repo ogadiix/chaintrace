@@ -4,6 +4,7 @@ Defines core property graph entities, frontend graph response payloads,
 and ingestion metadata metrics for Neo4j.
 Source of truth: docs/architecture.md Section 4.6 & Master Prompt Sections 4-8
 """
+
 from typing import Any
 
 from chaintrace_shared import BlockchainType
@@ -13,11 +14,15 @@ from pydantic import BaseModel, ConfigDict, Field
 class GraphNode(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: str = Field(..., description="Globally unique node ID e.g. 'tron:TA4Wt1...' or 'tx:tron:8a1b...'")
+    id: str = Field(
+        ..., description="Globally unique node ID e.g. 'tron:TA4Wt1...' or 'tx:tron:8a1b...'"
+    )
     type: str = Field(..., description="'wallet' or 'transaction'")
     label: str = Field(..., description="Short display label for investigators")
     chain: str = Field(..., description="Blockchain identifier e.g. 'tron', 'ethereum', 'bsc'")
-    properties: dict[str, Any] = Field(default_factory=dict, description="Arbitrary forensic attributes")
+    properties: dict[str, Any] = Field(
+        default_factory=dict, description="Arbitrary forensic attributes"
+    )
 
 
 class GraphEdge(BaseModel):
@@ -27,7 +32,9 @@ class GraphEdge(BaseModel):
     source: str = Field(..., description="Source node ID")
     target: str = Field(..., description="Target node ID")
     type: str = Field(default="transfer", description="Relationship type: 'TRANSFER', 'SENT', 'TO'")
-    properties: dict[str, Any] = Field(default_factory=dict, description="Edge properties (amount, asset, fee, timestamp)")
+    properties: dict[str, Any] = Field(
+        default_factory=dict, description="Edge properties (amount, asset, fee, timestamp)"
+    )
 
 
 class GraphSummary(BaseModel):

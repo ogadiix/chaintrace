@@ -4,6 +4,7 @@ Tests Property Graph entities, Ingestion, Multi-Chain Separation, Idempotency,
 Parameterized Cypher Security, and Graph Query REST APIs.
 Source of truth: Master Prompt Section 20
 """
+
 from datetime import UTC, datetime
 
 import pytest
@@ -17,6 +18,7 @@ from httpx import ASGITransport, AsyncClient
 # ==============================================================================
 # 1. WALLET & TRANSACTION NODE TESTS (Sections 5, 6, 8)
 # ==============================================================================
+
 
 @pytest.mark.asyncio
 async def test_wallet_node_creation_and_multi_chain_separation():
@@ -90,6 +92,7 @@ async def test_transaction_node_creation_and_chain_separation():
 # 2. RELATIONSHIPS & INGESTION IDEMPOTENCY TESTS (Sections 7, 9, 10, 11)
 # ==============================================================================
 
+
 @pytest.mark.asyncio
 async def test_graph_ingestion_relationships_and_strict_idempotency():
     store = InMemoryGraphStore()
@@ -142,6 +145,7 @@ async def test_graph_ingestion_relationships_and_strict_idempotency():
 # 3. DEMO FRAUD NETWORK TEST (Section 19)
 # ==============================================================================
 
+
 @pytest.mark.asyncio
 async def test_demo_fraud_network_loader():
     store = InMemoryGraphStore()
@@ -161,6 +165,7 @@ async def test_demo_fraud_network_loader():
 # ==============================================================================
 # 4. GRAPH REST API ENDPOINT TESTS (Sections 12-16)
 # ==============================================================================
+
 
 @pytest.mark.asyncio
 async def test_graph_api_endpoints_and_defensive_limits():
@@ -208,5 +213,7 @@ async def test_graph_api_endpoints_and_defensive_limits():
         assert bad_limit_res.status_code == 422  # Pydantic Query le=200 validation
 
         # 6. Verify unauthenticated access rejection
-        unauth_res = await client.get("/api/v1/graph/wallet/tron/TA4Wt1DUCqz6YegbnsmqsWC5uUfbdBqPxm")
+        unauth_res = await client.get(
+            "/api/v1/graph/wallet/tron/TA4Wt1DUCqz6YegbnsmqsWC5uUfbdBqPxm"
+        )
         assert unauth_res.status_code in (401, 403)

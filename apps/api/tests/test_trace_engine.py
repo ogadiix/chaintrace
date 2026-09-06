@@ -13,6 +13,7 @@ Validates:
 10. Case Access Authorization Enforcement
 Source of truth: Master Prompt Phase 4 Sections 4-17, 22, 23
 """
+
 from datetime import UTC, datetime
 from decimal import Decimal
 
@@ -57,6 +58,7 @@ def _make_tx(
 # ==============================================================================
 # 1. BASIC TRACE & MAX HOPS
 # ==============================================================================
+
 
 @pytest.mark.asyncio
 async def test_basic_linear_trace_and_hop_counting():
@@ -128,6 +130,7 @@ async def test_max_hops_bound_enforcement():
 # ==============================================================================
 # 2. FILTERING: AMOUNT, ASSET, AND TIME
 # ==============================================================================
+
 
 @pytest.mark.asyncio
 async def test_decimal_amount_filtering():
@@ -216,6 +219,7 @@ async def test_time_window_filtering():
 # 3. GRAPH CYCLES & DIAMOND MULTI-PATHS
 # ==============================================================================
 
+
 @pytest.mark.asyncio
 async def test_cycle_detection_and_termination():
     store = InMemoryGraphStore()
@@ -279,6 +283,7 @@ async def test_diamond_multi_path_convergence():
 # ==============================================================================
 # 4. ASYNC JOB LIFECYCLE & INVESTIGATION API INTEGRATION
 # ==============================================================================
+
 
 @pytest.mark.asyncio
 async def test_async_trace_job_execution_and_api():

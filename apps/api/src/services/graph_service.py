@@ -4,9 +4,10 @@ Orchestrates graph ingestion, idempotent upserts, multi-chain separation,
 parameterized Cypher queries, and graph retrieval with defensive limits.
 Source of truth: Master Prompt Sections 1, 9-18 & docs/architecture.md Section 4.6
 """
+
 import logging
 import time
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from apps.api.src.adapters.models import NormalizedTransaction
 from apps.api.src.core.config import settings
@@ -167,7 +168,9 @@ class GraphService:
                         wallets_created += counters.nodes_created
                         edges_created += counters.relationships_created
             except Exception as exc:
-                logger.error("Neo4j ingestion transaction failed: %s. Falling back to in-memory store.", exc)
+                logger.error(
+                    "Neo4j ingestion transaction failed: %s. Falling back to in-memory store.", exc
+                )
                 use_neo4j = False
 
         if not use_neo4j:
@@ -247,7 +250,9 @@ class GraphService:
                 LIMIT $limit
                 """
                 async with driver.session(database=settings.NEO4J_DATABASE) as session:
-                    result = await session.run(cypher_query, {"center_id": center_id, "limit": bounded_limit})
+                    result = await session.run(
+                        cypher_query, {"center_id": center_id, "limit": bounded_limit}
+                    )
                     records = await result.data()
                     if records:
                         nodes_map: dict[str, GraphNode] = {}
@@ -296,7 +301,9 @@ class GraphService:
             except Exception as exc:
                 logger.debug("Neo4j query failed (%s). Falling back to in-memory store.", exc)
 
-        return await self._in_memory.get_wallet_neighborhood(chain, address, max_hops=max_hops, limit=bounded_limit)
+        return await self._in_memory.get_wallet_neighborhood(
+            chain, address, max_hops=max_hops, limit=bounded_limit
+        )
 
     async def get_transaction_graph(self, chain: str, tx_hash: str) -> GraphResponse:
         """Retrieves transaction node with connected source and destination wallets."""
@@ -314,7 +321,9 @@ class GraphService:
                 LIMIT 10
                 """
                 async with driver.session(database=settings.NEO4J_DATABASE) as session:
-                    res = await session.run(cypher_query, {"chain": clean_chain, "tx_hash": clean_hash})
+                    res = await session.run(
+                        cypher_query, {"chain": clean_chain, "tx_hash": clean_hash}
+                    )
                     records = await res.data()
                     if records:
                         nodes_map: dict[str, GraphNode] = {}
@@ -402,7 +411,7 @@ class GraphService:
                 block_number=54120001,
                 timestamp=now,
                 from_address="TA4Wt1DUCqz6YegbnsmqsWC5uUfbdBqPxm",  # Victim
-                to_address="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",    # Suspect Primary Mule
+                to_address="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",  # Suspect Primary Mule
                 asset="USDT",
                 token_contract="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
                 amount="100000.00",
@@ -417,8 +426,8 @@ class GraphService:
                 tx_hash="demo_tx_hop2_suspect_to_layer1_002",
                 block_number=54120025,
                 timestamp=now,
-                from_address="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",    # Suspect Primary Mule
-                to_address="T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuW9E",    # Layer 1 Mule
+                from_address="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",  # Suspect Primary Mule
+                to_address="T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuW9E",  # Layer 1 Mule
                 asset="USDT",
                 token_contract="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
                 amount="48000.00",
@@ -433,8 +442,8 @@ class GraphService:
                 tx_hash="demo_tx_hop3_suspect_to_layer2_003",
                 block_number=54120030,
                 timestamp=now,
-                from_address="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",    # Suspect Primary Mule
-                to_address="TLyqzVGLV1srkB7dToTAwdg29TFVKbh58A",    # Layer 1 Mule B
+                from_address="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",  # Suspect Primary Mule
+                to_address="TLyqzVGLV1srkB7dToTAwdg29TFVKbh58A",  # Layer 1 Mule B
                 asset="USDT",
                 token_contract="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
                 amount="51000.00",
@@ -449,7 +458,7 @@ class GraphService:
                 tx_hash="demo_tx_hop4_layer_to_consolidator_004",
                 block_number=54120090,
                 timestamp=now,
-                from_address="T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuW9E",    # Layer 1 Mule A
+                from_address="T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuW9E",  # Layer 1 Mule A
                 to_address="TConsolidationWallet999999999999999",  # Consolidation
                 asset="USDT",
                 token_contract="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
@@ -466,7 +475,7 @@ class GraphService:
                 block_number=54120150,
                 timestamp=now,
                 from_address="TConsolidationWallet999999999999999",  # Consolidation
-                to_address="TVaspBinanceDepositHotWallet88888888", # VASP Exchange Deposit
+                to_address="TVaspBinanceDepositHotWallet88888888",  # VASP Exchange Deposit
                 asset="USDT",
                 token_contract="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
                 amount="95000.00",
@@ -475,6 +484,163 @@ class GraphService:
                 provider="demo_fraud_generator",
                 is_demo=True,
                 raw_reference={"note": "[DEMO DATA] Liquidation deposit into exchange"},
+            ),
+        ]
+
+        return await self.ingest_transactions(demo_transactions, case_id=case_id)
+
+    async def load_demo_risk_scenario(
+        self,
+        chain: str = "tron",
+        case_id: str | None = None,
+    ) -> IngestionResult:
+        """
+        Creates the Section 25 Deterministic Demo Scenario:
+        Victim -> Suspect -> Rapid forwarding -> Fan-out (3 mules) -> Consolidation (3-to-1) -> Sanctioned Mixer Destination
+        Strictly labeled with is_demo=True and [DEMO DATA] tags.
+        """
+        base_time = datetime(2026, 3, 1, 12, 0, 0, tzinfo=UTC)
+        chain_enum = BlockchainType(chain.lower())
+
+        t0 = base_time.isoformat()
+        t1 = (base_time + timedelta(seconds=15)).isoformat()
+        t2 = (base_time + timedelta(seconds=45)).isoformat()
+        t3 = (base_time + timedelta(seconds=90)).isoformat()
+
+        demo_transactions = [
+            # 1. Victim -> Suspect Mule
+            NormalizedTransaction(
+                chain=chain_enum,
+                tx_hash="demo_risk_tx_01_victim_to_suspect",
+                block_number=55000001,
+                timestamp=t0,
+                from_address="TA4Wt1DUCqz6YegbnsmqsWC5uUfbdBqPxm",
+                to_address="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+                asset="USDT",
+                token_contract="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+                amount="100000.00",
+                fee="2.5",
+                direction="OUTGOING",
+                provider="demo_risk_generator",
+                is_demo=True,
+                raw_reference={"note": "[DEMO DATA] Victim initial stolen funds transfer"},
+            ),
+            # 2. Suspect Fan-out to 3 mules within 15s (Rapid Forwarding + Fan-Out)
+            NormalizedTransaction(
+                chain=chain_enum,
+                tx_hash="demo_risk_tx_02_suspect_fanout_1",
+                block_number=55000005,
+                timestamp=t1,
+                from_address="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+                to_address="T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuW9E",
+                asset="USDT",
+                token_contract="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+                amount="33000.00",
+                fee="2.5",
+                direction="OUTGOING",
+                provider="demo_risk_generator",
+                is_demo=True,
+                raw_reference={"note": "[DEMO DATA] Suspect rapid fan-out dispersal A"},
+            ),
+            NormalizedTransaction(
+                chain=chain_enum,
+                tx_hash="demo_risk_tx_03_suspect_fanout_2",
+                block_number=55000006,
+                timestamp=t1,
+                from_address="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+                to_address="TLyqzVGLV1srkB7dToTAwdg29TFVKbh58A",
+                asset="USDT",
+                token_contract="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+                amount="33000.00",
+                fee="2.5",
+                direction="OUTGOING",
+                provider="demo_risk_generator",
+                is_demo=True,
+                raw_reference={"note": "[DEMO DATA] Suspect rapid fan-out dispersal B"},
+            ),
+            NormalizedTransaction(
+                chain=chain_enum,
+                tx_hash="demo_risk_tx_04_suspect_fanout_3",
+                block_number=55000007,
+                timestamp=t1,
+                from_address="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+                to_address="TLayer1Mule33333333333333333333333",
+                asset="USDT",
+                token_contract="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+                amount="34000.00",
+                fee="2.5",
+                direction="OUTGOING",
+                provider="demo_risk_generator",
+                is_demo=True,
+                raw_reference={"note": "[DEMO DATA] Suspect rapid fan-out dispersal C"},
+            ),
+            # 3. Consolidation (Fan-In): 3 mules forward to single consolidation wallet
+            NormalizedTransaction(
+                chain=chain_enum,
+                tx_hash="demo_risk_tx_05_mule1_to_consolidation",
+                block_number=55000020,
+                timestamp=t2,
+                from_address="T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuW9E",
+                to_address="TConsolidationWallet999999999999999",
+                asset="USDT",
+                token_contract="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+                amount="32800.00",
+                fee="3.0",
+                direction="OUTGOING",
+                provider="demo_risk_generator",
+                is_demo=True,
+                raw_reference={"note": "[DEMO DATA] Mule 1 consolidation transfer"},
+            ),
+            NormalizedTransaction(
+                chain=chain_enum,
+                tx_hash="demo_risk_tx_06_mule2_to_consolidation",
+                block_number=55000021,
+                timestamp=t2,
+                from_address="TLyqzVGLV1srkB7dToTAwdg29TFVKbh58A",
+                to_address="TConsolidationWallet999999999999999",
+                asset="USDT",
+                token_contract="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+                amount="32800.00",
+                fee="3.0",
+                direction="OUTGOING",
+                provider="demo_risk_generator",
+                is_demo=True,
+                raw_reference={"note": "[DEMO DATA] Mule 2 consolidation transfer"},
+            ),
+            NormalizedTransaction(
+                chain=chain_enum,
+                tx_hash="demo_risk_tx_07_mule3_to_consolidation",
+                block_number=55000022,
+                timestamp=t2,
+                from_address="TLayer1Mule33333333333333333333333",
+                to_address="TConsolidationWallet999999999999999",
+                asset="USDT",
+                token_contract="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+                amount="33800.00",
+                fee="3.0",
+                direction="OUTGOING",
+                provider="demo_risk_generator",
+                is_demo=True,
+                raw_reference={"note": "[DEMO DATA] Mule 3 consolidation transfer"},
+            ),
+            # 4. Final transfer to Known Risk-Labelled Destination (Sanctioned Mixer)
+            NormalizedTransaction(
+                chain=chain_enum,
+                tx_hash="demo_risk_tx_08_consolidation_to_sanctioned_mixer",
+                block_number=55000050,
+                timestamp=t3,
+                from_address="TConsolidationWallet999999999999999",
+                to_address="TIllicitSanctionedMixerDestination77777",
+                asset="USDT",
+                token_contract="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+                amount="99000.00",
+                fee="4.5",
+                direction="OUTGOING",
+                provider="demo_risk_generator",
+                is_demo=True,
+                raw_reference={
+                    "note": "[DEMO DATA] Transfer into OFAC-sanctioned mixer destination"
+                },
             ),
         ]
 

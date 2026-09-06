@@ -3,6 +3,7 @@ Resilience Layer: Retries, Rate Limiting, and Evidentiary Caching
 Protects external blockchain providers, mitigates network jitter, and caches immutable data.
 Source of truth: Master Prompt Sections 8, 9, 10
 """
+
 import asyncio
 import logging
 import time
@@ -46,7 +47,9 @@ class RetryPolicy:
         self.max_delay = max_delay
         self.backoff_multiplier = backoff_multiplier
 
-    async def execute(self, func: Callable[[], Any], operation_name: str = "blockchain_call") -> Any:
+    async def execute(
+        self, func: Callable[[], Any], operation_name: str = "blockchain_call"
+    ) -> Any:
         last_exception = None
         delay = self.initial_delay
 
@@ -56,7 +59,12 @@ class RetryPolicy:
             except self.NON_RETRYABLE_EXCEPTIONS:
                 # Permanent error - do not retry
                 raise
-            except (RateLimitedError, ProviderUnavailableError, ProviderTimeoutError, TimeoutError) as exc:
+            except (
+                RateLimitedError,
+                ProviderUnavailableError,
+                ProviderTimeoutError,
+                TimeoutError,
+            ) as exc:
                 last_exception = exc
                 if attempt == self.max_retries:
                     logger.warning(
@@ -97,7 +105,9 @@ class RetryPolicy:
             raise last_exception
         if isinstance(last_exception, (TimeoutError, asyncio.TimeoutError)):
             raise ProviderTimeoutError(f"Provider timed out during {operation_name}")
-        raise ProviderUnavailableError(f"Provider failed after {self.max_retries} attempts: {last_exception}")
+        raise ProviderUnavailableError(
+            f"Provider failed after {self.max_retries} attempts: {last_exception}"
+        )
 
 
 class ProviderRateLimiter:
@@ -154,9 +164,13 @@ class BlockchainCache:
                 return None
             return value
 
-    async def set(self, namespace: str, identifier: str, value: Any, ttl: int | None = None) -> None:
+    async def set(
+        self, namespace: str, identifier: str, value: Any, ttl: int | None = None
+    ) -> None:
         key = self._make_key(namespace, identifier)
-        effective_ttl = ttl if ttl is not None else (self.tx_ttl if namespace == "tx" else self.default_ttl)
+        effective_ttl = (
+            ttl if ttl is not None else (self.tx_ttl if namespace == "tx" else self.default_ttl)
+        )
         async with self._lock:
             # Memory safety: Evict expired keys if cache grows large
             if len(self._cache) > 2000:

@@ -49,7 +49,9 @@ dist/
 # Database data / volumes
 *.sqlite3
 *.db
-data/
+data/*
+!data/vasp_labels_v1.json
+
 
 # OS and Editor
 .DS_Store

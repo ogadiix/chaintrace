@@ -1,6 +1,7 @@
 """
 Case & Complaint Metadata SQLAlchemy Model
 """
+
 import uuid
 from datetime import UTC, datetime
 
@@ -26,20 +27,24 @@ class Case(Base):
     initial_tx_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
     status: Mapped[str] = mapped_column(String(50), nullable=False, default="ACTIVE")
     priority: Mapped[str] = mapped_column(String(50), nullable=False, default="MEDIUM")
-    
-    assigned_to_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("users.id"), nullable=True)
+
+    assigned_to_id: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("users.id"), nullable=True
+    )
     created_by_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), nullable=False)
-    
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), 
-        default=lambda: datetime.now(UTC), 
-        onupdate=lambda: datetime.now(UTC), 
-        nullable=False
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+        nullable=False,
     )
 
     created_by = relationship("User", back_populates="created_cases", foreign_keys=[created_by_id])
-    assigned_to = relationship("User", back_populates="assigned_cases", foreign_keys=[assigned_to_id])
+    assigned_to = relationship(
+        "User", back_populates="assigned_cases", foreign_keys=[assigned_to_id]
+    )
     audit_logs = relationship("AuditLog", back_populates="case", cascade="all, delete-orphan")

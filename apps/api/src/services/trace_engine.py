@@ -5,6 +5,7 @@ high-precision Decimal threshold filtering, asset segregation, and per-path cycl
 Supports both direct Neo4j Cypher and InMemoryGraphStore execution.
 Source of truth: Master Prompt Phase 4 Sections 4-12, 18-20
 """
+
 import logging
 import time
 import uuid
@@ -102,7 +103,9 @@ class TraceEngine:
                 result.configuration = request
                 return result
             except Exception as exc:
-                logger.warning("Neo4j trace failed (%s). Falling back to in-memory trace engine.", exc)
+                logger.warning(
+                    "Neo4j trace failed (%s). Falling back to in-memory trace engine.", exc
+                )
 
         # In-memory execution
         result = await self._traverse_in_memory(
@@ -170,24 +173,38 @@ class TraceEngine:
         safety_limit_reached = False
 
         while queue:
-            if len(discovered_paths) >= max_paths_limit or len(discovered_nodes) >= max_nodes_limit or len(discovered_edges) >= max_edges_limit:
+            if (
+                len(discovered_paths) >= max_paths_limit
+                or len(discovered_nodes) >= max_nodes_limit
+                or len(discovered_edges) >= max_edges_limit
+            ):
                 safety_limit_reached = True
                 break
 
             curr_wallet_id, hop_level, path_hops, path_visited = queue.pop(0)
-            curr_address = curr_wallet_id.split(":", 1)[1] if ":" in curr_wallet_id else curr_wallet_id
+            curr_address = (
+                curr_wallet_id.split(":", 1)[1] if ":" in curr_wallet_id else curr_wallet_id
+            )
 
             if hop_level >= max_hops:
                 discovered_paths.append(
                     TracePath(
-                        path_id=f"path_{len(discovered_paths)+1}_{uuid.uuid4().hex[:6]}",
+                        path_id=f"path_{len(discovered_paths) + 1}_{uuid.uuid4().hex[:6]}",
                         hops=path_hops,
-                        total_amount=str(sum((_parse_amount(h.amount) for h in path_hops), Decimal(0))),
+                        total_amount=str(
+                            sum((_parse_amount(h.amount) for h in path_hops), Decimal(0))
+                        ),
                         terminal_wallet=curr_address,
                         terminal_reason=TerminalReason.MAX_HOPS_REACHED,
                     )
                 )
-                terminals.append(TerminalNodeInfo(wallet=curr_address, reason=TerminalReason.MAX_HOPS_REACHED, hop_level=hop_level))
+                terminals.append(
+                    TerminalNodeInfo(
+                        wallet=curr_address,
+                        reason=TerminalReason.MAX_HOPS_REACHED,
+                        hop_level=hop_level,
+                    )
+                )
                 continue
 
             # Candidate transfers connected to curr_wallet_id
@@ -201,7 +218,14 @@ class TraceEngine:
                     continue
 
                 is_match = False
-                if direction == TraceDirection.FORWARD and edge["source"] == curr_wallet_id or direction == TraceDirection.BACKWARD and edge["target"] == curr_wallet_id or direction == TraceDirection.BOTH and (edge["source"] == curr_wallet_id or edge["target"] == curr_wallet_id):
+                if (
+                    direction == TraceDirection.FORWARD
+                    and edge["source"] == curr_wallet_id
+                    or direction == TraceDirection.BACKWARD
+                    and edge["target"] == curr_wallet_id
+                    or direction == TraceDirection.BOTH
+                    and (edge["source"] == curr_wallet_id or edge["target"] == curr_wallet_id)
+                ):
                     is_match = True
 
                 if not is_match:
@@ -249,21 +273,29 @@ class TraceEngine:
                 if unfiltered_transfers_count > 0:
                     if below_amount_count > 0 and len(qualifying_candidates) == 0:
                         reason = TerminalReason.BELOW_AMOUNT_THRESHOLD
-                        details = f"{below_amount_count} transfers were below threshold {min_amount}"
+                        details = (
+                            f"{below_amount_count} transfers were below threshold {min_amount}"
+                        )
                     elif outside_time_count > 0 and len(qualifying_candidates) == 0:
                         reason = TerminalReason.OUTSIDE_TIME_WINDOW
                         details = f"{outside_time_count} transfers were outside requested window"
 
                 discovered_paths.append(
                     TracePath(
-                        path_id=f"path_{len(discovered_paths)+1}_{uuid.uuid4().hex[:6]}",
+                        path_id=f"path_{len(discovered_paths) + 1}_{uuid.uuid4().hex[:6]}",
                         hops=path_hops,
-                        total_amount=str(sum((_parse_amount(h.amount) for h in path_hops), Decimal(0))),
+                        total_amount=str(
+                            sum((_parse_amount(h.amount) for h in path_hops), Decimal(0))
+                        ),
                         terminal_wallet=curr_address,
                         terminal_reason=reason,
                     )
                 )
-                terminals.append(TerminalNodeInfo(wallet=curr_address, reason=reason, hop_level=hop_level, details=details))
+                terminals.append(
+                    TerminalNodeInfo(
+                        wallet=curr_address, reason=reason, hop_level=hop_level, details=details
+                    )
+                )
                 continue
 
             # Process candidates
@@ -274,7 +306,9 @@ class TraceEngine:
                 else:
                     next_wallet_id = edge["target"]
 
-                next_address = next_wallet_id.split(":", 1)[1] if ":" in next_wallet_id else next_wallet_id
+                next_address = (
+                    next_wallet_id.split(":", 1)[1] if ":" in next_wallet_id else next_wallet_id
+                )
 
                 # Cycle detection: per-path check
                 if next_wallet_id in path_visited:
@@ -293,9 +327,11 @@ class TraceEngine:
                     cycle_hops = path_hops + [cycle_hop]
                     discovered_paths.append(
                         TracePath(
-                            path_id=f"path_{len(discovered_paths)+1}_{uuid.uuid4().hex[:6]}",
+                            path_id=f"path_{len(discovered_paths) + 1}_{uuid.uuid4().hex[:6]}",
                             hops=cycle_hops,
-                            total_amount=str(sum((_parse_amount(h.amount) for h in cycle_hops), Decimal(0))),
+                            total_amount=str(
+                                sum((_parse_amount(h.amount) for h in cycle_hops), Decimal(0))
+                            ),
                             terminal_wallet=next_address,
                             terminal_reason=TerminalReason.CYCLE_DETECTED,
                         )
@@ -318,7 +354,9 @@ class TraceEngine:
                     discovered_nodes[next_wallet_id] = {
                         "id": next_wallet_id,
                         "type": "wallet",
-                        "label": next_address[:8] + "..." if len(next_address) > 12 else next_address,
+                        "label": next_address[:8] + "..."
+                        if len(next_address) > 12
+                        else next_address,
                         "chain": chain,
                         "properties": {"address": next_address, "chain": chain},
                     }
@@ -341,14 +379,18 @@ class TraceEngine:
                 queue.append((next_wallet_id, hop_level + 1, path_hops + [hop], new_visited))
 
         # Rank paths: highest total amount, then shortest hop length
-        discovered_paths.sort(key=lambda p: (_parse_amount(p.total_amount), -len(p.hops)), reverse=True)
+        discovered_paths.sort(
+            key=lambda p: (_parse_amount(p.total_amount), -len(p.hops)), reverse=True
+        )
 
         max_hop_reached = max([len(p.hops) for p in discovered_paths], default=0)
         status = JobStatus.PARTIAL if safety_limit_reached else JobStatus.COMPLETED
 
         return TraceResult(
             seed={"chain": chain, "address": seed},
-            configuration=TraceRequest(chain=BlockchainType(chain), seed_wallet=seed, max_hops=max_hops),
+            configuration=TraceRequest(
+                chain=BlockchainType(chain), seed_wallet=seed, max_hops=max_hops
+            ),
             nodes=list(discovered_nodes.values()),
             edges=list(discovered_edges.values()),
             paths=discovered_paths[:max_paths_limit],
@@ -360,7 +402,9 @@ class TraceEngine:
                 max_hop_reached=max_hop_reached,
             ),
             status=status,
-            message="Trace completed partially because safety limit was reached." if safety_limit_reached else None,
+            message="Trace completed partially because safety limit was reached."
+            if safety_limit_reached
+            else None,
         )
 
     async def _traverse_neo4j(
@@ -420,24 +464,38 @@ class TraceEngine:
 
         async with driver.session(database=settings.NEO4J_DATABASE) as session:
             while queue:
-                if len(discovered_paths) >= max_paths_limit or len(discovered_nodes) >= max_nodes_limit or len(discovered_edges) >= max_edges_limit:
+                if (
+                    len(discovered_paths) >= max_paths_limit
+                    or len(discovered_nodes) >= max_nodes_limit
+                    or len(discovered_edges) >= max_edges_limit
+                ):
                     safety_limit_reached = True
                     break
 
                 curr_wallet_id, hop_level, path_hops, path_visited = queue.pop(0)
-                curr_address = curr_wallet_id.split(":", 1)[1] if ":" in curr_wallet_id else curr_wallet_id
+                curr_address = (
+                    curr_wallet_id.split(":", 1)[1] if ":" in curr_wallet_id else curr_wallet_id
+                )
 
                 if hop_level >= max_hops:
                     discovered_paths.append(
                         TracePath(
-                            path_id=f"path_{len(discovered_paths)+1}_{uuid.uuid4().hex[:6]}",
+                            path_id=f"path_{len(discovered_paths) + 1}_{uuid.uuid4().hex[:6]}",
                             hops=path_hops,
-                            total_amount=str(sum((_parse_amount(h.amount) for h in path_hops), Decimal(0))),
+                            total_amount=str(
+                                sum((_parse_amount(h.amount) for h in path_hops), Decimal(0))
+                            ),
                             terminal_wallet=curr_address,
                             terminal_reason=TerminalReason.MAX_HOPS_REACHED,
                         )
                     )
-                    terminals.append(TerminalNodeInfo(wallet=curr_address, reason=TerminalReason.MAX_HOPS_REACHED, hop_level=hop_level))
+                    terminals.append(
+                        TerminalNodeInfo(
+                            wallet=curr_address,
+                            reason=TerminalReason.MAX_HOPS_REACHED,
+                            hop_level=hop_level,
+                        )
+                    )
                     continue
 
                 params = {
@@ -455,9 +513,11 @@ class TraceEngine:
                 if not records:
                     discovered_paths.append(
                         TracePath(
-                            path_id=f"path_{len(discovered_paths)+1}_{uuid.uuid4().hex[:6]}",
+                            path_id=f"path_{len(discovered_paths) + 1}_{uuid.uuid4().hex[:6]}",
                             hops=path_hops,
-                            total_amount=str(sum((_parse_amount(h.amount) for h in path_hops), Decimal(0))),
+                            total_amount=str(
+                                sum((_parse_amount(h.amount) for h in path_hops), Decimal(0))
+                            ),
                             terminal_wallet=curr_address,
                             terminal_reason=TerminalReason.NO_OUTGOING_TRANSFERS,
                         )
@@ -491,9 +551,11 @@ class TraceEngine:
                         cycle_hops = path_hops + [cycle_hop]
                         discovered_paths.append(
                             TracePath(
-                                path_id=f"path_{len(discovered_paths)+1}_{uuid.uuid4().hex[:6]}",
+                                path_id=f"path_{len(discovered_paths) + 1}_{uuid.uuid4().hex[:6]}",
                                 hops=cycle_hops,
-                                total_amount=str(sum((_parse_amount(h.amount) for h in cycle_hops), Decimal(0))),
+                                total_amount=str(
+                                    sum((_parse_amount(h.amount) for h in cycle_hops), Decimal(0))
+                                ),
                                 terminal_wallet=next_address,
                                 terminal_reason=TerminalReason.CYCLE_DETECTED,
                             )
@@ -544,13 +606,17 @@ class TraceEngine:
                     new_visited.add(next_wallet_id)
                     queue.append((next_wallet_id, hop_level + 1, path_hops + [hop], new_visited))
 
-        discovered_paths.sort(key=lambda p: (_parse_amount(p.total_amount), -len(p.hops)), reverse=True)
+        discovered_paths.sort(
+            key=lambda p: (_parse_amount(p.total_amount), -len(p.hops)), reverse=True
+        )
         max_hop_reached = max([len(p.hops) for p in discovered_paths], default=0)
         elapsed = (time.monotonic() - start_mono) * 1000.0
 
         return TraceResult(
             seed={"chain": chain, "address": seed},
-            configuration=TraceRequest(chain=BlockchainType(chain), seed_wallet=seed, max_hops=max_hops),
+            configuration=TraceRequest(
+                chain=BlockchainType(chain), seed_wallet=seed, max_hops=max_hops
+            ),
             nodes=list(discovered_nodes.values()),
             edges=list(discovered_edges.values()),
             paths=discovered_paths[:max_paths_limit],
@@ -563,7 +629,9 @@ class TraceEngine:
                 duration_ms=round(elapsed, 2),
             ),
             status=JobStatus.PARTIAL if safety_limit_reached else JobStatus.COMPLETED,
-            message="Trace completed partially because safety limit was reached." if safety_limit_reached else None,
+            message="Trace completed partially because safety limit was reached."
+            if safety_limit_reached
+            else None,
         )
 
 

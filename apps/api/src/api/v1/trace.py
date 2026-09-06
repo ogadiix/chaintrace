@@ -4,6 +4,7 @@ Provides asynchronous trace initiation, status polling, and synchronous trace pr
 Enforces strict case-access authorization and input validation.
 Source of truth: Master Prompt Phase 4 Sections 13, 14, 16, 17
 """
+
 from apps.api.src.core.audit import log_audit_event
 from apps.api.src.core.database import get_db
 from apps.api.src.core.security import get_current_user, require_role
@@ -35,7 +36,9 @@ async def _verify_case_access(case_id: str, current_user: User, db: AsyncSession
     return case
 
 
-@router.post("/investigations/{case_id}/trace", response_model=TraceJob, status_code=status.HTTP_202_ACCEPTED)
+@router.post(
+    "/investigations/{case_id}/trace", response_model=TraceJob, status_code=status.HTTP_202_ACCEPTED
+)
 async def create_investigation_trace_job(
     case_id: str,
     payload: TraceRequest,

@@ -4,6 +4,7 @@ Supports Ethereum, Binance Smart Chain (BSC), and Polygon through standard JSON-
 Handles native coin transfers and ERC-20 token transfers (USDT) with Decimal precision.
 Source of truth: Master Prompt Section 4, docs/architecture.md Section 4.4
 """
+
 import logging
 import re
 from datetime import UTC, datetime
@@ -70,7 +71,9 @@ class EvmAdapter(BlockchainAdapter):
         rate_limiter: ProviderRateLimiter | None = None,
     ):
         if chain not in CHAIN_SPECS:
-            raise ValueError(f"Unsupported EVM chain: {chain}. Must be one of {list(CHAIN_SPECS.keys())}")
+            raise ValueError(
+                f"Unsupported EVM chain: {chain}. Must be one of {list(CHAIN_SPECS.keys())}"
+            )
         self._chain = chain
         self._spec = CHAIN_SPECS[chain]
         self._rpc_url = (rpc_url or self._spec["default_rpc"]).rstrip("/")
@@ -112,27 +115,43 @@ class EvmAdapter(BlockchainAdapter):
         async def _req() -> Any:
             try:
                 async with httpx.AsyncClient(timeout=settings.PROVIDER_TIMEOUT_SECONDS) as client:
-                    res = await client.post(self._rpc_url, json=payload, headers={"Content-Type": "application/json"})
+                    res = await client.post(
+                        self._rpc_url, json=payload, headers={"Content-Type": "application/json"}
+                    )
                     if res.status_code == 429:
-                        raise RateLimitedError(f"EVM RPC rate limit reached for {self._chain.value}")
+                        raise RateLimitedError(
+                            f"EVM RPC rate limit reached for {self._chain.value}"
+                        )
                     if res.status_code >= 500:
-                        raise ProviderUnavailableError(f"EVM RPC server error {res.status_code} on {self._chain.value}")
+                        raise ProviderUnavailableError(
+                            f"EVM RPC server error {res.status_code} on {self._chain.value}"
+                        )
                     if res.status_code != 200:
-                        raise ProviderUnavailableError(f"EVM RPC unexpected status {res.status_code}")
+                        raise ProviderUnavailableError(
+                            f"EVM RPC unexpected status {res.status_code}"
+                        )
 
                     body = res.json()
                     if not isinstance(body, dict):
-                        raise MalformedResponseError(f"Invalid JSON-RPC response from {self._chain.value}")
+                        raise MalformedResponseError(
+                            f"Invalid JSON-RPC response from {self._chain.value}"
+                        )
                     if "error" in body:
                         err_msg = body["error"].get("message", "Unknown RPC error")
                         raise ProviderUnavailableError(f"RPC error: {err_msg}")
                     return body.get("result")
             except httpx.TimeoutException as exc:
-                raise ProviderTimeoutError(f"EVM RPC call {method} timed out on {self._chain.value}") from exc
+                raise ProviderTimeoutError(
+                    f"EVM RPC call {method} timed out on {self._chain.value}"
+                ) from exc
             except httpx.NetworkError as exc:
-                raise ProviderUnavailableError(f"EVM RPC network unreachable for {self._chain.value}") from exc
+                raise ProviderUnavailableError(
+                    f"EVM RPC network unreachable for {self._chain.value}"
+                ) from exc
 
-        return await self._retry_policy.execute(_req, operation_name=f"RPC:{self._chain.value}:{method}")
+        return await self._retry_policy.execute(
+            _req, operation_name=f"RPC:{self._chain.value}:{method}"
+        )
 
     async def get_balance(self, address: str) -> WalletBalance:
         if not self.validate_address(address):
@@ -155,7 +174,9 @@ class EvmAdapter(BlockchainAdapter):
 
                 padded_addr = clean_address[2:].zfill(64)
                 data = f"0x70a08231{padded_addr}"
-                token_hex = await self._rpc_call("eth_call", [{"to": usdt_contract, "data": data}, "latest"])
+                token_hex = await self._rpc_call(
+                    "eth_call", [{"to": usdt_contract, "data": data}, "latest"]
+                )
                 if token_hex and token_hex != "0x":
                     token_raw = int(token_hex, 16)
                     token_balances["USDT"] = str(Decimal(token_raw) / Decimal(10**usdt_decimals))
@@ -267,7 +288,9 @@ class EvmAdapter(BlockchainAdapter):
         try:
             tx_data = await self._rpc_call("eth_getTransactionByHash", [clean_hash])
             if tx_data and isinstance(tx_data, dict):
-                block_num = int(tx_data.get("blockNumber", "0x0"), 16) if tx_data.get("blockNumber") else 0
+                block_num = (
+                    int(tx_data.get("blockNumber", "0x0"), 16) if tx_data.get("blockNumber") else 0
+                )
                 wei_int = int(tx_data.get("value", "0x0"), 16)
                 eth_amount = str(Decimal(wei_int) / Decimal(10**native_decimals))
                 from_addr = tx_data.get("from", "UNKNOWN")

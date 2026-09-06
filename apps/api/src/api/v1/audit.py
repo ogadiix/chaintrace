@@ -1,6 +1,7 @@
 """
 Audit Log Inspection Endpoints
 """
+
 import json
 
 from apps.api.src.core.database import get_db

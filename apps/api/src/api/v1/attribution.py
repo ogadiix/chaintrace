@@ -4,6 +4,7 @@ Provides case-level and wallet-level VASP attribution queries with full provenan
 Enforces strict RBAC and case-ownership validation.
 Source of truth: Master Prompt Phase 6 Sections 14, 15, 20
 """
+
 from apps.api.src.core.audit import log_audit_event
 from apps.api.src.core.database import get_db
 from apps.api.src.core.security import get_current_user, require_role
@@ -39,7 +40,9 @@ async def _verify_case(case_id: str, db: AsyncSession) -> Case:
     return case
 
 
-@router.post("/investigations/{case_id}/attribution/analyze", response_model=AttributionAnalysisResult)
+@router.post(
+    "/investigations/{case_id}/attribution/analyze", response_model=AttributionAnalysisResult
+)
 async def analyze_case_attribution_endpoint(
     case_id: str,
     request: Request,

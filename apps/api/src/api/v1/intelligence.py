@@ -4,6 +4,7 @@ Provides analysis of case graph traces and queries for discovered suspicious pat
 Enforces strict RBAC and evidentiary traceability.
 Source of truth: Master Prompt Phase 5 Sections 16, 17, 21
 """
+
 from typing import Any
 
 from apps.api.src.core.audit import log_audit_event
@@ -130,7 +131,11 @@ async def get_case_intelligence_findings(
     )
 
 
-@router.post("/{case_id}/intelligence/jobs", response_model=IntelligenceJob, status_code=status.HTTP_202_ACCEPTED)
+@router.post(
+    "/{case_id}/intelligence/jobs",
+    response_model=IntelligenceJob,
+    status_code=status.HTTP_202_ACCEPTED,
+)
 async def create_async_intelligence_job(
     case_id: str,
     request: Request,

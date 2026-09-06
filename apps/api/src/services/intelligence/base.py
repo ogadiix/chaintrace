@@ -3,6 +3,7 @@ Intelligence Rules Architecture & Base Interface
 Standardized interface for deterministic pattern detection rules.
 Source of truth: Master Prompt Phase 5 Sections 12, 13, 14, 15, 18
 """
+
 from abc import ABC, abstractmethod
 from typing import Any
 

@@ -10,6 +10,7 @@ Validates:
 7. REST API Endpoints & RBAC Authorization
 Source of truth: Master Prompt Phase 6 Sections 8-14, 23, 24
 """
+
 from datetime import UTC, datetime
 
 import pytest
@@ -27,6 +28,7 @@ from httpx import ASGITransport, AsyncClient
 # ==============================================================================
 # 1. EXACT MATCH & UNKNOWN ATTRIBUTION TESTS (Sections 8 & 13)
 # ==============================================================================
+
 
 @pytest.mark.asyncio
 async def test_exact_match_attribution_with_provenance():
@@ -67,6 +69,7 @@ async def test_unknown_wallet_never_forces_attribution():
 # 2. MULTI-CHAIN SEPARATION & SANCTIONS (Sections 5 & 18)
 # ==============================================================================
 
+
 @pytest.mark.asyncio
 async def test_cross_chain_address_isolation():
     service = AttributionService()
@@ -103,6 +106,7 @@ async def test_sanctioned_entity_classification():
 # ==============================================================================
 # 3. CONFLICTING LABELS HANDLING (Section 7)
 # ==============================================================================
+
 
 @pytest.mark.asyncio
 async def test_conflicting_labels_preservation():
@@ -164,6 +168,7 @@ async def test_conflicting_labels_preservation():
 # 4. PATH ENDPOINT ATTRIBUTION & REST API INTEGRATION
 # ==============================================================================
 
+
 @pytest.mark.asyncio
 async def test_path_endpoint_vasp_attribution_integration():
     transport = ASGITransport(app=app)
@@ -212,7 +217,8 @@ async def test_path_endpoint_vasp_attribution_integration():
 
         # Verify terminal destination matches the demo VASP
         matched_terminals = [
-            t for t in data["terminal_attributions"]
+            t
+            for t in data["terminal_attributions"]
             if t["wallet"] == "TVaspBinanceDepositHotWallet88888888"
         ]
         assert len(matched_terminals) == 1

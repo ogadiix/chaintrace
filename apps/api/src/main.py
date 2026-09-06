@@ -1,6 +1,7 @@
 """
 ChainTrace API — Main FastAPI Application
 """
+
 from contextlib import asynccontextmanager
 
 from apps.api.src.api.v1.auth import seed_demo_users_if_needed

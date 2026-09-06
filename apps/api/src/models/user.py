@@ -1,6 +1,7 @@
 """
 User & RBAC SQLAlchemy Model
 """
+
 import uuid
 from datetime import UTC, datetime
 
@@ -22,5 +23,9 @@ class User(Base):
         DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
     )
 
-    created_cases = relationship("Case", back_populates="created_by", foreign_keys="Case.created_by_id")
-    assigned_cases = relationship("Case", back_populates="assigned_to", foreign_keys="Case.assigned_to_id")
+    created_cases = relationship(
+        "Case", back_populates="created_by", foreign_keys="Case.created_by_id"
+    )
+    assigned_cases = relationship(
+        "Case", back_populates="assigned_to", foreign_keys="Case.assigned_to_id"
+    )

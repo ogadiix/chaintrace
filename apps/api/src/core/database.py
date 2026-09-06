@@ -2,6 +2,7 @@
 Database Connection & Session Management
 Provides async SQLAlchemy engine and session dependency.
 """
+
 import os
 from collections.abc import AsyncGenerator
 
@@ -14,18 +15,10 @@ from sqlalchemy.orm import declarative_base
 if "sqlite" in settings.DATABASE_URL:
     os.makedirs("./data", exist_ok=True)
 
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    echo=settings.DEBUG,
-    future=True
-)
+engine = create_async_engine(settings.DATABASE_URL, echo=settings.DEBUG, future=True)
 
 AsyncSessionLocal = async_sessionmaker(
-    bind=engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
-    autocommit=False,
-    autoflush=False
+    bind=engine, class_=AsyncSession, expire_on_commit=False, autocommit=False, autoflush=False
 )
 
 Base = declarative_base()
@@ -46,17 +39,13 @@ async def check_db_health() -> dict:
             await conn.execute(text("SELECT 1"))
         return {
             "status": "connected",
-            "engine": "sqlite" if "sqlite" in settings.DATABASE_URL else "postgresql"
+            "engine": "sqlite" if "sqlite" in settings.DATABASE_URL else "postgresql",
         }
     except Exception as exc:
         if settings.DATABASE_FALLBACK_SQLITE:
             return {
                 "status": "fallback_mode",
                 "engine": "sqlite_fallback_active",
-                "error": str(exc)
+                "error": str(exc),
             }
-        return {
-            "status": "disconnected",
-            "engine": "unknown",
-            "error": str(exc)
-        }
+        return {"status": "disconnected", "engine": "unknown", "error": str(exc)}

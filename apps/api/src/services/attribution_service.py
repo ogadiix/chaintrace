@@ -4,6 +4,7 @@ Loads versioned label datasets, indexes multi-chain wallets, handles label confl
 and evaluates exact-match and path-endpoint attributions with explainable confidence.
 Source of truth: Master Prompt Phase 6 Sections 2-13, 17, 21, 22
 """
+
 import asyncio
 import json
 import logging
@@ -50,7 +51,9 @@ class AttributionService:
         self._labels_by_key: dict[str, list[WalletLabel]] = defaultdict(list)
         self._lock = asyncio.Lock()
         self._initialized = False
-        self._seed_path = seed_dataset_path or os.path.join(os.getcwd(), "data", "vasp_labels_v1.json")
+        self._seed_path = seed_dataset_path or os.path.join(
+            os.getcwd(), "data", "vasp_labels_v1.json"
+        )
 
     async def initialize(self) -> None:
         """Loads and indexes the seed VASP label dataset."""
@@ -63,6 +66,7 @@ class AttributionService:
 
             if os.path.exists(self._seed_path):
                 try:
+
                     def _read_seed():
                         with open(self._seed_path, encoding="utf-8") as f:
                             return json.load(f)
@@ -75,7 +79,11 @@ class AttributionService:
 
                         # Validate address syntax
                         if not is_valid_address(chain_str, address_str) and not rec.get("is_demo"):
-                            logger.warning("Skipping invalid address in seed dataset: %s on %s", address_str, chain_str)
+                            logger.warning(
+                                "Skipping invalid address in seed dataset: %s on %s",
+                                address_str,
+                                chain_str,
+                            )
                             continue
 
                         chain_enum = BlockchainType(chain_str)
@@ -136,7 +144,9 @@ class AttributionService:
             key = make_label_key(label.chain.value, label.address)
             # Avoid duplicate exact records
             existing = self._labels_by_key[key]
-            if not any(l.entity_id == label.entity_id and l.source == label.source for l in existing):
+            if not any(
+                l.entity_id == label.entity_id and l.source == label.source for l in existing
+            ):
                 existing.append(label)
 
     async def attribute_wallet(
@@ -177,7 +187,9 @@ class AttributionService:
         # Check for conflicting entities
         distinct_entity_ids = {l.entity_id for l in labels}
         if len(distinct_entity_ids) > 1:
-            conflicting_entities = [self._entities.get(eid) for eid in distinct_entity_ids if eid in self._entities]
+            conflicting_entities = [
+                self._entities.get(eid) for eid in distinct_entity_ids if eid in self._entities
+            ]
             return WalletAttribution(
                 wallet=clean_addr,
                 chain=BlockchainType(clean_chain),

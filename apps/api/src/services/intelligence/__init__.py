@@ -2,6 +2,7 @@
 Intelligence Services Package
 Exports FeatureExtractor, Rules, and IntelligenceEngine orchestrator.
 """
+
 from apps.api.src.services.intelligence.base import IntelligenceRule, RuleEvaluationContext
 from apps.api.src.services.intelligence.engine import IntelligenceEngine, get_intelligence_engine
 from apps.api.src.services.intelligence.features import FeatureExtractor

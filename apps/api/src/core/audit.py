@@ -1,6 +1,7 @@
 """
 Audit Logging Service Helper
 """
+
 import json
 from typing import Any
 

@@ -1,6 +1,7 @@
 """
 System Health & Diagnostics Endpoint
 """
+
 from datetime import UTC, datetime
 
 from apps.api.src.core.config import settings

@@ -3,6 +3,7 @@ Intelligence Engine Models & Schemas
 Defines structured findings, evidence references, extracted features, and rule results.
 Source of truth: Master Prompt Phase 5 Sections 2, 3, 14, 15, 18
 """
+
 from typing import Any
 
 from chaintrace_shared import FindingSeverity, FindingType
@@ -11,6 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class EvidenceReference(BaseModel):
     """Immutable forensic evidence linking a finding to specific blockchain artifacts."""
+
     model_config = ConfigDict(from_attributes=True)
 
     type: str = Field(..., description="'TRANSACTION', 'WALLET', 'PATH', or 'GRAPH_EDGE'")
@@ -24,6 +26,7 @@ class IntelligenceFinding(BaseModel):
     Structured intelligence finding.
     Strictly enforces separation between observed facts and investigative interpretation.
     """
+
     model_config = ConfigDict(from_attributes=True)
 
     finding_id: str
@@ -32,10 +35,21 @@ class IntelligenceFinding(BaseModel):
     severity: FindingSeverity
     title: str = Field(..., description="Brief headline of the discovered pattern")
     description: str = Field(..., description="Detailed explanation of the pattern")
-    observed_fact: str = Field(..., description="Objective, verifiable blockchain facts (e.g., amounts, timestamps)")
-    interpretation: str = Field(..., description="Forensic interpretation without asserting legal guilt")
-    confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence that the observed pattern matches rule definition")
-    evidence_refs: list[EvidenceReference] = Field(default_factory=list, description="Direct references to transactions and wallets")
+    observed_fact: str = Field(
+        ..., description="Objective, verifiable blockchain facts (e.g., amounts, timestamps)"
+    )
+    interpretation: str = Field(
+        ..., description="Forensic interpretation without asserting legal guilt"
+    )
+    confidence: float = Field(
+        ...,
+        ge=0.0,
+        le=1.0,
+        description="Confidence that the observed pattern matches rule definition",
+    )
+    evidence_refs: list[EvidenceReference] = Field(
+        default_factory=list, description="Direct references to transactions and wallets"
+    )
     rule_id: str = Field(..., description="Identifier of the rule that generated this finding")
     rule_version: str = Field(..., description="Version of the rule for audit reproducibility")
     metadata: dict[str, Any] = Field(default_factory=dict)
@@ -44,6 +58,7 @@ class IntelligenceFinding(BaseModel):
 
 class WalletFeatures(BaseModel):
     """Extracted behavioral and statistical features for a wallet address."""
+
     model_config = ConfigDict(from_attributes=True)
 
     wallet_address: str
@@ -66,6 +81,7 @@ class WalletFeatures(BaseModel):
 
 class IntelligenceAnalysisResult(BaseModel):
     """Consolidated intelligence analysis response payload."""
+
     model_config = ConfigDict(from_attributes=True)
 
     investigation_id: str | None = None
@@ -78,6 +94,7 @@ class IntelligenceAnalysisResult(BaseModel):
 
 class IntelligenceJob(BaseModel):
     """State tracking for asynchronous intelligence analysis jobs."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: str

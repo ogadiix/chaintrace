@@ -414,3 +414,70 @@ export interface AttributionAnalysisResult {
   engine_version?: string;
   analyzed_at?: string;
 }
+
+export interface RiskSignalContribution {
+  signal: string;
+  category: string;
+  rawWeight: number;
+  effectiveWeight: number;
+  weight?: number;
+  reason: string;
+  source?: string;
+  evidenceRefs: EvidenceReference[];
+  metadata?: Record<string, unknown>;
+  // snake_case
+  raw_weight?: number;
+  effective_weight?: number;
+  evidence_refs?: EvidenceReference[];
+}
+
+
+export interface RiskAssessment {
+  assessmentId: string;
+  investigationId: string;
+  seedWallet: string;
+  score: number; // 0 to 100
+  riskLevel: RiskLevel;
+  contributions: RiskSignalContribution[];
+  reasons: string[];
+  evidence: EvidenceReference[];
+  evidenceRefs?: EvidenceReference[];
+  manualOverride?: {
+    overriddenBy: string;
+    overriddenAt: string;
+    originalLevel: RiskLevel;
+    overrideLevel: RiskLevel;
+    reason: string;
+  } | null;
+  engineVersion: string;
+  intelligenceEngineVersion: string;
+  attributionDatasetVersion: string;
+  createdAt: string;
+  updatedAt: string;
+  // snake_case
+  assessment_id?: string;
+  investigation_id?: string;
+  seed_wallet?: string;
+  risk_level?: RiskLevel;
+  evidence_refs?: EvidenceReference[];
+  manual_override?: {
+
+    overridden_by: string;
+    overridden_at: string;
+    original_level: RiskLevel;
+    override_level: RiskLevel;
+    reason: string;
+  } | null;
+  engine_version?: string;
+  intelligence_engine_version?: string;
+  attribution_dataset_version?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface RiskAnalysisRequest {
+  maxHops?: number;
+  config?: Record<string, unknown>;
+  // snake_case
+  max_hops?: number;
+}

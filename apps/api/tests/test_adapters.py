@@ -2,6 +2,7 @@
 Blockchain Adapter Tests for TRON and EVM
 Tests address validation, transaction normalization, balance queries, and evidentiary provenance.
 """
+
 import pytest
 from apps.api.src.adapters.evm import EvmAdapter
 from apps.api.src.adapters.factory import get_blockchain_adapter
@@ -41,7 +42,9 @@ async def test_tron_adapter_core_functionality():
         assert tx.raw_reference is not None  # Provenance retained!
 
     # Single transaction lookup
-    single_tx = await adapter.get_transaction("c3a2f6b891e457d1928374a5b6c7d8e9f0123456789abcdef0123456789abcde")
+    single_tx = await adapter.get_transaction(
+        "c3a2f6b891e457d1928374a5b6c7d8e9f0123456789abcdef0123456789abcde"
+    )
     assert single_tx is not None
     assert single_tx.chain == BlockchainType.TRON
 
@@ -63,7 +66,9 @@ async def test_evm_adapter_core_functionality():
     assert balance.native_symbol == "ETH"
 
     # Transactions query
-    txs, _cursor = await adapter.get_transactions("0x71C7656EC7ab88b098defB751B7401B5f6d8976F", limit=10)
+    txs, _cursor = await adapter.get_transactions(
+        "0x71C7656EC7ab88b098defB751B7401B5f6d8976F", limit=10
+    )
     assert len(txs) > 0
     for tx in txs:
         assert tx.chain == BlockchainType.ETHEREUM
@@ -87,17 +92,17 @@ def test_blockchain_adapter_factory():
 async def test_adapter_api_endpoints():
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         # 1. Login to get token
-        login_res = await ac.post("/api/v1/auth/login", json={
-            "email": "investigator@chaintrace.internal",
-            "password": "Investigator123!"
-        })
+        login_res = await ac.post(
+            "/api/v1/auth/login",
+            json={"email": "investigator@chaintrace.internal", "password": "Investigator123!"},
+        )
         token = login_res.json()["accessToken"]
         headers = {"Authorization": f"Bearer {token}"}
 
         # 2. Validate Address Endpoint
         res_val = await ac.get(
             "/api/v1/adapters/validate-address?chain=tron&address=TA4Wt1DUCqz6YegbnsmqsWC5uUfbdBqPxm",
-            headers=headers
+            headers=headers,
         )
         assert res_val.status_code == 200
         assert res_val.json()["isValid"] is True
@@ -105,7 +110,7 @@ async def test_adapter_api_endpoints():
         # 3. Get TRON Wallet Balance
         res_bal = await ac.get(
             "/api/v1/adapters/tron/wallets/TA4Wt1DUCqz6YegbnsmqsWC5uUfbdBqPxm/balance",
-            headers=headers
+            headers=headers,
         )
         assert res_bal.status_code == 200
         bal_data = res_bal.json()
@@ -115,7 +120,7 @@ async def test_adapter_api_endpoints():
         # 4. Get TRON Transactions
         res_txs = await ac.get(
             "/api/v1/adapters/tron/wallets/TA4Wt1DUCqz6YegbnsmqsWC5uUfbdBqPxm/transactions?limit=5",
-            headers=headers
+            headers=headers,
         )
         assert res_txs.status_code == 200
         tx_list = res_txs.json()
@@ -126,6 +131,6 @@ async def test_adapter_api_endpoints():
         # 5. Invalid Address returns 422
         res_invalid = await ac.get(
             "/api/v1/adapters/tron/wallets/0x71C7656EC7ab88b098defB751B7401B5f6d8976F/transactions",
-            headers=headers
+            headers=headers,
         )
         assert res_invalid.status_code == 422

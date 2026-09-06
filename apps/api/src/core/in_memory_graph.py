@@ -4,6 +4,7 @@ High-fidelity fallback engine implementing property graph semantics, multi-chain
 safe upsert idempotency, and neighborhood queries when Neo4j is offline in local dev/testing.
 Source of truth: Master Prompt Sections 5-11, 20
 """
+
 import asyncio
 from typing import Any
 
@@ -40,7 +41,9 @@ class InMemoryGraphStore:
             self._nodes.clear()
             self._edges.clear()
 
-    async def upsert_wallet(self, chain: str, address: str, timestamp: str, is_demo: bool = False) -> tuple[str, bool]:
+    async def upsert_wallet(
+        self, chain: str, address: str, timestamp: str, is_demo: bool = False
+    ) -> tuple[str, bool]:
         """
         Idempotently inserts or updates a wallet node.
         Returns: (wallet_id, was_created)
@@ -248,7 +251,8 @@ class InMemoryGraphStore:
 
         async with self._lock:
             matched_tx_nodes = [
-                n for n in self._nodes.values()
+                n
+                for n in self._nodes.values()
                 if n["type"] == "transaction"
                 and n["chain"] == clean_chain
                 and n["properties"].get("tx_hash", "").lower() == clean_hash
@@ -264,7 +268,11 @@ class InMemoryGraphStore:
             matched_edges: list[dict[str, Any]] = []
 
             for edge in self._edges.values():
-                if edge["target"] == tx_id or edge["source"] == tx_id or edge.get("properties", {}).get("tx_hash", "").lower() == clean_hash:
+                if (
+                    edge["target"] == tx_id
+                    or edge["source"] == tx_id
+                    or edge.get("properties", {}).get("tx_hash", "").lower() == clean_hash
+                ):
                     matched_edges.append(edge)
                     matched_node_ids.add(edge["source"])
                     matched_node_ids.add(edge["target"])
@@ -277,7 +285,8 @@ class InMemoryGraphStore:
                     chain=self._nodes[n_id]["chain"],
                     properties=self._nodes[n_id]["properties"],
                 )
-                for n_id in matched_node_ids if n_id in self._nodes
+                for n_id in matched_node_ids
+                if n_id in self._nodes
             ]
 
             result_edges = [

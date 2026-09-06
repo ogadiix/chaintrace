@@ -1,6 +1,7 @@
 """
 Authentication, Password Hashing, JWT Tokens, and RBAC Enforcement
 """
+
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 
@@ -72,6 +73,7 @@ async def get_current_user(
 
 def require_role(*allowed_roles: str) -> Callable:
     """RBAC dependency to ensure user has one of the allowed roles."""
+
     async def role_checker(current_user: User = Depends(get_current_user)) -> User:
         if current_user.role not in allowed_roles and current_user.role != "ADMIN":
             raise HTTPException(
@@ -79,4 +81,5 @@ def require_role(*allowed_roles: str) -> Callable:
                 detail=f"Operation not permitted for role '{current_user.role}'. Required: {list(allowed_roles)}",
             )
         return current_user
+
     return role_checker

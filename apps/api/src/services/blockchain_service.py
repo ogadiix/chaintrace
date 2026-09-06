@@ -4,6 +4,7 @@ Orchestrates blockchain adapters, caching, validation, and controlled error hand
 Acts as the architectural service boundary between FastAPI routers and provider adapters.
 Source of truth: Master Prompt Architecture & Objective
 """
+
 import logging
 
 from apps.api.src.adapters.exceptions import (
@@ -46,7 +47,9 @@ class BlockchainService:
         """Fetches native and token balances for an address."""
         adapter = get_blockchain_adapter(chain)
         if not adapter.validate_address(address):
-            raise InvalidWalletAddressError(f"Address '{address}' is not a valid {adapter.chain.value} address")
+            raise InvalidWalletAddressError(
+                f"Address '{address}' is not a valid {adapter.chain.value} address"
+            )
 
         try:
             return await adapter.get_balance(address)
@@ -54,7 +57,9 @@ class BlockchainService:
             raise
         except Exception as exc:
             logger.error("Unexpected error in get_balance for %s on %s: %s", address, chain, exc)
-            raise ProviderUnavailableError(f"Failed to retrieve balance from {adapter.chain.value}") from exc
+            raise ProviderUnavailableError(
+                f"Failed to retrieve balance from {adapter.chain.value}"
+            ) from exc
 
     async def get_transactions(
         self,
@@ -66,7 +71,9 @@ class BlockchainService:
         """Fetches normalized transactions with pagination."""
         adapter = get_blockchain_adapter(chain)
         if not adapter.validate_address(address):
-            raise InvalidWalletAddressError(f"Address '{address}' is not a valid {adapter.chain.value} address")
+            raise InvalidWalletAddressError(
+                f"Address '{address}' is not a valid {adapter.chain.value} address"
+            )
 
         bounded_limit = max(1, min(limit, 100))
         try:
@@ -74,8 +81,12 @@ class BlockchainService:
         except BlockchainError:
             raise
         except Exception as exc:
-            logger.error("Unexpected error in get_transactions for %s on %s: %s", address, chain, exc)
-            raise ProviderUnavailableError(f"Failed to query transactions from {adapter.chain.value}") from exc
+            logger.error(
+                "Unexpected error in get_transactions for %s on %s: %s", address, chain, exc
+            )
+            raise ProviderUnavailableError(
+                f"Failed to query transactions from {adapter.chain.value}"
+            ) from exc
 
     async def get_transaction(
         self,
@@ -97,7 +108,9 @@ class BlockchainService:
         try:
             tx = await adapter.get_transaction(clean_hash)
             if not tx:
-                raise TransactionNotFoundError(f"Transaction '{clean_hash}' not found on {adapter.chain.value}")
+                raise TransactionNotFoundError(
+                    f"Transaction '{clean_hash}' not found on {adapter.chain.value}"
+                )
 
             # Store in immutable evidentiary cache
             await self._cache.set("tx", f"{adapter.chain.value}:{clean_hash}", tx, ttl=3600)
@@ -105,8 +118,12 @@ class BlockchainService:
         except BlockchainError:
             raise
         except Exception as exc:
-            logger.error("Unexpected error in get_transaction for %s on %s: %s", clean_hash, chain, exc)
-            raise ProviderUnavailableError(f"Failed to retrieve transaction from {adapter.chain.value}") from exc
+            logger.error(
+                "Unexpected error in get_transaction for %s on %s: %s", clean_hash, chain, exc
+            )
+            raise ProviderUnavailableError(
+                f"Failed to retrieve transaction from {adapter.chain.value}"
+            ) from exc
 
 
 # Service Singleton
