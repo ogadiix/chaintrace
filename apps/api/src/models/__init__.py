@@ -1,3 +1,9 @@
+from apps.api.src.models.attribution import (
+    AttributionAnalysisResult,
+    VaspEntity,
+    WalletAttribution,
+    WalletLabel,
+)
 from apps.api.src.models.audit import AuditLog
 from apps.api.src.models.case import Case
 from apps.api.src.models.intelligence import (
@@ -11,6 +17,7 @@ from apps.api.src.models.trace import TraceHop, TraceJob, TracePath, TraceReques
 from apps.api.src.models.user import User
 
 __all__ = [
+    "AttributionAnalysisResult",
     "AuditLog",
     "Case",
     "EvidenceReference",
@@ -23,5 +30,8 @@ __all__ = [
     "TraceRequest",
     "TraceResult",
     "User",
+    "VaspEntity",
+    "WalletAttribution",
     "WalletFeatures",
+    "WalletLabel",
 ]

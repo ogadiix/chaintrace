@@ -28,6 +28,23 @@ class AttributionConfidence(str, Enum):
     UNKNOWN = "UNKNOWN"
 
 
+class EntityType(str, Enum):
+    EXCHANGE = "EXCHANGE"
+    VASP = "VASP"
+    CUSTODIAN = "CUSTODIAN"
+    MIXER = "MIXER"
+    BRIDGE = "BRIDGE"
+    SCAM = "SCAM"
+    SANCTIONED_ENTITY = "SANCTIONED_ENTITY"
+    OTHER = "OTHER"
+
+
+class AttributionStatus(str, Enum):
+    MATCHED = "MATCHED"
+    CONFLICTING_LABELS = "CONFLICTING_LABELS"
+    UNKNOWN = "UNKNOWN"
+
+
 class CaseStatus(str, Enum):
     DRAFT = "DRAFT"
     ACTIVE = "ACTIVE"

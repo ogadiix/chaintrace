@@ -323,3 +323,94 @@ export interface IntelligenceAnalysisResult {
   analysisTimestamp: string;
   engineVersion: string;
 }
+
+export type EntityType =
+  | 'EXCHANGE'
+  | 'VASP'
+  | 'CUSTODIAN'
+  | 'MIXER'
+  | 'BRIDGE'
+  | 'SCAM'
+  | 'SANCTIONED_ENTITY'
+  | 'OTHER';
+
+export type AttributionStatus = 'MATCHED' | 'CONFLICTING_LABELS' | 'UNKNOWN';
+
+export interface VaspEntity {
+  entityId: string;
+  name: string;
+  entityType: EntityType;
+  jurisdiction?: string | null;
+  status: string;
+  source: string;
+  sourceUrl?: string | null;
+  confidence: AttributionConfidence;
+  website?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  // snake_case
+  entity_id?: string;
+  entity_type?: EntityType;
+  source_url?: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface WalletLabel {
+  chain: BlockchainType;
+  address: string;
+  entityId: string;
+  labelType: string;
+  confidence: AttributionConfidence;
+  source: string;
+  sourceReference?: string | null;
+  isDemo?: boolean;
+  notes?: string | null;
+  // snake_case
+  entity_id?: string;
+  label_type?: string;
+  source_reference?: string | null;
+  is_demo?: boolean;
+}
+
+export interface WalletAttribution {
+  wallet: string;
+  chain: BlockchainType;
+  status: AttributionStatus;
+  entity?: VaspEntity | null;
+  confidence: AttributionConfidence;
+  confidenceScore: number;
+  confidenceReasons: string[];
+  evidence: EvidenceReference[];
+  labels: WalletLabel[];
+  datasetVersion: string;
+  attributedVia: 'EXACT_MATCH' | 'PATH_ENDPOINT' | 'CLUSTER' | 'NONE';
+  // snake_case
+  confidence_score?: number;
+  confidence_reasons?: string[];
+  dataset_version?: string;
+  attributed_via?: string;
+}
+
+export interface AttributionAnalysisResult {
+  investigationId?: string | null;
+  seedWallet: string;
+  matchedCount: number;
+  unknownCount: number;
+  conflictCount: number;
+  attributions: WalletAttribution[];
+  terminalAttributions: WalletAttribution[];
+  datasetVersion: string;
+  engineVersion: string;
+  analyzedAt: string;
+  // snake_case
+  investigation_id?: string | null;
+  seed_wallet?: string;
+  matched_count?: number;
+  unknown_count?: number;
+  conflict_count?: number;
+  terminal_attributions?: WalletAttribution[];
+  dataset_version?: string;
+  engine_version?: string;
+  analyzed_at?: string;
+}

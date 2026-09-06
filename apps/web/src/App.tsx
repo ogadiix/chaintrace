@@ -19,6 +19,7 @@ import { CreateCaseModal } from './components/CreateCaseModal';
 import { CaseDetailDrawer } from './components/CaseDetailDrawer';
 import { TraceConsole } from './components/TraceConsole';
 import { IntelligencePanel } from './components/IntelligencePanel';
+import { VaspAttributionPanel } from './components/VaspAttributionPanel';
 
 export const App: React.FC = () => {
   // Navigation & View
@@ -398,26 +399,9 @@ export const App: React.FC = () => {
                 </div>
 
                 {/* VASP Attribution Panel */}
-                <div className="bg-navy-900/90 border border-navy-700/80 rounded-lg p-4 flex flex-col">
-                  <div className="flex items-center justify-between border-b border-navy-800 pb-3 mb-3">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                      VASP Attribution
-                    </span>
-                    <span className="text-[10px] font-mono text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
-                      Confidence Aware
-                    </span>
-                  </div>
-                  <div className="text-xs space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Likely Destination:</span>
-                      <span className="font-semibold text-cyan-300 font-mono">Pending Trace</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Attribution Status:</span>
-                      <span className="font-mono text-slate-300">Awaiting Graph Crawl</span>
-                    </div>
-                  </div>
-                </div>
+                {activeCase && (
+                  <VaspAttributionPanel activeCase={activeCase} authToken={authToken} />
+                )}
               </div>
             </div>
 
