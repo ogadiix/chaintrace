@@ -45,6 +45,7 @@ export interface AuthTokenResponse {
 export interface Case {
   id: string;
   caseNumber: string; // e.g. CT-2026-0001
+  complaintId?: string | null;
   title: string;
   description?: string | null;
   fraudCategory: FraudCategory;
@@ -64,6 +65,7 @@ export interface Case {
 
 export interface CreateCaseRequest {
   title: string;
+  complaintId?: string;
   description?: string;
   fraudCategory: FraudCategory;
   reportedAmount: string;

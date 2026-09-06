@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 class CreateCaseSchema(BaseModel):
     title: str = Field(..., min_length=3, max_length=255)
+    complaintId: str | None = Field(default=None, max_length=100)
     description: str | None = Field(default=None, max_length=5000)
     fraudCategory: str = Field(default="OTHER")
     reportedAmount: str = Field(default="0")
@@ -28,6 +29,7 @@ class CreateCaseSchema(BaseModel):
 
 class UpdateCaseSchema(BaseModel):
     title: str | None = Field(default=None, min_length=3, max_length=255)
+    complaintId: str | None = Field(default=None, max_length=100)
     description: str | None = Field(default=None, max_length=5000)
     status: CaseStatus | None = None
     priority: CasePriority | None = None
@@ -39,6 +41,7 @@ class CaseResponse(BaseModel):
 
     id: str
     caseNumber: str
+    complaintId: str | None
     title: str
     description: str | None
     fraudCategory: str

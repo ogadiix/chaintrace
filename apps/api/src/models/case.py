@@ -14,6 +14,7 @@ class Case(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     case_number: Mapped[str] = mapped_column(String(50), unique=True, index=True, nullable=False)
+    complaint_id: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     fraud_category: Mapped[str] = mapped_column(String(50), nullable=False, default="OTHER")

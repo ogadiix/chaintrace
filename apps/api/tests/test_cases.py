@@ -127,3 +127,64 @@ async def test_rbac_restriction_for_viewer():
         }
         res = await ac.post("/api/v1/cases", json=case_payload, headers=headers)
         assert res.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_multichain_and_security_boundaries():
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        # Unauthenticated request fails (401)
+        res_unauth = await ac.get("/api/v1/cases")
+        assert res_unauth.status_code == 401
+
+        # Invalid token fails (401)
+        res_bad_token = await ac.get("/api/v1/cases", headers={"Authorization": "Bearer invalid.jwt.token"})
+        assert res_bad_token.status_code == 401
+
+        # Login as analyst
+        login_res = await ac.post("/api/v1/auth/login", json={
+            "email": "analyst@chaintrace.internal",
+            "password": "AnalystSecure123!"
+        })
+        token = login_res.json()["accessToken"]
+        headers = {"Authorization": f"Bearer {token}"}
+
+        # 1. Create Ethereum Case with external complaint ID
+        eth_case = {
+            "title": "Ethereum Phishing Drainer",
+            "complaintId": "NCRP-2026-998811",
+            "fraudCategory": "PHISHING",
+            "reportedAmount": "12.5",
+            "currency": "ETH",
+            "incidentDate": "2026-09-03",
+            "targetChain": "ethereum",
+            "suspectWallet": "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
+            "priority": "CRITICAL",
+        }
+        res_eth = await ac.post("/api/v1/cases", json=eth_case, headers=headers)
+        assert res_eth.status_code == 201
+        assert res_eth.json()["complaintId"] == "NCRP-2026-998811"
+
+        # 2. Create Bitcoin Case with SegWit Bech32 address
+        btc_case = {
+            "title": "Bitcoin Ransomware Extortion",
+            "complaintId": "NCRP-2026-773322",
+            "fraudCategory": "RANSOMWARE",
+            "reportedAmount": "1.85",
+            "currency": "BTC",
+            "incidentDate": "2026-09-04",
+            "targetChain": "bitcoin",
+            "suspectWallet": "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+            "priority": "HIGH",
+        }
+        res_btc = await ac.post("/api/v1/cases", json=btc_case, headers=headers)
+        assert res_btc.status_code == 201
+        assert "id" in res_btc.json()
+
+        # 3. Filter cases by chain
+        res_filtered = await ac.get("/api/v1/cases?chain=bitcoin", headers=headers)
+        assert res_filtered.status_code == 200
+        assert all(c["targetChain"] == "bitcoin" for c in res_filtered.json()["cases"])
+
+        # 4. Search cases by complaint ID
+        res_search = await ac.get("/api/v1/cases?search=773322", headers=headers)
+        assert res_search.status_code == 200

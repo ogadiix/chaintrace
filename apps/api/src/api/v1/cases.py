@@ -26,6 +26,7 @@ def serialize_case(case: Case) -> CaseResponse:
     return CaseResponse(
         id=case.id,
         caseNumber=case.case_number,
+        complaintId=case.complaint_id,
         title=case.title,
         description=case.description,
         fraudCategory=case.fraud_category,
@@ -60,6 +61,7 @@ async def create_case(
 
     new_case = Case(
         case_number=case_number,
+        complaint_id=payload.complaintId,
         title=payload.title,
         description=payload.description,
         fraud_category=payload.fraudCategory,
@@ -116,6 +118,7 @@ async def list_cases(
         pattern = f"%{search.strip()}%"
         stmt = stmt.where(
             (Case.case_number.ilike(pattern))
+            | (Case.complaint_id.ilike(pattern))
             | (Case.title.ilike(pattern))
             | (Case.suspect_wallet.ilike(pattern))
         )
@@ -186,6 +189,9 @@ async def update_case(
     if payload.title is not None:
         case.title = payload.title
         updated_fields["title"] = payload.title
+    if payload.complaintId is not None:
+        case.complaint_id = payload.complaintId
+        updated_fields["complaint_id"] = payload.complaintId
     if payload.description is not None:
         case.description = payload.description
         updated_fields["description"] = payload.description

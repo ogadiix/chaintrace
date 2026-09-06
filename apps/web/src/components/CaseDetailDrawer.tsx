@@ -66,6 +66,25 @@ export const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({
     }
   };
 
+  const handlePriorityChange = async (newPriority: string) => {
+    try {
+      const response = await fetch(`/api/v1/cases/${caseItem.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ priority: newPriority }),
+      });
+      if (response.ok) {
+        const updated = await response.json();
+        onStatusUpdated(updated);
+      }
+    } catch {
+      // Handled silently
+    }
+  };
+
   const chainMeta = CHAIN_METADATA[caseItem.targetChain];
 
   return (
@@ -78,6 +97,11 @@ export const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({
               <span className="text-xs font-mono font-bold text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
                 {caseItem.caseNumber}
               </span>
+              {caseItem.complaintId && (
+                <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                  {caseItem.complaintId}
+                </span>
+              )}
               <span className="text-xs text-slate-400 font-mono">
                 {caseItem.fraudCategory.replace('_', ' ')}
               </span>
@@ -136,26 +160,53 @@ export const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({
             </div>
           </div>
 
-          {/* Case Status Controller */}
-          <div className="bg-navy-950/60 border border-navy-800 rounded-lg p-4">
-            <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider block mb-2">
-              Case Investigation Status
-            </span>
-            <div className="grid grid-cols-3 gap-2">
-              {(['ACTIVE', 'UNDER_REVIEW', 'CLOSED'] as CaseStatus[]).map((st) => (
-                <button
-                  key={st}
-                  disabled={updatingStatus}
-                  onClick={() => handleStatusChange(st)}
-                  className={`py-1.5 px-3 text-xs font-mono font-medium rounded-md border transition-all text-center ${
-                    caseItem.status === st
-                      ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/40 shadow-sm'
-                      : 'bg-navy-900 border-navy-700 text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  {st.replace('_', ' ')}
-                </button>
-              ))}
+          {/* Case Status & Priority Controllers */}
+          <div className="bg-navy-950/60 border border-navy-800 rounded-lg p-4 flex flex-col gap-3">
+            <div>
+              <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider block mb-1.5">
+                Case Status
+              </span>
+              <div className="grid grid-cols-3 gap-2">
+                {(['ACTIVE', 'UNDER_REVIEW', 'CLOSED'] as CaseStatus[]).map((st) => (
+                  <button
+                    key={st}
+                    disabled={updatingStatus}
+                    onClick={() => handleStatusChange(st)}
+                    className={`py-1.5 px-3 text-xs font-mono font-medium rounded-md border transition-all text-center ${
+                      caseItem.status === st
+                        ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/40 shadow-sm'
+                        : 'bg-navy-900 border-navy-700 text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    {st.replace('_', ' ')}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider block mb-1.5">
+                Priority Tier
+              </span>
+              <div className="grid grid-cols-4 gap-1.5 font-mono text-xs">
+                {(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const).map((pr) => (
+                  <button
+                    key={pr}
+                    onClick={() => handlePriorityChange(pr)}
+                    className={`py-1 px-2 rounded border text-center transition-all ${
+                      caseItem.priority === pr
+                        ? pr === 'CRITICAL'
+                          ? 'bg-rose-500/20 text-rose-300 border-rose-500/50'
+                          : pr === 'HIGH'
+                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/50'
+                          : 'bg-blue-500/20 text-blue-300 border-blue-500/50'
+                        : 'bg-navy-900 border-navy-700 text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    {pr}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 

@@ -27,6 +27,7 @@ export const CreateCaseModal: React.FC<CreateCaseModalProps> = ({
   authToken,
 }) => {
   const [title, setTitle] = useState('');
+  const [complaintId, setComplaintId] = useState('');
   const [description, setDescription] = useState('');
   const [fraudCategory, setFraudCategory] = useState<FraudCategory>('PIG_BUTCHERING');
   const [targetChain, setTargetChain] = useState<BlockchainType>('tron');
@@ -58,6 +59,7 @@ export const CreateCaseModal: React.FC<CreateCaseModalProps> = ({
 
     const payload: CreateCaseRequest = {
       title,
+      complaintId: complaintId.trim() || undefined,
       description,
       fraudCategory,
       reportedAmount,
@@ -121,18 +123,32 @@ export const CreateCaseModal: React.FC<CreateCaseModalProps> = ({
           )}
 
           {/* Title */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
-              Case Title / Complaint Reference *
-            </label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. Operation Titan: Fake Tether Arbitrage Scam"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-navy-950 border border-navy-700 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500 font-sans"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+                Case Title *
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Operation Titan: Fake Tether Arbitrage Scam"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full bg-navy-950 border border-navy-700 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500 font-sans"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+                External Complaint ID <span className="text-slate-500 font-normal">(NCRP)</span>
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. NCRP-2026-09871"
+                value={complaintId}
+                onChange={(e) => setComplaintId(e.target.value)}
+                className="w-full bg-navy-950 border border-navy-700 rounded-lg px-3 py-2 text-xs text-slate-100 font-mono focus:outline-none focus:border-cyan-500"
+              />
+            </div>
           </div>
 
           {/* Blockchain & Suspect Wallet */}
