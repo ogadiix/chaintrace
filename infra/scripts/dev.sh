@@ -25,9 +25,13 @@ source .venv/bin/activate
 
 echo "[*] Installing backend dependencies..."
 pip install -q -r apps/api/requirements.txt
+pip install -q -e packages/shared/python
 
 echo "[*] Installing frontend dependencies..."
 npm install --silent
+
+echo "[*] Building shared packages..."
+npm run build:packages
 
 echo "----------------------------------------------------------"
 echo "Starting services..."

@@ -8,8 +8,10 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=apps/web",
-    "build": "npm run build --workspaces --if-present",
+    "dev": "npm run dev --workspace=@chaintrace/web",
+    "build:packages": "npm run build --workspace=@chaintrace/types && npm run build --workspace=@chaintrace/shared",
+    "build:apps": "npm run build --workspace=@chaintrace/web",
+    "build": "npm run build:packages && npm run build:apps",
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present"
