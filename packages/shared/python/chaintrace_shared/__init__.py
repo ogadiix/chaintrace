@@ -49,6 +49,29 @@ class UserRole(str, Enum):
     VIEWER = "VIEWER"
 
 
+class JobStatus(str, Enum):
+    QUEUED = "QUEUED"
+    RUNNING = "RUNNING"
+    COMPLETED = "COMPLETED"
+    PARTIAL = "PARTIAL"
+    FAILED = "FAILED"
+
+
+class TraceDirection(str, Enum):
+    FORWARD = "FORWARD"
+    BACKWARD = "BACKWARD"
+    BOTH = "BOTH"
+
+
+class TerminalReason(str, Enum):
+    NO_OUTGOING_TRANSFERS = "NO_OUTGOING_TRANSFERS"
+    MAX_HOPS_REACHED = "MAX_HOPS_REACHED"
+    BELOW_AMOUNT_THRESHOLD = "BELOW_AMOUNT_THRESHOLD"
+    OUTSIDE_TIME_WINDOW = "OUTSIDE_TIME_WINDOW"
+    SAFETY_LIMIT_REACHED = "SAFETY_LIMIT_REACHED"
+    CYCLE_DETECTED = "CYCLE_DETECTED"
+
+
 ADDRESS_VALIDATION_PATTERNS = {
     BlockchainType.TRON: re.compile(r"^T[1-9A-HJ-NP-za-km-z]{33}$"),
     BlockchainType.ETHEREUM: re.compile(r"^0x[a-fA-F0-9]{40}$"),

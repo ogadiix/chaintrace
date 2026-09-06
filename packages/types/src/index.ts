@@ -25,7 +25,110 @@ export type FraudCategory =
 
 export type UserRole = 'ADMIN' | 'INVESTIGATOR' | 'ANALYST' | 'VIEWER';
 
-export type JobStatus = 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED';
+export type JobStatus = 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'PARTIAL' | 'FAILED';
+
+export type TraceDirection = 'FORWARD' | 'BACKWARD' | 'BOTH';
+
+export type TerminalReason = 
+  | 'NO_OUTGOING_TRANSFERS'
+  | 'MAX_HOPS_REACHED'
+  | 'BELOW_AMOUNT_THRESHOLD'
+  | 'OUTSIDE_TIME_WINDOW'
+  | 'SAFETY_LIMIT_REACHED'
+  | 'CYCLE_DETECTED';
+
+export interface TraceHop {
+  hopNumber: number;
+  fromWallet: string;
+  toWallet: string;
+  txHash: string;
+  chain: BlockchainType;
+  asset: string;
+  tokenContract?: string | null;
+  amount: string;
+  fee: string;
+  timestamp: string;
+  // Python FastAPI snake_case compatibility
+  hop_number?: number;
+  from_wallet?: string;
+  to_wallet?: string;
+  tx_hash?: string;
+  token_contract?: string | null;
+}
+
+export interface TracePath {
+  pathId: string;
+  hops: TraceHop[];
+  totalAmount: string;
+  terminalWallet: string;
+  terminalReason: TerminalReason;
+  // Python FastAPI snake_case compatibility
+  path_id?: string;
+  total_amount?: string;
+  terminal_wallet?: string;
+  terminal_reason?: TerminalReason;
+}
+
+export interface TraceRequest {
+  chain: BlockchainType;
+  seedWallet: string;
+  maxHops?: number;
+  minimumAmount?: string;
+  startTime?: string;
+  endTime?: string;
+  asset?: string;
+  direction?: TraceDirection;
+}
+
+export interface TraceResult {
+  investigationId?: string;
+  jobId?: string;
+  seed: {
+    chain: BlockchainType;
+    address: string;
+  };
+  configuration: TraceRequest;
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  paths: TracePath[];
+  terminals: Array<{ wallet: string; reason: TerminalReason }>;
+  statistics: {
+    nodes: number;
+    edges: number;
+    paths: number;
+    maxHopReached: number;
+    durationMs: number;
+    max_hop_reached?: number;
+    duration_ms?: number;
+  };
+  status: JobStatus;
+  message?: string | null;
+}
+
+export interface TraceJob {
+  id: string;
+  investigationId?: string;
+  chain: BlockchainType;
+  seedWallet: string;
+  status: JobStatus;
+  progress?: {
+    nodesProcessed?: number;
+    edgesProcessed?: number;
+    pathsFound?: number;
+    maxHopReached?: number;
+    elapsedMs?: number;
+    nodes_processed?: number;
+    edges_processed?: number;
+    paths_found?: number;
+    max_hop_reached?: number;
+    elapsed_ms?: number;
+  };
+  result?: TraceResult | null;
+  errorMessage?: string | null;
+  error_message?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 export interface User {
   id: string;

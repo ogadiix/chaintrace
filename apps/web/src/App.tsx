@@ -10,14 +10,14 @@ import {
   Terminal,
   UserCheck,
   PlusCircle,
-  ChevronDown,
-  Play
+  ChevronDown
 } from 'lucide-react';
 import type { Case, SystemHealth, User } from '@chaintrace/types';
 import { CHAIN_METADATA } from '@chaintrace/shared';
 import { CaseList } from './components/CaseList';
 import { CreateCaseModal } from './components/CreateCaseModal';
 import { CaseDetailDrawer } from './components/CaseDetailDrawer';
+import { TraceConsole } from './components/TraceConsole';
 
 export const App: React.FC = () => {
   // Navigation & View
@@ -323,39 +323,32 @@ export const App: React.FC = () => {
 
             {/* Investigation Layout Grid: Hero Workspace from docs/design.md */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1">
-              {/* Left Column: Fund Flow Graph Viewport */}
-              <div className="lg:col-span-2 bg-navy-900/90 border border-navy-700/80 rounded-lg p-4 flex flex-col min-h-[440px] relative overflow-hidden">
+              {/* Left Column: Fund Flow Graph & Trace Viewport */}
+              <div className="lg:col-span-2 bg-navy-900/90 border border-navy-700/80 rounded-lg p-4 flex flex-col min-h-[480px] relative overflow-hidden">
                 <div className="flex items-center justify-between border-b border-navy-800 pb-3 mb-3">
                   <div className="flex items-center gap-2">
                     <Share2 className="w-4 h-4 text-cyan-400" />
-                    <span className="text-sm font-semibold text-slate-200">Interactive Fund Flow Graph</span>
+                    <span className="text-sm font-semibold text-slate-200">Investigation Trace Engine</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs font-mono text-slate-400">
-                    <span className="px-2 py-0.5 rounded bg-navy-800 border border-navy-700">Bounded Trace: 4 Hops</span>
-                    <span className="px-2 py-0.5 rounded bg-navy-800 border border-navy-700">Cytoscape</span>
+                    <span className="px-2 py-0.5 rounded bg-navy-800 border border-navy-700">Bounded BFS</span>
+                    <span className="px-2 py-0.5 rounded bg-navy-800 border border-navy-700">Phase 4 Engine</span>
                   </div>
                 </div>
 
-                <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-navy-800 rounded-lg p-6 text-center bg-navy-950/40">
-                  <div className="w-12 h-12 rounded-full bg-navy-800/80 flex items-center justify-center mb-3 text-cyan-400">
-                    <Share2 className="w-6 h-6" />
+                {activeCase ? (
+                  <TraceConsole activeCase={activeCase} authToken={authToken} />
+                ) : (
+                  <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-navy-800 rounded-lg p-6 text-center bg-navy-950/40">
+                    <div className="w-12 h-12 rounded-full bg-navy-800/80 flex items-center justify-center mb-3 text-cyan-400">
+                      <Share2 className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-sm font-medium text-slate-200 mb-1">Select a case to inspect</h3>
+                    <p className="text-xs text-slate-400 max-w-md">
+                      Choose an active investigation case to trigger N-Hop traversal, amount filtering, and flow timeline analysis.
+                    </p>
                   </div>
-                  <h3 className="text-sm font-medium text-slate-200 mb-1">
-                    {activeCase ? `Ready to trace ${activeCase.targetChain.toUpperCase()} wallet` : 'Select a case to inspect'}
-                  </h3>
-                  <p className="text-xs text-slate-400 max-w-md mb-4">
-                    Blockchain adapter layer and N-hop crawler will traverse transactions and persist graph nodes into Neo4j.
-                  </p>
-                  {activeCase && (
-                    <button
-                      onClick={() => alert(`Starting Phase 2-4 Trace for wallet: ${activeCase.suspectWallet}`)}
-                      className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold px-4 py-2 rounded-lg text-xs transition-colors shadow-lg shadow-cyan-900/40"
-                    >
-                      <Play className="w-3.5 h-3.5 fill-current" />
-                      <span>Start Bounded Multi-Hop Trace</span>
-                    </button>
-                  )}
-                </div>
+                )}
               </div>
 
               {/* Right Column: Intelligence, Risk, and Attribution */}
