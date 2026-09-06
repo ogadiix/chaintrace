@@ -10,6 +10,10 @@ import {
   Sparkles,
   ArrowUpRight,
   Search,
+  Target,
+  FileText,
+  ShieldAlert,
+  Activity,
 } from 'lucide-react';
 import type { Case } from '@chaintrace/types';
 
@@ -19,6 +23,7 @@ interface InvestigatorDashboardProps {
   onNewCase: () => void;
   onSeedDemo: () => void;
   loadingDemo: boolean;
+  onNavigateTab?: (tab: 'dashboard' | 'cases' | 'investigate' | 'reports' | 'integrations' | 'diagnostics') => void;
 }
 
 export const InvestigatorDashboard: React.FC<InvestigatorDashboardProps> = ({
@@ -27,6 +32,7 @@ export const InvestigatorDashboard: React.FC<InvestigatorDashboardProps> = ({
   onNewCase,
   onSeedDemo,
   loadingDemo,
+  onNavigateTab,
 }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
 
@@ -153,6 +159,91 @@ export const InvestigatorDashboard: React.FC<InvestigatorDashboardProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Connected Investigation Workspaces Navigation Grid */}
+      {onNavigateTab && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <button
+            onClick={() => onNavigateTab('cases')}
+            className="p-3 bg-navy-900/80 hover:bg-navy-800/90 border border-navy-700/70 hover:border-cyan-500/40 rounded-lg text-left transition-all group shadow-sm flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-slate-200 group-hover:text-cyan-400 flex items-center gap-1.5">
+                <FolderOpen className="w-3.5 h-3.5 text-cyan-400" />
+                Cases Directory
+              </span>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-navy-950 text-cyan-300 border border-navy-800">
+                {cases.length}
+              </span>
+            </div>
+            <p className="text-[10px] text-slate-400">Filter, search & triage fraud cases</p>
+          </button>
+
+          <button
+            onClick={() => onNavigateTab('investigate')}
+            className="p-3 bg-navy-900/80 hover:bg-navy-800/90 border border-navy-700/70 hover:border-cyan-500/40 rounded-lg text-left transition-all group shadow-sm flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-slate-200 group-hover:text-cyan-400 flex items-center gap-1.5">
+                <Target className="w-3.5 h-3.5 text-cyan-400" />
+                Graph & Trace Studio
+              </span>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-navy-950 text-emerald-300 border border-navy-800">
+                LIVE
+              </span>
+            </div>
+            <p className="text-[10px] text-slate-400">Interactive fund-flow traversal</p>
+          </button>
+
+          <button
+            onClick={() => onNavigateTab('reports')}
+            className="p-3 bg-navy-900/80 hover:bg-navy-800/90 border border-navy-700/70 hover:border-cyan-500/40 rounded-lg text-left transition-all group shadow-sm flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-slate-200 group-hover:text-cyan-400 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-cyan-400" />
+                Reports & Dossiers
+              </span>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-navy-950 text-cyan-300 border border-navy-800">
+                PDF
+              </span>
+            </div>
+            <p className="text-[10px] text-slate-400">SHA-256 verified forensic dossiers</p>
+          </button>
+
+          <button
+            onClick={() => onNavigateTab('integrations')}
+            className="p-3 bg-navy-900/80 hover:bg-navy-800/90 border border-navy-700/70 hover:border-amber-500/40 rounded-lg text-left transition-all group shadow-sm flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-slate-200 group-hover:text-amber-400 flex items-center gap-1.5">
+                <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+                NCRP / SAHYOG
+              </span>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-navy-950 text-amber-300 border border-navy-800">
+                I4C
+              </span>
+            </div>
+            <p className="text-[10px] text-slate-400">Victim intake & freeze orders</p>
+          </button>
+
+          <button
+            onClick={() => onNavigateTab('diagnostics')}
+            className="p-3 bg-navy-900/80 hover:bg-navy-800/90 border border-navy-700/70 hover:border-cyan-500/40 rounded-lg text-left transition-all group shadow-sm flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-slate-200 group-hover:text-cyan-400 flex items-center gap-1.5">
+                <Activity className="w-3.5 h-3.5 text-cyan-400" />
+                Diagnostics
+              </span>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-navy-950 text-emerald-300 border border-navy-800">
+                SYSTEM
+              </span>
+            </div>
+            <p className="text-[10px] text-slate-400">Infrastructure health & logs</p>
+          </button>
+        </div>
+      )}
 
       {/* Recent Investigations Table */}
       <div className="bg-navy-900/90 border border-navy-700/80 rounded-lg p-4 space-y-3">

@@ -10,8 +10,11 @@ import {
   Target,
   AlertTriangle,
   RefreshCw,
+  LogOut,
+  ShieldAlert,
 } from 'lucide-react';
 import type { Case, SystemHealth, User } from '@chaintrace/types';
+import { LoginPage } from './components/LoginPage';
 import { CaseList } from './components/CaseList';
 import { CreateCaseModal } from './components/CreateCaseModal';
 import { CaseDetailDrawer } from './components/CaseDetailDrawer';
@@ -19,16 +22,23 @@ import { InvestigatorDashboard } from './components/InvestigatorDashboard';
 import { InvestigationWorkspace } from './components/InvestigationWorkspace';
 import { ReportsDashboard } from './components/ReportsDashboard';
 import { IntegrationsCenter } from './components/IntegrationsCenter';
-import { ShieldAlert } from 'lucide-react';
-
 
 export const App: React.FC = () => {
   // Navigation: Dashboard | Cases | Investigate | Reports | Integrations | Diagnostics
   const [activeTab, setActiveTab] = useState<'dashboard' | 'cases' | 'investigate' | 'reports' | 'integrations' | 'diagnostics'>('dashboard');
 
-  // Authentication State
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [authToken, setAuthToken] = useState<string>('');
+  // Authentication State with Session Persistence
+  const [authToken, setAuthToken] = useState<string>(() => {
+    return sessionStorage.getItem('chaintrace_auth_token') || '';
+  });
+  const [currentUser, setCurrentUser] = useState<User | null>(() => {
+    try {
+      const raw = sessionStorage.getItem('chaintrace_current_user');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  });
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
   // Case Management State
@@ -44,7 +54,23 @@ export const App: React.FC = () => {
   const [loadingHealth, setLoadingHealth] = useState<boolean>(true);
   const [healthError, setHealthError] = useState<string | null>(null);
 
-  // Auto-login with default demo credentials
+  const handleLoginSuccess = (token: string, user: User) => {
+    setAuthToken(token);
+    setCurrentUser(user);
+    sessionStorage.setItem('chaintrace_auth_token', token);
+    sessionStorage.setItem('chaintrace_current_user', JSON.stringify(user));
+    setActiveTab('dashboard');
+  };
+
+  const handleLogout = () => {
+    setAuthToken('');
+    setCurrentUser(null);
+    sessionStorage.removeItem('chaintrace_auth_token');
+    sessionStorage.removeItem('chaintrace_current_user');
+    setActiveCase(null);
+    setCases([]);
+  };
+
   const loginAs = async (email: string, pass: string) => {
     try {
       const res = await fetch('/api/v1/auth/login', {
@@ -54,8 +80,7 @@ export const App: React.FC = () => {
       });
       if (res.ok) {
         const data = await res.json();
-        setAuthToken(data.accessToken);
-        setCurrentUser(data.user);
+        handleLoginSuccess(data.accessToken, data.user);
       }
     } catch {
       // Handled silently
@@ -63,7 +88,6 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    loginAs('investigator@chaintrace.internal', 'Investigator123!');
     fetchHealth();
   }, []);
 
@@ -186,21 +210,28 @@ export const App: React.FC = () => {
     }
   };
 
+  if (!authToken || !currentUser) {
+    return <LoginPage onLoginSuccess={handleLoginSuccess} />;
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-navy-950 text-slate-100 selection:bg-cyan-500/20 font-mono">
       {/* Top Application Header */}
       <header className="h-14 border-b border-navy-700/80 bg-navy-900/95 backdrop-blur px-4 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 text-cyan-400 font-bold tracking-wider text-base select-none">
+          <div
+            onClick={() => setActiveTab('dashboard')}
+            className="flex items-center gap-2 text-cyan-400 font-bold tracking-wider text-base select-none cursor-pointer hover:text-cyan-300 transition-colors"
+          >
             <Shield className="w-5 h-5 text-cyan-400" />
             <span>CHAINTRACE</span>
           </div>
-          <span className="text-[11px] px-2 py-0.5 rounded bg-navy-800 text-slate-300 font-mono font-medium border border-navy-700">
+          <span className="text-[11px] px-2 py-0.5 rounded bg-navy-800 text-slate-300 font-mono font-medium border border-navy-700 hidden sm:inline-block">
             SIH-183
           </span>
         </div>
 
-        {/* Global Navigation Tabs */}
+        {/* Global Navigation Tabs connecting ALL pages */}
         <nav className="flex items-center gap-1">
           <button
             onClick={() => setActiveTab('dashboard')}
@@ -211,7 +242,7 @@ export const App: React.FC = () => {
             }`}
           >
             <LayoutDashboard className="w-3.5 h-3.5" />
-            Dashboard
+            <span>Dashboard</span>
           </button>
 
           <button
@@ -223,7 +254,7 @@ export const App: React.FC = () => {
             }`}
           >
             <FolderOpen className="w-3.5 h-3.5" />
-            Cases Directory ({cases.length})
+            <span>Cases ({cases.length})</span>
           </button>
 
           <button
@@ -235,9 +266,9 @@ export const App: React.FC = () => {
             }`}
           >
             <Target className="w-3.5 h-3.5" />
-            Investigation Workspace
+            <span>Workspace</span>
             {activeCase && (
-              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-navy-800 text-cyan-300 border border-cyan-500/20">
+              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-navy-800 text-cyan-300 border border-cyan-500/20 hidden md:inline-block">
                 {activeCase.caseNumber}
               </span>
             )}
@@ -252,7 +283,7 @@ export const App: React.FC = () => {
             }`}
           >
             <FileText className="w-3.5 h-3.5" />
-            Reports
+            <span>Reports</span>
           </button>
 
           <button
@@ -264,10 +295,7 @@ export const App: React.FC = () => {
             }`}
           >
             <ShieldAlert className="w-3.5 h-3.5" />
-            NCRP / SAHYOG
-            <span className="text-[9px] px-1 py-0.2 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 font-mono">
-              DEMO
-            </span>
+            <span>NCRP / SAHYOG</span>
           </button>
 
           <button
@@ -279,12 +307,36 @@ export const App: React.FC = () => {
             }`}
           >
             <Activity className="w-3.5 h-3.5" />
-            Diagnostics
+            <span>Diagnostics</span>
           </button>
         </nav>
 
-        {/* Right Controls: User Profile & System Status */}
-        <div className="flex items-center gap-3">
+        {/* Right Controls: Active Case Quick-Select, User Profile & Sign Out */}
+        <div className="flex items-center gap-2.5">
+          {/* Active Case Switcher Pill */}
+          {cases.length > 0 && (
+            <div className="relative hidden lg:block">
+              <select
+                value={activeCase?.id || ''}
+                onChange={(e) => {
+                  const found = cases.find((c) => c.id === e.target.value);
+                  if (found) {
+                    setActiveCase(found);
+                    setActiveTab('investigate');
+                  }
+                }}
+                className="bg-navy-800 border border-navy-700 text-cyan-300 text-xs rounded-md px-2.5 py-1 font-mono focus:outline-none focus:border-cyan-500 transition-colors"
+                title="Active Case Target"
+              >
+                {cases.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.caseNumber} — {c.title.slice(0, 20)}...
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* User Profile Selector (Demo RBAC switcher) */}
           <div className="relative">
             <button
@@ -295,7 +347,7 @@ export const App: React.FC = () => {
               <span className="text-slate-200 font-medium">
                 {currentUser?.fullName.split(' ')[0] || 'Investigator'}
               </span>
-              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-navy-900 text-cyan-300 border border-navy-700">
+              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-navy-900 text-cyan-300 border border-navy-700 hidden sm:inline-block">
                 {currentUser?.role || 'INVESTIGATOR'}
               </span>
               <ChevronDown className="w-3 h-3 text-slate-400" />
@@ -335,21 +387,15 @@ export const App: React.FC = () => {
             )}
           </div>
 
-          {/* Health Pill */}
-          <div className="flex items-center gap-2 text-xs font-mono px-2.5 py-1 rounded-md bg-navy-800 border border-navy-700">
-            <span
-              className={`w-2 h-2 rounded-full ${
-                loadingHealth
-                  ? 'bg-amber-400 animate-pulse'
-                  : health?.status === 'healthy'
-                  ? 'bg-emerald-400'
-                  : 'bg-rose-500'
-              }`}
-            />
-            <span className="text-slate-300">
-              {loadingHealth ? 'POLLING...' : health?.status ? health.status.toUpperCase() : 'OFFLINE'}
-            </span>
-          </div>
+          {/* Sign Out Button */}
+          <button
+            onClick={handleLogout}
+            title="Sign out of Forensic Terminal"
+            className="flex items-center gap-1.5 text-xs bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2.5 py-1 rounded-md transition-colors"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Sign Out</span>
+          </button>
         </div>
       </header>
 
@@ -363,6 +409,7 @@ export const App: React.FC = () => {
             onNewCase={() => setIsCreateModalOpen(true)}
             onSeedDemo={handleSeedDemoScenario}
             loadingDemo={loadingDemo}
+            onNavigateTab={(tab) => setActiveTab(tab)}
           />
         )}
 
