@@ -10,6 +10,8 @@ class BlockchainType(str, Enum):
     TRON = "tron"
     ETHEREUM = "ethereum"
     BITCOIN = "bitcoin"
+    BINANCE_SMART_CHAIN = "bsc"
+    POLYGON = "polygon"
 
 
 class RiskLevel(str, Enum):
@@ -51,6 +53,8 @@ ADDRESS_VALIDATION_PATTERNS = {
     BlockchainType.TRON: re.compile(r"^T[1-9A-HJ-NP-za-km-z]{33}$"),
     BlockchainType.ETHEREUM: re.compile(r"^0x[a-fA-F0-9]{40}$"),
     BlockchainType.BITCOIN: re.compile(r"^(bc1[a-zA-HJ-NP-Z0-9]{25,39}|[13][a-km-zA-HJ-NP-Z1-9]{25,34})$"),
+    BlockchainType.BINANCE_SMART_CHAIN: re.compile(r"^0x[a-fA-F0-9]{40}$"),
+    BlockchainType.POLYGON: re.compile(r"^0x[a-fA-F0-9]{40}$"),
 }
 
 

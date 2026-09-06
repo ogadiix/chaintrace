@@ -51,8 +51,17 @@ class Settings(BaseSettings):
     TRON_API_URL: str = "https://api.trongrid.io"
     TRON_API_KEY: str = ""
     ETH_RPC_URL: str = "https://eth.llamarpc.com"
+    ETHEREUM_RPC_URL: str = ""  # If unset, defaults to ETH_RPC_URL
+    BSC_RPC_URL: str = "https://binance.llamarpc.com"
+    POLYGON_RPC_URL: str = "https://polygon.llamarpc.com"
     ETHERSCAN_API_KEY: str = ""
     BTC_API_URL: str = "https://blockstream.info/api"
+
+    # Blockchain Provider Resilience & Rate Limits
+    PROVIDER_TIMEOUT_SECONDS: float = 10.0
+    PROVIDER_MAX_RETRIES: int = 3
+    PROVIDER_RATE_LIMIT_PER_SEC: float = 5.0
+    BLOCKCHAIN_CACHE_TTL_SECONDS: int = 300
 
     # Defensive limits
     DEFAULT_MAX_HOPS: int = Field(default=4, ge=1, le=10)

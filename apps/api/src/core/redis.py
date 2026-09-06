@@ -24,7 +24,7 @@ async def check_redis_health() -> dict:
         client = get_redis_client()
         await client.ping()
         return {"status": "connected", "url": settings.REDIS_URL}
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         if settings.REDIS_MOCK_FALLBACK:
             return {
                 "status": "mock_mode",

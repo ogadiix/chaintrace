@@ -58,7 +58,7 @@ async def list_audit_logs(
         if r.metadata_json:
             try:
                 meta = json.loads(r.metadata_json)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 meta = {"raw": r.metadata_json}
 
         items.append(

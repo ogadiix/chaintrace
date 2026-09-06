@@ -48,7 +48,7 @@ async def check_db_health() -> dict:
             "status": "connected",
             "engine": "sqlite" if "sqlite" in settings.DATABASE_URL else "postgresql"
         }
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         if settings.DATABASE_FALLBACK_SQLITE:
             return {
                 "status": "fallback_mode",

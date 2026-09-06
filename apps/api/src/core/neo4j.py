@@ -15,7 +15,7 @@ def get_neo4j_driver() -> AsyncDriver | None:
                 settings.NEO4J_URI,
                 auth=(settings.NEO4J_USER, settings.NEO4J_PASSWORD)
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             _driver = None
     return _driver
 
@@ -31,7 +31,7 @@ async def check_neo4j_health() -> dict:
     try:
         await driver.verify_connectivity()
         return {"status": "connected", "uri": settings.NEO4J_URI}
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         if settings.NEO4J_MOCK_FALLBACK:
             return {
                 "status": "mock_mode",

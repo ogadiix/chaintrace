@@ -16,6 +16,16 @@ export const CHAIN_METADATA: Record<BlockchainType, { name: string; symbol: stri
     symbol: 'BTC',
     explorerUrl: 'https://mempool.space/tx/',
   },
+  bsc: {
+    name: 'BNB Smart Chain',
+    symbol: 'BNB',
+    explorerUrl: 'https://bscscan.com/tx/',
+  },
+  polygon: {
+    name: 'Polygon',
+    symbol: 'POL',
+    explorerUrl: 'https://polygonscan.com/tx/',
+  },
 };
 
 /**
@@ -25,6 +35,8 @@ export const ADDRESS_VALIDATION_REGEX: Record<BlockchainType, RegExp> = {
   tron: /^T[1-9A-HJ-NP-za-km-z]{33}$/,
   ethereum: /^0x[a-fA-F0-9]{40}$/,
   bitcoin: /^(bc1[a-zA-HJ-NP-Z0-9]{25,39}|[13][a-km-zA-HJ-NP-Z1-9]{25,34})$/,
+  bsc: /^0x[a-fA-F0-9]{40}$/,
+  polygon: /^0x[a-fA-F0-9]{40}$/,
 };
 
 export function isValidAddress(chain: BlockchainType, address: string): boolean {

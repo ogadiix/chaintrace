@@ -3,7 +3,7 @@
  * Source of truth: docs/PRD.md, docs/architecture.md, docs/security.md
  */
 
-export type BlockchainType = 'tron' | 'ethereum' | 'bitcoin';
+export type BlockchainType = 'tron' | 'ethereum' | 'bitcoin' | 'bsc' | 'polygon';
 
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
