@@ -260,3 +260,66 @@ export interface SystemHealth {
     };
   };
 }
+
+export type FindingType =
+  | 'RAPID_FORWARDING'
+  | 'HIGH_FAN_OUT'
+  | 'HIGH_FAN_IN'
+  | 'PEEL_CHAIN'
+  | 'CONSOLIDATION'
+  | 'ROUND_AMOUNT_PATTERN'
+  | 'REPEATED_DESTINATION'
+  | 'SUSPICIOUS_VELOCITY'
+  | 'KNOWN_RISK_INTERACTION';
+
+export type FindingSeverity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
+export interface EvidenceReference {
+  type: 'TRANSACTION' | 'WALLET' | 'PATH' | 'GRAPH_EDGE';
+  refId: string;
+  description?: string;
+  metadata?: Record<string, unknown>;
+  // Snake_case aliases
+  ref_id?: string;
+}
+
+export interface IntelligenceFinding {
+  findingId: string;
+  investigationId?: string | null;
+  type: FindingType;
+  severity: FindingSeverity;
+  title: string;
+  description: string;
+  observedFact: string;
+  interpretation: string;
+  confidence: number; // 0.0 to 1.0 (Pattern match confidence)
+  evidenceRefs: EvidenceReference[];
+  ruleId: string;
+  ruleVersion: string;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+  // Snake_case aliases
+  finding_id?: string;
+  investigation_id?: string | null;
+  observed_fact?: string;
+  evidence_refs?: EvidenceReference[];
+  rule_id?: string;
+  rule_version?: string;
+  created_at?: string;
+}
+
+export interface IntelligenceAnalysisResult {
+  investigationId?: string | null;
+  findings: IntelligenceFinding[];
+  statistics: {
+    totalFindings: number;
+    severityCounts: Record<FindingSeverity, number>;
+    rulesExecuted: number;
+    walletsAnalyzed: number;
+    transactionsAnalyzed: number;
+    durationMs: number;
+  };
+  rulesExecuted: string[];
+  analysisTimestamp: string;
+  engineVersion: string;
+}

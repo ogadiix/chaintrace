@@ -18,6 +18,7 @@ import { CaseList } from './components/CaseList';
 import { CreateCaseModal } from './components/CreateCaseModal';
 import { CaseDetailDrawer } from './components/CaseDetailDrawer';
 import { TraceConsole } from './components/TraceConsole';
+import { IntelligencePanel } from './components/IntelligencePanel';
 
 export const App: React.FC = () => {
   // Navigation & View
@@ -351,8 +352,12 @@ export const App: React.FC = () => {
                 )}
               </div>
 
-              {/* Right Column: Intelligence, Risk, and Attribution */}
+              {/* Right Column: Intelligence Findings, Risk, and Attribution */}
               <div className="flex flex-col gap-4">
+                {activeCase && (
+                  <IntelligencePanel activeCase={activeCase} authToken={authToken} />
+                )}
+
                 {/* Risk Score Summary Panel */}
                 <div className="bg-navy-900/90 border border-navy-700/80 rounded-lg p-4 flex flex-col">
                   <div className="flex items-center justify-between border-b border-navy-800 pb-3 mb-3">

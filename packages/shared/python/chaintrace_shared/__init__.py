@@ -72,6 +72,25 @@ class TerminalReason(str, Enum):
     CYCLE_DETECTED = "CYCLE_DETECTED"
 
 
+class FindingType(str, Enum):
+    RAPID_FORWARDING = "RAPID_FORWARDING"
+    HIGH_FAN_OUT = "HIGH_FAN_OUT"
+    HIGH_FAN_IN = "HIGH_FAN_IN"
+    PEEL_CHAIN = "PEEL_CHAIN"
+    CONSOLIDATION = "CONSOLIDATION"
+    ROUND_AMOUNT_PATTERN = "ROUND_AMOUNT_PATTERN"
+    REPEATED_DESTINATION = "REPEATED_DESTINATION"
+    SUSPICIOUS_VELOCITY = "SUSPICIOUS_VELOCITY"
+    KNOWN_RISK_INTERACTION = "KNOWN_RISK_INTERACTION"
+
+
+class FindingSeverity(str, Enum):
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+    CRITICAL = "CRITICAL"
+
+
 ADDRESS_VALIDATION_PATTERNS = {
     BlockchainType.TRON: re.compile(r"^T[1-9A-HJ-NP-za-km-z]{33}$"),
     BlockchainType.ETHEREUM: re.compile(r"^0x[a-fA-F0-9]{40}$"),
