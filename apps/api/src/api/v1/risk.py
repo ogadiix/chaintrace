@@ -8,6 +8,7 @@ Source of truth: Master Prompt Phase 7 Sections 16, 20, 21, 22
 from typing import Any
 
 from apps.api.src.core.audit import log_audit_event
+from apps.api.src.core.authorization import verify_case_access
 from apps.api.src.core.database import get_db
 from apps.api.src.core.security import get_current_user, require_role
 from apps.api.src.models.case import Case
@@ -35,18 +36,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 router = APIRouter(tags=["Investigation Risk Engine"])
 
 
-async def _verify_case(case_id: str, db: AsyncSession) -> Case:
-    stmt = select(Case).where(Case.id == case_id)
-    res = await db.execute(stmt)
-    case = res.scalar_one_or_none()
-    if not case:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Case with ID '{case_id}' not found",
-        )
-    return case
-
-
 @router.post("/investigations/{case_id}/risk/analyze", response_model=RiskAssessment)
 async def analyze_case_risk_endpoint(
     case_id: str,
@@ -64,7 +53,7 @@ async def analyze_case_risk_endpoint(
     Executes holistic risk evaluation across Trace, Intelligence, and VASP layers.
     Yields explainable score [0-100] with evidence links.
     """
-    case = await _verify_case(case_id, db)
+    case = await verify_case_access(case_id, current_user, db)
 
     if not case.suspect_wallet:
         raise HTTPException(
@@ -130,7 +119,7 @@ async def get_case_latest_risk(
     risk_engine: RiskEngine = Depends(get_risk_engine),
 ) -> RiskAssessment:
     """Retrieves latest risk assessment for the case (evaluates automatically if none recorded)."""
-    case = await _verify_case(case_id, db)
+    case = await verify_case_access(case_id, current_user, db)
 
     latest = await risk_engine.get_latest_assessment(case_id)
     if latest:
@@ -180,7 +169,7 @@ async def get_case_risk_history(
     risk_engine: RiskEngine = Depends(get_risk_engine),
 ) -> list[RiskAssessment]:
     """Retrieves chronological risk assessment history for the case."""
-    await _verify_case(case_id, db)
+    await verify_case_access(case_id, current_user, db)
     return await risk_engine.get_assessment_history(case_id)
 
 
@@ -194,7 +183,7 @@ async def manual_risk_override_endpoint(
     risk_engine: RiskEngine = Depends(get_risk_engine),
 ) -> RiskAssessment:
     """Applies investigator manual risk level override while preserving automated score."""
-    await _verify_case(case_id, db)
+    await verify_case_access(case_id, current_user, db, require_write=True)
 
     updated = await risk_engine.apply_manual_override(
         investigation_id=case_id,

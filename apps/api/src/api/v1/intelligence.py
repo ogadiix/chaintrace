@@ -8,6 +8,7 @@ Source of truth: Master Prompt Phase 5 Sections 16, 17, 21
 from typing import Any
 
 from apps.api.src.core.audit import log_audit_event
+from apps.api.src.core.authorization import verify_case_access
 from apps.api.src.core.database import get_db
 from apps.api.src.core.security import get_current_user, require_role
 from apps.api.src.models.case import Case
@@ -27,18 +28,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 router = APIRouter(prefix="/investigations", tags=["Intelligence Engine"])
 
 
-async def _verify_case(case_id: str, db: AsyncSession) -> Case:
-    stmt = select(Case).where(Case.id == case_id)
-    res = await db.execute(stmt)
-    case = res.scalar_one_or_none()
-    if not case:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Case with ID '{case_id}' not found",
-        )
-    return case
-
-
 @router.post("/{case_id}/intelligence/analyze", response_model=IntelligenceAnalysisResult)
 async def analyze_case_intelligence_endpoint(
     case_id: str,
@@ -54,7 +43,7 @@ async def analyze_case_intelligence_endpoint(
     Executes forensic pattern detection rules against the case graph.
     Returns explainable findings with direct links to blockchain evidence.
     """
-    case = await _verify_case(case_id, db)
+    case = await verify_case_access(case_id, current_user, db)
 
     if not case.suspect_wallet:
         raise HTTPException(
@@ -106,7 +95,7 @@ async def get_case_intelligence_findings(
     """
     Retrieves current intelligence findings for the case's fund flow graph.
     """
-    case = await _verify_case(case_id, db)
+    case = await verify_case_access(case_id, current_user, db)
 
     if not case.suspect_wallet:
         return IntelligenceAnalysisResult(
@@ -149,7 +138,7 @@ async def create_async_intelligence_job(
     """
     Asynchronously submits an intelligence analysis job.
     """
-    case = await _verify_case(case_id, db)
+    case = await verify_case_access(case_id, current_user, db)
     trace_req = TraceRequest(
         chain=BlockchainType(case.target_chain),
         seed_wallet=case.suspect_wallet,

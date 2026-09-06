@@ -6,6 +6,7 @@ import {
   Sparkles,
   Layers,
   AlertCircle,
+  Building2,
 } from 'lucide-react';
 import type { Case, TraceResult, TraceJob, GraphCanvasNode, GraphCanvasEdge } from '@chaintrace/types';
 import { FundFlowGraph } from './FundFlowGraph';
@@ -15,6 +16,8 @@ import { VaspAttributionPanel } from './VaspAttributionPanel';
 import { WorkspaceBottomDrawer } from './WorkspaceBottomDrawer';
 import { WalletDetailModal } from './WalletDetailModal';
 import { TransactionDetailModal } from './TransactionDetailModal';
+import { ReportGenerationModal } from './ReportGenerationModal';
+import { SahyogRequestModal } from './SahyogRequestModal';
 
 interface InvestigationWorkspaceProps {
   activeCase: Case;
@@ -36,6 +39,8 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
   const [traceJob, setTraceJob] = useState<TraceJob | null>(null);
   const [traceResult, setTraceResult] = useState<TraceResult | null>(null);
   const [traceError, setTraceError] = useState<string | null>(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
+  const [isSahyogModalOpen, setIsSahyogModalOpen] = useState<boolean>(false);
 
   // Status updating
   const [statusUpdating, setStatusUpdating] = useState<boolean>(false);
@@ -226,12 +231,21 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
           </button>
 
           <button
-            disabled
-            className="flex items-center gap-1.5 bg-navy-800/60 text-slate-500 border border-navy-700/60 px-3 py-1.5 rounded text-xs cursor-not-allowed"
-            title="Investigation Report Engine scheduled for Phase 9"
+            onClick={() => setIsSahyogModalOpen(true)}
+            className="flex items-center gap-1.5 bg-navy-800 hover:bg-navy-750 text-cyan-300 border border-cyan-500/30 px-3 py-1.5 rounded text-xs transition-colors"
+            title="Issue Statutory Intermediary Requisition via I4C SAHYOG"
+          >
+            <Building2 className="w-3.5 h-3.5 text-cyan-400" />
+            SAHYOG Requisition
+          </button>
+
+          <button
+            onClick={() => setIsReportModalOpen(true)}
+            className="flex items-center gap-1.5 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold border border-cyan-400/30 px-3 py-1.5 rounded text-xs transition-colors shadow-sm"
+            title="Generate Court-Admissible PDF Evidentiary Dossier"
           >
             <FileText className="w-3.5 h-3.5" />
-            Generate Report (Phase 9)
+            Generate Report
           </button>
         </div>
       </div>
@@ -377,6 +391,21 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
       <TransactionDetailModal
         edge={selectedEdge}
         onClose={() => setSelectedEdge(null)}
+      />
+
+      <ReportGenerationModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        activeCase={activeCase}
+        authToken={authToken}
+      />
+
+      <SahyogRequestModal
+        isOpen={isSahyogModalOpen}
+        onClose={() => setIsSahyogModalOpen(false)}
+        activeCase={activeCase}
+        authToken={authToken}
+        initialTargetWallet={selectedNode ? selectedNode.address : activeCase.suspectWallet}
       />
     </div>
   );

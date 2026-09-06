@@ -17,11 +17,14 @@ import { CreateCaseModal } from './components/CreateCaseModal';
 import { CaseDetailDrawer } from './components/CaseDetailDrawer';
 import { InvestigatorDashboard } from './components/InvestigatorDashboard';
 import { InvestigationWorkspace } from './components/InvestigationWorkspace';
+import { ReportsDashboard } from './components/ReportsDashboard';
+import { IntegrationsCenter } from './components/IntegrationsCenter';
+import { ShieldAlert } from 'lucide-react';
 
 
 export const App: React.FC = () => {
-  // Navigation: Dashboard | Cases | Investigate | Reports | Diagnostics
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'cases' | 'investigate' | 'reports' | 'diagnostics'>('dashboard');
+  // Navigation: Dashboard | Cases | Investigate | Reports | Integrations | Diagnostics
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'cases' | 'investigate' | 'reports' | 'integrations' | 'diagnostics'>('dashboard');
 
   // Authentication State
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -249,7 +252,22 @@ export const App: React.FC = () => {
             }`}
           >
             <FileText className="w-3.5 h-3.5" />
-            Reports (Phase 9)
+            Reports
+          </button>
+
+          <button
+            onClick={() => setActiveTab('integrations')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              activeTab === 'integrations'
+                ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-navy-800'
+            }`}
+          >
+            <ShieldAlert className="w-3.5 h-3.5" />
+            NCRP / SAHYOG
+            <span className="text-[9px] px-1 py-0.2 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 font-mono">
+              DEMO
+            </span>
           </button>
 
           <button
@@ -391,53 +409,17 @@ export const App: React.FC = () => {
           )
         )}
 
-        {/* 4. Reports Tab (Phase 9 Preview) */}
+        {/* 4. Reports Tab (Phase 9 Active) */}
         {activeTab === 'reports' && (
-          <div className="bg-navy-900/90 border border-navy-700/80 rounded-lg p-6 space-y-4">
-            <div className="flex items-center gap-2 border-b border-navy-800 pb-3">
-              <FileText className="w-5 h-5 text-cyan-400" />
-              <div>
-                <h2 className="text-sm font-bold text-slate-100 uppercase">
-                  Investigation Reports & Statutory Filing (Phase 9)
-                </h2>
-                <p className="text-xs text-slate-400">
-                  Court-admissible PDF dossiers, NCRP evidence exports, and Section 91 CrPC VASP freezing requests.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-              <div className="bg-navy-950 p-4 rounded border border-navy-800 space-y-2">
-                <span className="text-cyan-400 font-bold">1. Evidentiary PDF Dossier</span>
-                <p className="text-slate-400 text-[11px]">
-                  Generates an immutable, cryptographic hash-verified case report including graph topologies, intelligence findings, and risk scoring provenance.
-                </p>
-                <span className="inline-block px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 text-[10px] border border-cyan-500/20">
-                  Phase 9 Engine
-                </span>
-              </div>
-
-              <div className="bg-navy-950 p-4 rounded border border-navy-800 space-y-2">
-                <span className="text-emerald-400 font-bold">2. NCRP Evidence Package</span>
-                <p className="text-slate-400 text-[11px]">
-                  Standardized JSON & CSV formatted ledger for export directly into National Cybercrime Reporting Portal systems.
-                </p>
-                <span className="inline-block px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px] border border-emerald-500/20">
-                  Phase 9 Engine
-                </span>
-              </div>
-
-              <div className="bg-navy-950 p-4 rounded border border-navy-800 space-y-2">
-                <span className="text-amber-400 font-bold">3. VASP Freezing Notice</span>
-                <p className="text-slate-400 text-[11px]">
-                  Formal requisition notice generated for FIU-registered cryptocurrency exchanges for immediate deposit account freezing.
-                </p>
-                <span className="inline-block px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 text-[10px] border border-amber-500/20">
-                  Phase 9 Engine
-                </span>
-              </div>
-            </div>
-          </div>
+          <ReportsDashboard
+            cases={cases}
+            activeCase={activeCase}
+            authToken={authToken}
+            onSelectCase={(c) => {
+              setActiveCase(c);
+              setActiveTab('investigate');
+            }}
+          />
         )}
 
         {/* 5. Diagnostics Tab */}
@@ -495,6 +477,21 @@ export const App: React.FC = () => {
               </div>
             )}
           </div>
+        )}
+
+        {/* Tab 5: NCRP / SAHYOG Integrations (Phase 10) */}
+        {activeTab === 'integrations' && (
+          <IntegrationsCenter
+            cases={cases}
+            authToken={authToken}
+            onOpenCase={(c) => {
+              setActiveCase(c);
+              setActiveTab('investigate');
+            }}
+            onCaseCreated={(c) => {
+              setCases((prev) => [c, ...prev.filter((item) => item.id !== c.id)]);
+            }}
+          />
         )}
       </main>
 

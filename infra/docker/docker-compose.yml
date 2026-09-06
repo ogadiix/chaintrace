@@ -7,15 +7,15 @@ services:
     container_name: chaintrace_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: chaintrace_user
-      POSTGRES_PASSWORD: chaintrace_pass
-      POSTGRES_DB: chaintrace_db
+      POSTGRES_USER: ${POSTGRES_USER:-chaintrace_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-chaintrace_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-chaintrace_db}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U chaintrace_user -d chaintrace_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-chaintrace_user} -d ${POSTGRES_DB:-chaintrace_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -26,16 +26,16 @@ services:
     container_name: chaintrace_neo4j
     restart: unless-stopped
     environment:
-      NEO4J_AUTH: neo4j/chaintrace_secure_pass
+      NEO4J_AUTH: ${NEO4J_USER:-neo4j}/${NEO4J_PASSWORD:-chaintrace_secure_pass}
       NEO4J_PLUGINS: '["apoc"]'
       NEO4J_dbms_security_procedures_unrestricted: "apoc.*"
     ports:
-      - "7474:7474" # HTTP Browser
-      - "7687:7687" # Bolt Protocol
+      - "127.0.0.1:7474:7474" # HTTP Browser
+      - "127.0.0.1:7687:7687" # Bolt Protocol
     volumes:
       - neo4j_data:/data
     healthcheck:
-      test: ["CMD-SHELL", "cypher-shell -u neo4j -p chaintrace_secure_pass 'RETURN 1'"]
+      test: ["CMD-SHELL", "cypher-shell -u ${NEO4J_USER:-neo4j} -p ${NEO4J_PASSWORD:-chaintrace_secure_pass} 'RETURN 1'"]
       interval: 15s
       timeout: 10s
       retries: 5
@@ -46,7 +46,7 @@ services:
     container_name: chaintrace_redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     volumes:
       - redis_data:/data
     healthcheck:

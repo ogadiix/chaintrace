@@ -14,7 +14,10 @@
     "build": "npm run build:packages && npm run build:apps",
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present"
+    "test": "npm run test --workspaces --if-present",
+    "test:api": "PYTHONPATH=. ./.venv/bin/pytest apps/api/tests/ -v",
+    "test:all": "bash scripts/test_all.sh",
+    "demo:reset": "./.venv/bin/python scripts/reset_demo.py"
   },
   "keywords": [
     "blockchain",

@@ -6,6 +6,7 @@ Source of truth: Master Prompt Phase 6 Sections 14, 15, 20
 """
 
 from apps.api.src.core.audit import log_audit_event
+from apps.api.src.core.authorization import verify_case_access
 from apps.api.src.core.database import get_db
 from apps.api.src.core.security import get_current_user, require_role
 from apps.api.src.models.attribution import (
@@ -28,18 +29,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 router = APIRouter(tags=["VASP Attribution Engine"])
 
 
-async def _verify_case(case_id: str, db: AsyncSession) -> Case:
-    stmt = select(Case).where(Case.id == case_id)
-    res = await db.execute(stmt)
-    case = res.scalar_one_or_none()
-    if not case:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Case with ID '{case_id}' not found",
-        )
-    return case
-
-
 @router.post(
     "/investigations/{case_id}/attribution/analyze", response_model=AttributionAnalysisResult
 )
@@ -55,7 +44,7 @@ async def analyze_case_attribution_endpoint(
     """
     Executes VASP and entity attribution analysis across all paths and terminal nodes of a case.
     """
-    case = await _verify_case(case_id, db)
+    case = await verify_case_access(case_id, current_user, db)
 
     if not case.suspect_wallet:
         raise HTTPException(
@@ -106,7 +95,7 @@ async def get_case_attribution_results(
     """
     Retrieves current VASP attribution records for an active investigation.
     """
-    case = await _verify_case(case_id, db)
+    case = await verify_case_access(case_id, current_user, db)
 
     if not case.suspect_wallet:
         return AttributionAnalysisResult(

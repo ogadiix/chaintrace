@@ -51,6 +51,7 @@ dist/
 *.db
 data/*
 !data/vasp_labels_v1.json
+apps/api/data/
 
 
 # OS and Editor

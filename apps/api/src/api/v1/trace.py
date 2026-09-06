@@ -6,7 +6,10 @@ Source of truth: Master Prompt Phase 4 Sections 13, 14, 16, 17
 """
 
 from apps.api.src.core.audit import log_audit_event
+from apps.api.src.core.authorization import verify_case_access
+from apps.api.src.core.config import settings
 from apps.api.src.core.database import get_db
+from apps.api.src.core.rate_limiter import get_rate_limiter, rate_limit_key_from_request
 from apps.api.src.core.security import get_current_user, require_role
 from apps.api.src.models.case import Case
 from apps.api.src.models.trace import TraceJob, TraceRequest, TraceResult
@@ -18,22 +21,6 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(tags=["Investigation Trace Engine"])
-
-
-async def _verify_case_access(case_id: str, current_user: User, db: AsyncSession) -> Case:
-    """Verifies that the authenticated investigator has legitimate access to the case."""
-    stmt = select(Case).where(Case.id == case_id)
-    res = await db.execute(stmt)
-    case = res.scalar_one_or_none()
-
-    if not case:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Investigation case with ID '{case_id}' not found",
-        )
-
-    # In Multi-tenancy / strict RBAC: Viewer or analyst can only view; admin or assigned can modify
-    return case
 
 
 @router.post(
@@ -51,7 +38,17 @@ async def create_investigation_trace_job(
     Submits an asynchronous N-Hop trace job for an investigation.
     Returns immediately with a 202 Accepted status and job details.
     """
-    case = await _verify_case_access(case_id, current_user, db)
+    case = await verify_case_access(case_id, current_user, db, require_write=True)
+
+    # Rate limit trace execution
+    limiter = get_rate_limiter()
+    rate_key = rate_limit_key_from_request(request, user_id=current_user.id)
+    limiter.enforce(
+        key=f"trace:{rate_key}",
+        max_requests=settings.RATE_LIMIT_TRACE_PER_MINUTE,
+        window_seconds=60.0,
+        category="trace execution",
+    )
 
     # Validate seed matches chain or target_chain
     if payload.chain.value != case.target_chain:
@@ -87,7 +84,7 @@ async def list_investigation_trace_jobs(
     job_manager: TraceJobManager = Depends(get_trace_job_manager),
 ) -> list[TraceJob]:
     """Retrieves all past and active trace jobs for a given case."""
-    await _verify_case_access(case_id, current_user, db)
+    await verify_case_access(case_id, current_user, db)
     return await job_manager.list_jobs_for_investigation(case_id)
 
 
@@ -107,7 +104,7 @@ async def get_trace_job_status(
         )
 
     if job.investigation_id:
-        await _verify_case_access(job.investigation_id, current_user, db)
+        await verify_case_access(job.investigation_id, current_user, db)
 
     return job
 
@@ -126,7 +123,7 @@ async def execute_direct_trace_endpoint(
     Strictly bounded by server timeout and defensive depth limits.
     """
     if case_id:
-        await _verify_case_access(case_id, current_user, db)
+        await verify_case_access(case_id, current_user, db)
 
     result = await engine.execute_trace(request=payload, investigation_id=case_id)
 

@@ -6,6 +6,7 @@ Implements US-01 through US-03 foundation (create, list, retrieve, update cases)
 from datetime import UTC, datetime
 
 from apps.api.src.core.audit import log_audit_event
+from apps.api.src.core.authorization import verify_case_access
 from apps.api.src.core.database import get_db
 from apps.api.src.core.security import get_current_user, require_role
 from apps.api.src.models.case import Case
@@ -111,6 +112,11 @@ async def list_cases(
 ):
     stmt = select(Case)
 
+    if current_user.role != "ADMIN":
+        stmt = stmt.where(
+            (Case.created_by_id == current_user.id) | (Case.assigned_to_id == current_user.id)
+        )
+
     if status_filter:
         stmt = stmt.where(Case.status == status_filter.upper())
     if chain_filter:
@@ -146,15 +152,7 @@ async def get_case(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    stmt = select(Case).where(Case.id == case_id)
-    result = await db.execute(stmt)
-    case = result.scalar_one_or_none()
-
-    if not case:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Case with ID '{case_id}' not found",
-        )
+    case = await verify_case_access(case_id, current_user, db)
 
     await log_audit_event(
         db=db,
@@ -176,15 +174,7 @@ async def update_case(
     current_user: User = Depends(require_role("INVESTIGATOR", "ADMIN", "ANALYST")),
     db: AsyncSession = Depends(get_db),
 ):
-    stmt = select(Case).where(Case.id == case_id)
-    result = await db.execute(stmt)
-    case = result.scalar_one_or_none()
-
-    if not case:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Case with ID '{case_id}' not found",
-        )
+    case = await verify_case_access(case_id, current_user, db, require_write=True)
 
     updated_fields = {}
     if payload.title is not None:

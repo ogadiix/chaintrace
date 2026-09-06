@@ -531,3 +531,135 @@ export interface InvestigationTimelineEvent {
   metadata?: Record<string, unknown>;
 }
 
+export interface InvestigationReport {
+  id: string;
+  caseId: string;
+  investigationId: string;
+  reportNumber: string;
+  version: string;
+  title: string;
+  filename: string;
+  fileSizeBytes: number;
+  sha256Hash: string | null;
+  status: 'QUEUED' | 'GENERATING' | 'COMPLETED' | 'FAILED';
+  errorMessage?: string | null;
+  createdById: string;
+  createdAt: string;
+  completedAt?: string | null;
+  downloadUrl: string;
+  previewUrl: string;
+  summarySnapshot?: Record<string, any>;
+}
+
+export interface ReportGenerateRequest {
+  title?: string;
+  include_tx_appendix?: boolean;
+  max_appendix_txs?: number;
+  notes?: string;
+  async_mode?: boolean;
+}
+
+export interface ReportListResponse {
+  reports: InvestigationReport[];
+  total: number;
+}
+
+// ---------------------------------------------------------------------------
+// Phase 10: NCRP & SAHYOG Integration Types
+// ---------------------------------------------------------------------------
+
+export type SahyogRequestType =
+  | 'ACCOUNT_IDENTIFICATION'
+  | 'TRANSACTION_INFORMATION'
+  | 'KYC_INFORMATION'
+  | 'ACCOUNT_ACTIVITY'
+  | 'FREEZE_REQUEST_DEMO';
+
+export type SahyogScenario =
+  | 'SUCCESS'
+  | 'NO_MATCH'
+  | 'PROCESSING'
+  | 'REQUEST_FAILED'
+  | 'FREEZE_REQUEST_DEMO';
+
+export interface NcrpComplaint {
+  id: string;
+  complaint_id: string;
+  source: string;
+  category: string;
+  reported_amount: string;
+  currency: string;
+  blockchain: string;
+  wallet_address: string;
+  transaction_hash?: string | null;
+  description?: string | null;
+  victim_reference?: string | null;
+  status: string;
+  case_id?: string | null;
+  case_number?: string | null;
+  created_at: string;
+  updated_at: string;
+  disclaimer: string;
+}
+
+export interface NcrpComplaintCreate {
+  complaint_id: string;
+  category: string;
+  reported_amount: string;
+  currency?: string;
+  blockchain: string;
+  wallet_address: string;
+  transaction_hash?: string | null;
+  description?: string | null;
+  victim_reference?: string | null;
+  auto_create_case?: boolean;
+}
+
+export interface SahyogResponse {
+  id: string;
+  request_id: string;
+  case_id: string;
+  status: string;
+  source: string;
+  recipient_entity: string;
+  account_details: Record<string, unknown>;
+  transactions: Array<Record<string, unknown>>;
+  evidence_id?: string | null;
+  disclaimer: string;
+  received_at: string;
+}
+
+export interface SahyogRequest {
+  id: string;
+  request_number: string;
+  case_id: string;
+  investigation_id: string;
+  request_type: SahyogRequestType;
+  recipient_entity: string;
+  target_wallet: string;
+  transaction_hash?: string | null;
+  authority_reference: string;
+  requested_information: string;
+  status: string;
+  simulated_scenario: SahyogScenario;
+  created_by_id: string;
+  created_at: string;
+  submitted_at?: string | null;
+  completed_at?: string | null;
+  disclaimer: string;
+  response?: SahyogResponse | null;
+}
+
+export interface SahyogRequestCreate {
+  case_id: string;
+  request_type: SahyogRequestType;
+  recipient_entity: string;
+  target_wallet: string;
+  transaction_hash?: string | null;
+  authority_reference?: string;
+  requested_information?: string;
+  simulated_scenario?: SahyogScenario;
+}
+
+
+

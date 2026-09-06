@@ -5,7 +5,11 @@ from apps.api.src.models.attribution import (
     WalletLabel,
 )
 from apps.api.src.models.audit import AuditLog
-from apps.api.src.models.case import Case
+from apps.api.src.models.integration import (
+    NcrpComplaint,
+    SahyogRequest,
+    SahyogResponse,
+)
 from apps.api.src.models.intelligence import (
     EvidenceReference,
     IntelligenceAnalysisResult,
@@ -13,6 +17,7 @@ from apps.api.src.models.intelligence import (
     IntelligenceJob,
     WalletFeatures,
 )
+from apps.api.src.models.report import Report
 from apps.api.src.models.risk import (
     ManualRiskOverride,
     RiskAssessment,
@@ -31,9 +36,13 @@ __all__ = [
     "IntelligenceFinding",
     "IntelligenceJob",
     "ManualRiskOverride",
+    "NcrpComplaint",
+    "Report",
     "RiskAssessment",
     "RiskOverrideRequest",
     "RiskSignalContribution",
+    "SahyogRequest",
+    "SahyogResponse",
     "TraceHop",
     "TraceJob",
     "TracePath",

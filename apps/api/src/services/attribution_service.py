@@ -51,9 +51,18 @@ class AttributionService:
         self._labels_by_key: dict[str, list[WalletLabel]] = defaultdict(list)
         self._lock = asyncio.Lock()
         self._initialized = False
-        self._seed_path = seed_dataset_path or os.path.join(
-            os.getcwd(), "data", "vasp_labels_v1.json"
-        )
+        if seed_dataset_path:
+            self._seed_path = seed_dataset_path
+        else:
+            candidates = [
+                os.path.join(os.getcwd(), "data", "vasp_labels_v1.json"),
+                os.path.abspath(
+                    os.path.join(
+                        os.path.dirname(__file__), "..", "..", "..", "..", "data", "vasp_labels_v1.json"
+                    )
+                ),
+            ]
+            self._seed_path = next((p for p in candidates if os.path.exists(p)), candidates[0])
 
     async def initialize(self) -> None:
         """Loads and indexes the seed VASP label dataset."""
