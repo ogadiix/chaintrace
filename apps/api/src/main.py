@@ -3,8 +3,10 @@ ChainTrace API — Main FastAPI Application
 """
 from contextlib import asynccontextmanager
 
+from apps.api.src.api.v1.auth import seed_demo_users_if_needed
 from apps.api.src.api.v1.router import api_v1_router
 from apps.api.src.core.config import settings
+from apps.api.src.core.database import AsyncSessionLocal, Base, engine
 from apps.api.src.core.neo4j import close_neo4j_driver
 from apps.api.src.core.redis import close_redis
 from fastapi import FastAPI, Request
@@ -13,8 +15,15 @@ from fastapi.middleware.cors import CORSMiddleware
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup tasks
+    # Startup: Ensure database schema is created and demo credentials seeded
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    async with AsyncSessionLocal() as session:
+        await seed_demo_users_if_needed(session)
+
     yield
+
     # Shutdown cleanup
     await close_neo4j_driver()
     await close_redis()

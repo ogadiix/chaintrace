@@ -11,7 +11,89 @@ export type AttributionConfidence = 'CONFIRMED' | 'PROBABLE' | 'POSSIBLE' | 'UNK
 
 export type CaseStatus = 'DRAFT' | 'ACTIVE' | 'UNDER_REVIEW' | 'CLOSED';
 
+export type CasePriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
+export type FraudCategory = 
+  | 'INVESTMENT_FRAUD'
+  | 'PIG_BUTCHERING'
+  | 'IMPERSONATION'
+  | 'RANSOMWARE'
+  | 'PHISHING'
+  | 'EXTORTION'
+  | 'UNAUTHORIZED_TRANSFER'
+  | 'OTHER';
+
+export type UserRole = 'ADMIN' | 'INVESTIGATOR' | 'ANALYST' | 'VIEWER';
+
 export type JobStatus = 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED';
+
+export interface User {
+  id: string;
+  email: string;
+  fullName: string;
+  role: UserRole;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface AuthTokenResponse {
+  accessToken: string;
+  tokenType: string;
+  user: User;
+}
+
+export interface Case {
+  id: string;
+  caseNumber: string; // e.g. CT-2026-0001
+  title: string;
+  description?: string | null;
+  fraudCategory: FraudCategory;
+  reportedAmount: string; // Stored as string to preserve precision
+  currency: string;
+  incidentDate: string;
+  targetChain: BlockchainType;
+  suspectWallet: string;
+  initialTxHash?: string | null;
+  status: CaseStatus;
+  priority: CasePriority;
+  assignedToId?: string | null;
+  createdById: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCaseRequest {
+  title: string;
+  description?: string;
+  fraudCategory: FraudCategory;
+  reportedAmount: string;
+  currency?: string;
+  incidentDate: string;
+  targetChain: BlockchainType;
+  suspectWallet: string;
+  initialTxHash?: string;
+  priority?: CasePriority;
+}
+
+export interface UpdateCaseRequest {
+  title?: string;
+  description?: string;
+  status?: CaseStatus;
+  priority?: CasePriority;
+  assignedToId?: string;
+}
+
+export interface AuditLogEntry {
+  id: string;
+  actorId: string;
+  actorEmail?: string;
+  action: string;
+  caseId?: string | null;
+  timestamp: string;
+  sourceIp?: string | null;
+  result: 'SUCCESS' | 'FAILURE';
+  metadata?: Record<string, unknown>;
+}
 
 export interface NormalizedTransaction {
   chain: BlockchainType;
