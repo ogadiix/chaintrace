@@ -1,0 +1,26 @@
+{
+  "name": "chaintrace-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ChainTrace — Blockchain Intelligence Platform for Cryptocurrency Fraud Investigation",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "keywords": [
+    "blockchain",
+    "investigation",
+    "fraud-detection",
+    "vasp-attribution",
+    "sih2026"
+  ],
+  "author": "ChainTrace Team",
+  "license": "Apache-2.0"
+}

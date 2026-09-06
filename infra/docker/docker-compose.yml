@@ -1,0 +1,114 @@
+version: '3.8'
+
+services:
+  # Primary Relational Store: Cases, Complaints, Evidence, Audit Logs
+  postgres:
+    image: postgres:16-alpine
+    container_name: chaintrace_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: chaintrace_user
+      POSTGRES_PASSWORD: chaintrace_pass
+      POSTGRES_DB: chaintrace_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chaintrace_user -d chaintrace_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Graph Database: Wallet Nodes, Transfer Edges, Clustered Entities
+  neo4j:
+    image: neo4j:5-community
+    container_name: chaintrace_neo4j
+    restart: unless-stopped
+    environment:
+      NEO4J_AUTH: neo4j/chaintrace_secure_pass
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_dbms_security_procedures_unrestricted: "apoc.*"
+    ports:
+      - "7474:7474" # HTTP Browser
+      - "7687:7687" # Bolt Protocol
+    volumes:
+      - neo4j_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p chaintrace_secure_pass 'RETURN 1'"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  # In-Memory Cache & Asynchronous Task Queue
+  redis:
+    image: redis:7-alpine
+    container_name: chaintrace_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API Gateway: FastAPI
+  api:
+    build:
+      context: ../../
+      dockerfile: infra/docker/Dockerfile.api
+    container_name: chaintrace_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://chaintrace_user:chaintrace_pass@postgres:5432/chaintrace_db
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=chaintrace_secure_pass
+      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=development
+      - DEBUG=true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Asynchronous Background Worker
+  worker:
+    build:
+      context: ../../
+      dockerfile: infra/docker/Dockerfile.worker
+    container_name: chaintrace_worker
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://chaintrace_user:chaintrace_pass@postgres:5432/chaintrace_db
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=chaintrace_secure_pass
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - api
+
+  # Investigator Web Console
+  web:
+    build:
+      context: ../../
+      dockerfile: infra/docker/Dockerfile.web
+    container_name: chaintrace_web
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  neo4j_data:
+  redis_data:
