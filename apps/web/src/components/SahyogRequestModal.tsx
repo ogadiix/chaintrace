@@ -130,50 +130,83 @@ export const SahyogRequestModal: React.FC<SahyogRequestModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="bg-navy-900 border border-cyan-500/30 rounded-lg shadow-2xl max-w-2xl w-full text-slate-100 overflow-hidden my-8">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)' }}
+    >
+      <div
+        className="rounded-xl border shadow-2xl max-w-2xl w-full overflow-hidden my-8 animate-fade-in transition-all"
+        style={{
+          backgroundColor: 'var(--ct-surface)',
+          borderColor: 'var(--ct-border)',
+        }}
+      >
         {/* Header */}
-        <div className="px-6 py-4 bg-navy-950 border-b border-navy-800 flex items-center justify-between">
+        <div
+          className="px-6 py-4 border-b flex items-center justify-between"
+          style={{
+            backgroundColor: 'var(--ct-bg-subtle)',
+            borderColor: 'var(--ct-border)',
+          }}
+        >
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-              <Building2 className="w-5 h-5" />
+            <div
+              className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+              style={{ backgroundColor: 'var(--ct-accent-subtle)' }}
+            >
+              <Building2 className="w-5 h-5" style={{ color: 'var(--ct-accent)' }} />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-semibold text-slate-100">
+                <h3 className="text-sm font-semibold" style={{ color: 'var(--ct-text)' }}>
                   SAHYOG VASP Coordination Portal
                 </h3>
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/10 text-amber-400 border border-amber-500/30 uppercase tracking-wider">
-                  DEMO / SIMULATED INTEGRATION
+                <span className="ct-badge ct-badge-warning text-[10px]">
+                  Simulated
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs" style={{ color: 'var(--ct-text-tertiary)' }}>
                 Statutory Intermediary Requisition Workflow (I4C SAHYOG Standard)
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-200 p-1.5 rounded-md hover:bg-navy-800 transition-colors"
+            className="ct-btn-icon"
+            title="Close modal"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Disclaimer Banner */}
-        <div className="px-6 py-2.5 bg-amber-950/30 border-b border-amber-800/40 flex items-center gap-2.5 text-xs text-amber-300">
-          <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+        <div
+          className="px-6 py-2.5 border-b flex items-center gap-2.5 text-xs"
+          style={{
+            backgroundColor: 'var(--ct-warning-subtle)',
+            borderColor: 'var(--ct-warning)',
+            color: 'var(--ct-warning-text)',
+          }}
+        >
+          <AlertTriangle className="w-4 h-4 shrink-0" style={{ color: 'var(--ct-warning)' }} />
           <span>
-            <strong>SIMULATION NOTICE:</strong> Zero live government or financial exchange requests are dispatched. All returned account records are synthetic dummy data generated for SIH demonstration.
+            <strong>SIMULATION NOTICE:</strong> Zero live government or financial exchange requests are dispatched. All returned account records are synthetic data generated for demonstration.
           </span>
         </div>
 
         {!submittedResult ? (
           /* Form Body */
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs">
             {error && (
-              <div className="p-3 rounded-md bg-red-950/40 border border-red-800/50 text-red-300 text-xs flex items-center gap-2">
-                <XCircle className="w-4 h-4 flex-shrink-0 text-red-400" />
+              <div
+                className="p-3 rounded-lg border text-xs flex items-center gap-2"
+                style={{
+                  backgroundColor: 'var(--ct-danger-subtle)',
+                  borderColor: 'var(--ct-danger)',
+                  color: 'var(--ct-danger-text)',
+                }}
+              >
+                <XCircle className="w-4 h-4 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
@@ -181,18 +214,21 @@ export const SahyogRequestModal: React.FC<SahyogRequestModalProps> = ({
             <div className="grid grid-cols-2 gap-4">
               {/* Linked Case Reference */}
               <div>
-                <label className="block text-xs text-slate-400 mb-1">Investigation Case</label>
+                <label className="block font-semibold mb-1" style={{ color: 'var(--ct-text)' }}>
+                  Investigation Case
+                </label>
                 <input
                   type="text"
                   disabled
                   value={`${activeCase.caseNumber} — ${activeCase.title}`}
-                  className="w-full bg-navy-950 border border-navy-700/80 rounded px-3 py-1.5 text-xs text-slate-300 font-mono truncate"
+                  className="ct-input text-xs font-mono truncate"
+                  style={{ opacity: 0.8 }}
                 />
               </div>
 
               {/* Statutory Authority Reference */}
               <div>
-                <label className="block text-xs text-slate-400 mb-1">
+                <label className="block font-semibold mb-1" style={{ color: 'var(--ct-text)' }}>
                   Statutory Reference / Court Order
                 </label>
                 <input
@@ -201,7 +237,7 @@ export const SahyogRequestModal: React.FC<SahyogRequestModalProps> = ({
                   value={authorityRef}
                   onChange={(e) => setAuthorityRef(e.target.value)}
                   placeholder="e.g. SEC-91-CrPC-DEMO-XXXX"
-                  className="w-full bg-navy-950 border border-navy-700 rounded px-3 py-1.5 text-xs text-slate-200 font-mono focus:border-cyan-500 focus:outline-none"
+                  className="ct-input text-xs font-mono"
                 />
               </div>
             </div>
@@ -209,11 +245,13 @@ export const SahyogRequestModal: React.FC<SahyogRequestModalProps> = ({
             {/* Recipient Entity */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs text-slate-400 mb-1">Recipient VASP / Entity</label>
+                <label className="block font-semibold mb-1" style={{ color: 'var(--ct-text)' }}>
+                  Recipient VASP / Entity
+                </label>
                 <select
                   value={recipient}
                   onChange={(e) => setRecipient(e.target.value)}
-                  className="w-full bg-navy-950 border border-navy-700 rounded px-3 py-1.5 text-xs text-slate-200 focus:border-cyan-500 focus:outline-none"
+                  className="ct-input text-xs"
                 >
                   <option value="Binance Holdings Ltd.">Binance Holdings Ltd.</option>
                   <option value="WazirX (Zanmai Labs)">WazirX (Zanmai Labs)</option>
@@ -226,11 +264,13 @@ export const SahyogRequestModal: React.FC<SahyogRequestModalProps> = ({
 
               {/* Request Type */}
               <div>
-                <label className="block text-xs text-slate-400 mb-1">Requisition Type</label>
+                <label className="block font-semibold mb-1" style={{ color: 'var(--ct-text)' }}>
+                  Requisition Type
+                </label>
                 <select
                   value={requestType}
                   onChange={(e) => setRequestType(e.target.value as SahyogRequestType)}
-                  className="w-full bg-navy-950 border border-navy-700 rounded px-3 py-1.5 text-xs text-slate-200 focus:border-cyan-500 focus:outline-none font-mono"
+                  className="ct-input text-xs font-mono"
                 >
                   <option value="ACCOUNT_IDENTIFICATION">ACCOUNT_IDENTIFICATION</option>
                   <option value="KYC_INFORMATION">KYC_INFORMATION</option>
@@ -243,102 +283,122 @@ export const SahyogRequestModal: React.FC<SahyogRequestModalProps> = ({
 
             {/* Target Wallet */}
             <div>
-              <label className="block text-xs text-slate-400 mb-1">Target Wallet Address</label>
+              <label className="block font-semibold mb-1" style={{ color: 'var(--ct-text)' }}>
+                Target Wallet Address
+              </label>
               <input
                 type="text"
                 required
                 value={targetWallet}
                 onChange={(e) => setTargetWallet(e.target.value)}
                 placeholder="0x... or T..."
-                className="w-full bg-navy-950 border border-navy-700 rounded px-3 py-1.5 text-xs text-slate-200 font-mono focus:border-cyan-500 focus:outline-none"
+                className="ct-input text-xs font-mono"
               />
             </div>
 
             {/* Requested Information Text */}
             <div>
-              <label className="block text-xs text-slate-400 mb-1">Scope of Information Required</label>
+              <label className="block font-semibold mb-1" style={{ color: 'var(--ct-text)' }}>
+                Scope of Information Required
+              </label>
               <textarea
                 rows={2}
                 value={requestedInfo}
                 onChange={(e) => setRequestedInfo(e.target.value)}
-                className="w-full bg-navy-950 border border-navy-700 rounded px-3 py-1.5 text-xs text-slate-200 font-sans focus:border-cyan-500 focus:outline-none"
+                className="ct-input text-xs"
+                style={{ height: 'auto' }}
               />
             </div>
 
             {/* Simulation Scenario Selector */}
-            <div className="p-3 rounded border border-cyan-500/20 bg-cyan-950/20">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-semibold text-cyan-300 flex items-center gap-1.5">
+            <div
+              className="p-3.5 rounded-lg border space-y-2"
+              style={{
+                backgroundColor: 'var(--ct-bg-subtle)',
+                borderColor: 'var(--ct-border)',
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold flex items-center gap-1.5" style={{ color: 'var(--ct-accent-text)' }}>
                   <HelpCircle className="w-3.5 h-3.5" />
                   Demonstration Simulation Scenario:
                 </span>
-                <span className="text-[10px] text-cyan-400/80 font-mono">Sandbox Test Mode</span>
+                <span className="text-[10px] font-mono" style={{ color: 'var(--ct-text-tertiary)' }}>Sandbox Test Mode</span>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-2.5">
                 <button
                   type="button"
                   onClick={() => setScenario('SUCCESS')}
-                  className={`px-2.5 py-1.5 rounded text-xs text-left border transition-all ${
-                    scenario === 'SUCCESS'
-                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50 font-semibold'
-                      : 'bg-navy-900 border-navy-700 text-slate-400 hover:text-slate-200'
-                  }`}
+                  className="p-2.5 rounded-lg text-left border transition-all"
+                  style={{
+                    backgroundColor: scenario === 'SUCCESS' ? 'var(--ct-success-subtle)' : 'var(--ct-surface)',
+                    borderColor: scenario === 'SUCCESS' ? 'var(--ct-success)' : 'var(--ct-border)',
+                  }}
                 >
-                  <div className="text-[11px] font-bold">1. SUCCESS</div>
-                  <div className="text-[10px] opacity-75">KYC Match Found</div>
+                  <div className="text-xs font-semibold" style={{ color: scenario === 'SUCCESS' ? 'var(--ct-success-text)' : 'var(--ct-text)' }}>
+                    1. SUCCESS
+                  </div>
+                  <div className="text-[11px]" style={{ color: 'var(--ct-text-tertiary)' }}>KYC Match Found</div>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setScenario('NO_MATCH')}
-                  className={`px-2.5 py-1.5 rounded text-xs text-left border transition-all ${
-                    scenario === 'NO_MATCH'
-                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 font-semibold'
-                      : 'bg-navy-900 border-navy-700 text-slate-400 hover:text-slate-200'
-                  }`}
+                  className="p-2.5 rounded-lg text-left border transition-all"
+                  style={{
+                    backgroundColor: scenario === 'NO_MATCH' ? 'var(--ct-warning-subtle)' : 'var(--ct-surface)',
+                    borderColor: scenario === 'NO_MATCH' ? 'var(--ct-warning)' : 'var(--ct-border)',
+                  }}
                 >
-                  <div className="text-[11px] font-bold">2. NO MATCH</div>
-                  <div className="text-[10px] opacity-75">Unregistered Deposit</div>
+                  <div className="text-xs font-semibold" style={{ color: scenario === 'NO_MATCH' ? 'var(--ct-warning-text)' : 'var(--ct-text)' }}>
+                    2. NO MATCH
+                  </div>
+                  <div className="text-[11px]" style={{ color: 'var(--ct-text-tertiary)' }}>Unregistered Deposit</div>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setScenario('FREEZE_REQUEST_DEMO')}
-                  className={`px-2.5 py-1.5 rounded text-xs text-left border transition-all ${
-                    scenario === 'FREEZE_REQUEST_DEMO'
-                      ? 'bg-purple-500/20 text-purple-300 border-purple-500/50 font-semibold'
-                      : 'bg-navy-900 border-navy-700 text-slate-400 hover:text-slate-200'
-                  }`}
+                  className="p-2.5 rounded-lg text-left border transition-all"
+                  style={{
+                    backgroundColor: scenario === 'FREEZE_REQUEST_DEMO' ? 'var(--ct-accent-subtle)' : 'var(--ct-surface)',
+                    borderColor: scenario === 'FREEZE_REQUEST_DEMO' ? 'var(--ct-accent)' : 'var(--ct-border)',
+                  }}
                 >
-                  <div className="text-[11px] font-bold">3. FREEZE DEMO</div>
-                  <div className="text-[10px] opacity-75">Emergency Hold Requisition</div>
+                  <div className="text-xs font-semibold" style={{ color: scenario === 'FREEZE_REQUEST_DEMO' ? 'var(--ct-accent-text)' : 'var(--ct-text)' }}>
+                    3. FREEZE DEMO
+                  </div>
+                  <div className="text-[11px]" style={{ color: 'var(--ct-text-tertiary)' }}>Emergency Hold</div>
                 </button>
               </div>
             </div>
 
             {/* Footer Buttons */}
-            <div className="pt-2 flex items-center justify-end gap-3 border-t border-navy-800">
+            <div
+              className="pt-3 flex items-center justify-end gap-2.5 border-t"
+              style={{ borderColor: 'var(--ct-border)' }}
+            >
               <button
                 type="button"
                 onClick={onClose}
-                className="px-3.5 py-1.5 text-xs text-slate-400 hover:text-slate-200 transition-colors"
+                className="ct-btn ct-btn-secondary"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center gap-2 px-4 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-semibold rounded text-xs transition-colors disabled:opacity-50"
+                className="ct-btn ct-btn-primary inline-flex items-center gap-1.5"
               >
                 {loading ? (
                   <>
                     <Clock className="w-3.5 h-3.5 animate-spin" />
-                    Dispatching Requisition...
+                    <span>Dispatching Requisition...</span>
                   </>
                 ) : (
                   <>
                     <Send className="w-3.5 h-3.5" />
-                    Submit Requisition via SAHYOG
+                    <span>Submit Requisition via SAHYOG</span>
                   </>
                 )}
               </button>
@@ -347,46 +407,70 @@ export const SahyogRequestModal: React.FC<SahyogRequestModalProps> = ({
         ) : (
           /* Result View */
           <div className="p-6 space-y-4">
-            <div className="p-4 rounded-lg bg-navy-950 border border-navy-800 space-y-3">
+            <div
+              className="p-4 rounded-xl border space-y-3"
+              style={{
+                backgroundColor: 'var(--ct-bg-subtle)',
+                borderColor: 'var(--ct-border)',
+              }}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {submittedResult.status === 'RESPONSE_RECEIVED' ? (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                    <CheckCircle2 className="w-5 h-5" style={{ color: 'var(--ct-success)' }} />
                   ) : submittedResult.status === 'NO_MATCH' ? (
-                    <AlertTriangle className="w-5 h-5 text-amber-400" />
+                    <AlertTriangle className="w-5 h-5" style={{ color: 'var(--ct-warning)' }} />
                   ) : (
-                    <Snowflake className="w-5 h-5 text-purple-400" />
+                    <Snowflake className="w-5 h-5" style={{ color: 'var(--ct-accent)' }} />
                   )}
-                  <span className="text-sm font-semibold text-slate-100">
+                  <span className="text-sm font-semibold" style={{ color: 'var(--ct-text)' }}>
                     Requisition Result: {submittedResult.status}
                   </span>
                 </div>
-                <span className="text-xs font-mono text-cyan-400 bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-800/50">
+                <span className="ct-badge ct-badge-info text-xs font-mono">
                   {submittedResult.request_number}
                 </span>
               </div>
 
               {submittedResult.response && (
                 <>
-                  <div className="text-xs text-slate-300 font-sans bg-navy-900/80 p-3 rounded border border-navy-700/60 space-y-2">
+                  <div
+                    className="text-xs p-3.5 rounded-lg border space-y-2"
+                    style={{
+                      backgroundColor: 'var(--ct-surface)',
+                      borderColor: 'var(--ct-border)',
+                      color: 'var(--ct-text)',
+                    }}
+                  >
                     <div className="grid grid-cols-2 gap-2 font-mono text-[11px]">
                       <div>
-                        <span className="text-slate-400">VASP Intermediary:</span>{' '}
-                        <span className="text-cyan-300">{submittedResult.response.recipient_entity}</span>
+                        <span style={{ color: 'var(--ct-text-tertiary)' }}>VASP Intermediary: </span>
+                        <span className="font-semibold" style={{ color: 'var(--ct-accent-text)' }}>
+                          {submittedResult.response.recipient_entity}
+                        </span>
                       </div>
                       <div>
-                        <span className="text-slate-400">Response Status:</span>{' '}
-                        <span className="text-emerald-400">{submittedResult.response.status}</span>
+                        <span style={{ color: 'var(--ct-text-tertiary)' }}>Response Status: </span>
+                        <span className="font-semibold" style={{ color: 'var(--ct-success-text)' }}>
+                          {submittedResult.response.status}
+                        </span>
                       </div>
                     </div>
 
                     {/* Account Details */}
                     {Object.keys(submittedResult.response.account_details || {}).length > 0 && (
-                      <div className="mt-2 pt-2 border-t border-navy-800">
-                        <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                      <div className="mt-2 pt-2 border-t" style={{ borderColor: 'var(--ct-border-subtle)' }}>
+                        <div className="text-[11px] font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--ct-text-secondary)' }}>
                           Simulated Intermediary KYC Data:
                         </div>
-                        <pre className="text-[11px] font-mono text-emerald-300/90 bg-navy-950 p-2.5 rounded overflow-x-auto">
+                        <pre
+                          className="text-[11px] font-mono p-2.5 rounded-lg border overflow-x-auto"
+                          style={{
+                            backgroundColor: 'var(--ct-bg-subtle)',
+                            borderColor: 'var(--ct-border)',
+                            color: 'var(--ct-success-text)',
+                          }}
+                        >
                           {JSON.stringify(submittedResult.response.account_details, null, 2)}
                         </pre>
                       </div>
@@ -394,42 +478,55 @@ export const SahyogRequestModal: React.FC<SahyogRequestModalProps> = ({
 
                     {/* Evidence Attachment */}
                     {submittedResult.response.evidence_id && (
-                      <div className="mt-3 p-2 rounded bg-cyan-950/30 border border-cyan-500/30 flex items-center justify-between">
+                      <div
+                        className="mt-3 p-2.5 rounded-lg border flex items-center justify-between"
+                        style={{
+                          backgroundColor: 'var(--ct-accent-subtle)',
+                          borderColor: 'var(--ct-border-subtle)',
+                        }}
+                      >
                         <div className="flex items-center gap-2">
-                          <FileCheck2 className="w-4 h-4 text-cyan-400" />
-                          <span className="text-xs text-cyan-300">
+                          <FileCheck2 className="w-4 h-4" style={{ color: 'var(--ct-accent)' }} />
+                          <span className="text-xs" style={{ color: 'var(--ct-accent-text)' }}>
                             Attached Investigation Evidence:{' '}
                             <strong className="font-mono">{submittedResult.response.evidence_id}</strong>
                           </span>
                         </div>
                         <button
                           onClick={() => handleCopy(submittedResult.response?.evidence_id || '')}
-                          className="flex items-center gap-1 text-[11px] text-cyan-400 hover:text-cyan-300 bg-navy-900 px-2 py-0.5 rounded border border-cyan-500/30"
+                          className="ct-btn ct-btn-secondary ct-btn-sm text-[11px] inline-flex items-center gap-1"
                         >
-                          {copiedEvidence ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                          {copiedEvidence ? 'Copied' : 'Copy Ref'}
+                          {copiedEvidence ? <Check className="w-3 h-3" style={{ color: 'var(--ct-success)' }} /> : <Copy className="w-3 h-3" />}
+                          <span>{copiedEvidence ? 'Copied' : 'Copy Ref'}</span>
                         </button>
                       </div>
                     )}
                   </div>
 
-                  <div className="text-[10px] text-amber-400/90 font-mono bg-amber-950/20 px-3 py-1.5 rounded border border-amber-900/40">
+                  <div
+                    className="text-[11px] p-3 rounded-lg border"
+                    style={{
+                      backgroundColor: 'var(--ct-warning-subtle)',
+                      borderColor: 'var(--ct-warning)',
+                      color: 'var(--ct-warning-text)',
+                    }}
+                  >
                     {submittedResult.response.disclaimer}
                   </div>
                 </>
               )}
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-2">
+            <div className="flex items-center justify-end gap-2.5 pt-2">
               <button
                 onClick={resetForm}
-                className="px-3.5 py-1.5 text-xs text-slate-400 hover:text-slate-200 transition-colors"
+                className="ct-btn ct-btn-secondary"
               >
                 Submit Another Requisition
               </button>
               <button
                 onClick={onClose}
-                className="px-4 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-semibold rounded text-xs transition-colors"
+                className="ct-btn ct-btn-primary"
               >
                 Done
               </button>

@@ -21,7 +21,7 @@ import { SettingsPage } from './components/SettingsPage';
 // Modals
 import { CreateCaseModal } from './components/CreateCaseModal';
 import { CaseDetailDrawer } from './components/CaseDetailDrawer';
-import { FolderPlus, GitFork, ArrowRight } from 'lucide-react';
+import { FolderOpen, GitFork, ArrowRight } from 'lucide-react';
 
 const MainApp: React.FC = () => {
   const { path, params } = useRouter();
@@ -187,7 +187,7 @@ const MainApp: React.FC = () => {
       {(() => {
         if (path === '/dashboard') {
           return (
-            <div className="p-6 max-w-7xl mx-auto">
+            <div className="ct-container py-6">
               <InvestigatorDashboard
                 cases={cases}
                 onOpenCase={handleSelectCase}
@@ -207,7 +207,7 @@ const MainApp: React.FC = () => {
 
         if (path.startsWith('/cases')) {
           return (
-            <div className="p-6 max-w-7xl mx-auto space-y-4">
+            <div className="ct-container py-6">
               <CaseList
                 cases={cases}
                 loading={loadingCases}
@@ -221,29 +221,36 @@ const MainApp: React.FC = () => {
         if (path.startsWith('/investigations')) {
           if (!activeCase) {
             return (
-              <div className="p-12 max-w-xl mx-auto text-center space-y-5 my-12">
-                <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center mx-auto shadow-lg shadow-cyan-950/40">
-                  <GitFork className="w-8 h-8" />
+              <div className="ct-empty-state" style={{ minHeight: '60vh' }}>
+                <div
+                  className="w-14 h-14 rounded-ct-lg flex items-center justify-center mb-4"
+                  style={{
+                    background: 'var(--ct-accent-subtle)',
+                    border: '1px solid var(--ct-accent-muted)',
+                    color: 'var(--ct-accent-text)',
+                  }}
+                >
+                  <GitFork className="w-6 h-6" />
                 </div>
-                <div>
-                  <h2 className="text-xl font-bold text-white">No Active Investigation Case Selected</h2>
-                  <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                    Select an existing open investigation file from your docket or create a new case to initiate multi-hop graph forensics.
-                  </p>
-                </div>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                <h2 className="text-lg font-semibold mb-1" style={{ color: 'var(--ct-text)' }}>
+                  No Active Investigation
+                </h2>
+                <p className="text-sm mb-6 max-w-sm" style={{ color: 'var(--ct-text-secondary)' }}>
+                  Select an existing case or create a new one to start investigating.
+                </p>
+                <div className="flex items-center gap-3">
                   <button
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition-colors flex items-center justify-center gap-2"
+                    className="ct-btn ct-btn-primary"
                   >
-                    <FolderPlus className="w-4 h-4" />
-                    <span>Create Investigation Case</span>
+                    <FolderOpen className="w-4 h-4" />
+                    Create Case
                   </button>
                   <button
                     onClick={() => navigate('/cases')}
-                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-700 bg-slate-900 text-slate-300 hover:text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
+                    className="ct-btn ct-btn-secondary"
                   >
-                    <span>Browse Casefiles</span>
+                    Browse Cases
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -264,7 +271,7 @@ const MainApp: React.FC = () => {
 
         if (path.startsWith('/reports')) {
           return (
-            <div className="p-6 max-w-7xl mx-auto">
+            <div className="ct-container py-6">
               <ReportsDashboard
                 cases={cases}
                 activeCase={activeCase}
@@ -277,7 +284,7 @@ const MainApp: React.FC = () => {
 
         if (path.startsWith('/integrations')) {
           return (
-            <div className="p-6 max-w-7xl mx-auto">
+            <div className="ct-container py-6">
               <IntegrationsCenter
                 cases={cases}
                 authToken={authToken}
@@ -300,7 +307,7 @@ const MainApp: React.FC = () => {
 
         // Fallback for unknown protected paths
         return (
-          <div className="p-6 max-w-7xl mx-auto">
+          <div className="ct-container py-6">
             <InvestigatorDashboard
               cases={cases}
               onOpenCase={handleSelectCase}

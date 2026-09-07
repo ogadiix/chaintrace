@@ -19,80 +19,172 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({ 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-      <div className="bg-navy-900 border border-navy-700 rounded-lg p-5 max-w-lg w-full font-mono space-y-4 shadow-2xl">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)' }}
+    >
+      <div
+        className="rounded-xl border p-6 max-w-lg w-full space-y-4 shadow-2xl animate-fade-in"
+        style={{
+          backgroundColor: 'var(--ct-surface)',
+          borderColor: 'var(--ct-border)',
+        }}
+      >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-navy-800 pb-3">
-          <div className="flex items-center gap-2">
-            <Hash className="w-5 h-5 text-cyan-400" />
+        <div
+          className="flex items-center justify-between border-b pb-4"
+          style={{ borderColor: 'var(--ct-border)' }}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+              style={{ backgroundColor: 'var(--ct-accent-subtle)' }}
+            >
+              <Hash className="w-5 h-5" style={{ color: 'var(--ct-accent)' }} />
+            </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-100 uppercase">
-                Transaction Evidence Detail
-              </h3>
-              <p className="text-[11px] text-slate-400">Hop #{edge.hopNumber} Flow Edge</p>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-semibold" style={{ color: 'var(--ct-text)' }}>
+                  Transaction Evidence Detail
+                </h3>
+                <span className="ct-badge ct-badge-info text-[10px] font-mono">
+                  Hop #{edge.hopNumber}
+                </span>
+              </div>
+              <p className="text-[11px]" style={{ color: 'var(--ct-text-tertiary)' }}>
+                Directed fund flow transfer edge
+              </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 text-slate-400 hover:text-slate-200 hover:bg-navy-800 rounded transition-colors"
+            className="ct-btn-icon"
+            title="Close modal"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Tx Hash */}
-        <div className="space-y-1">
-          <label className="text-[10px] text-slate-400 uppercase tracking-wider">Transaction Hash</label>
-          <div className="flex items-center justify-between bg-navy-950 p-2.5 rounded border border-navy-800">
-            <code className="text-xs text-cyan-300 break-all select-all">{edge.txHash}</code>
+        <div className="space-y-1.5">
+          <label
+            className="text-[10px] font-mono font-bold uppercase tracking-wider block"
+            style={{ color: 'var(--ct-text-tertiary)' }}
+          >
+            Transaction Hash
+          </label>
+          <div
+            className="flex items-center justify-between p-3 rounded-lg border"
+            style={{
+              backgroundColor: 'var(--ct-bg-subtle)',
+              borderColor: 'var(--ct-border)',
+            }}
+          >
+            <code className="text-xs font-mono break-all select-all font-semibold" style={{ color: 'var(--ct-accent-text)' }}>
+              {edge.txHash}
+            </code>
             <button
               onClick={() => copyToClipboard(edge.txHash)}
-              className="ml-2 p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-navy-900 rounded shrink-0 transition-colors"
+              className="ct-btn-icon ml-2 shrink-0 p-1.5"
               title="Copy Transaction Hash"
             >
-              {copiedHash ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+              {copiedHash ? (
+                <Check className="w-4 h-4" style={{ color: 'var(--ct-success)' }} />
+              ) : (
+                <Copy className="w-4 h-4" />
+              )}
             </button>
           </div>
         </div>
 
         {/* Sender & Recipient */}
-        <div className="bg-navy-950/70 p-3 rounded border border-navy-800 space-y-2 text-xs">
+        <div
+          className="p-3.5 rounded-lg border space-y-2 text-xs"
+          style={{
+            backgroundColor: 'var(--ct-bg-subtle)',
+            borderColor: 'var(--ct-border)',
+          }}
+        >
           <div className="flex items-center justify-between">
-            <span className="text-slate-400 text-[10px] uppercase">From (Sender):</span>
-            <code className="text-slate-200 truncate max-w-[280px]">{edge.source}</code>
+            <span className="text-[10px] uppercase font-semibold" style={{ color: 'var(--ct-text-tertiary)' }}>
+              From (Sender):
+            </span>
+            <code className="font-mono text-[11px] truncate max-w-[280px]" style={{ color: 'var(--ct-text)' }}>
+              {edge.source}
+            </code>
           </div>
-          <div className="flex justify-center my-0.5">
-            <ArrowRight className="w-4 h-4 text-cyan-500" />
+          <div className="flex justify-center my-1">
+            <div
+              className="w-6 h-6 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: 'var(--ct-surface)', border: '1px solid var(--ct-border)' }}
+            >
+              <ArrowRight className="w-3.5 h-3.5" style={{ color: 'var(--ct-accent)' }} />
+            </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-slate-400 text-[10px] uppercase">To (Recipient):</span>
-            <code className="text-slate-200 truncate max-w-[280px]">{edge.target}</code>
+            <span className="text-[10px] uppercase font-semibold" style={{ color: 'var(--ct-text-tertiary)' }}>
+              To (Recipient):
+            </span>
+            <code className="font-mono text-[11px] truncate max-w-[280px]" style={{ color: 'var(--ct-text)' }}>
+              {edge.target}
+            </code>
           </div>
         </div>
 
         {/* Financial & Time Metrics */}
         <div className="grid grid-cols-2 gap-3 text-xs">
-          <div className="bg-navy-950/60 p-2.5 rounded border border-navy-800/80">
-            <span className="text-[10px] text-slate-400 uppercase">Transfer Amount</span>
-            <p className="text-emerald-400 font-bold text-sm mt-0.5">
+          <div
+            className="p-3 rounded-lg border"
+            style={{
+              backgroundColor: 'var(--ct-bg-subtle)',
+              borderColor: 'var(--ct-border)',
+            }}
+          >
+            <span className="text-[10px] font-mono uppercase block" style={{ color: 'var(--ct-text-tertiary)' }}>
+              Transfer Amount
+            </span>
+            <p className="font-mono font-bold text-sm mt-1" style={{ color: 'var(--ct-success-text)' }}>
               {edge.amount} {edge.asset}
             </p>
           </div>
-          <div className="bg-navy-950/60 p-2.5 rounded border border-navy-800/80">
-            <span className="text-[10px] text-slate-400 uppercase">Blockchain</span>
-            <p className="text-slate-200 font-bold uppercase mt-0.5">{edge.chain}</p>
+          <div
+            className="p-3 rounded-lg border"
+            style={{
+              backgroundColor: 'var(--ct-bg-subtle)',
+              borderColor: 'var(--ct-border)',
+            }}
+          >
+            <span className="text-[10px] font-mono uppercase block" style={{ color: 'var(--ct-text-tertiary)' }}>
+              Blockchain
+            </span>
+            <p className="font-semibold uppercase mt-1" style={{ color: 'var(--ct-text)' }}>
+              {edge.chain}
+            </p>
           </div>
-          <div className="bg-navy-950/60 p-2.5 rounded border border-navy-800/80 col-span-2">
-            <span className="text-[10px] text-slate-400 uppercase">Timestamp (UTC)</span>
-            <p className="text-slate-300 font-mono mt-0.5">{edge.timestamp}</p>
+          <div
+            className="p-3 rounded-lg border col-span-2"
+            style={{
+              backgroundColor: 'var(--ct-bg-subtle)',
+              borderColor: 'var(--ct-border)',
+            }}
+          >
+            <span className="text-[10px] font-mono uppercase block" style={{ color: 'var(--ct-text-tertiary)' }}>
+              Timestamp (UTC)
+            </span>
+            <p className="font-mono text-xs mt-1" style={{ color: 'var(--ct-text-secondary)' }}>
+              {edge.timestamp}
+            </p>
           </div>
         </div>
 
         {/* Close Button */}
-        <div className="flex justify-end pt-2 border-t border-navy-800">
+        <div
+          className="flex justify-end pt-3 border-t"
+          style={{ borderColor: 'var(--ct-border)' }}
+        >
           <button
             onClick={onClose}
-            className="px-4 py-1.5 text-xs bg-navy-800 hover:bg-navy-700 text-slate-200 rounded font-bold transition-colors"
+            className="ct-btn ct-btn-secondary ct-btn-sm"
           >
             Close
           </button>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Terminal, Clock, FileText, Search, ExternalLink, CheckCircle2 } from 'lucide-react';
+import { Terminal, Clock, FileText, Search, ExternalLink, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { TraceResult, GraphCanvasEdge } from '@chaintrace/types';
 
 interface WorkspaceBottomDrawerProps {
@@ -39,7 +39,7 @@ export const WorkspaceBottomDrawer: React.FC<WorkspaceBottomDrawerProps> = ({
             chain: hop.chain,
             timestamp: hop.timestamp,
             hopNumber: hop.hop_number ?? (hop as any).hopNumber ?? 1,
-            isDemo: txHash.includes('demo'),
+            isDemo: txHash?.includes('demo'),
           });
         }
       });
@@ -51,9 +51,9 @@ export const WorkspaceBottomDrawer: React.FC<WorkspaceBottomDrawerProps> = ({
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
     return (
-      h.txHash.toLowerCase().includes(q) ||
-      h.from.toLowerCase().includes(q) ||
-      h.to.toLowerCase().includes(q)
+      h.txHash?.toLowerCase().includes(q) ||
+      h.from?.toLowerCase().includes(q) ||
+      h.to?.toLowerCase().includes(q)
     );
   });
 
@@ -61,48 +61,90 @@ export const WorkspaceBottomDrawer: React.FC<WorkspaceBottomDrawerProps> = ({
   const paginatedHops = filteredHops.slice((page - 1) * pageSize, page * pageSize);
 
   return (
-    <div className="bg-navy-900/90 border border-navy-700/80 rounded-lg overflow-hidden font-mono flex flex-col">
+    <div
+      className="rounded-xl border overflow-hidden flex flex-col transition-colors"
+      style={{
+        backgroundColor: 'var(--ct-surface)',
+        borderColor: 'var(--ct-border)',
+        boxShadow: 'var(--ct-shadow-sm)',
+      }}
+    >
       {/* Tab Navigation Header */}
-      <div className="flex items-center justify-between border-b border-navy-800 px-4 py-2.5 bg-navy-950/60">
-        <div className="flex items-center gap-2">
+      <div
+        className="flex items-center justify-between border-b px-4 py-2"
+        style={{
+          backgroundColor: 'var(--ct-bg-subtle)',
+          borderColor: 'var(--ct-border)',
+        }}
+      >
+        <div className="flex items-center gap-1">
           <button
             onClick={() => setActiveTab('transactions')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
               activeTab === 'transactions'
-                ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'shadow-sm'
+                : 'hover:opacity-80'
             }`}
+            style={{
+              backgroundColor: activeTab === 'transactions' ? 'var(--ct-surface)' : 'transparent',
+              color: activeTab === 'transactions' ? 'var(--ct-accent-text)' : 'var(--ct-text-secondary)',
+              border: activeTab === 'transactions' ? '1px solid var(--ct-border)' : '1px solid transparent',
+            }}
           >
             <Terminal className="w-3.5 h-3.5" />
-            Transaction Ledger ({allHops.length})
+            <span>Transaction Ledger</span>
+            <span
+              className="text-[10px] px-1.5 py-0.2 rounded-full font-mono"
+              style={{
+                backgroundColor: activeTab === 'transactions' ? 'var(--ct-accent-subtle)' : 'var(--ct-border)',
+                color: activeTab === 'transactions' ? 'var(--ct-accent-text)' : 'var(--ct-text-tertiary)',
+              }}
+            >
+              {allHops.length}
+            </span>
           </button>
+
           <button
             onClick={() => setActiveTab('timeline')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
               activeTab === 'timeline'
-                ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'shadow-sm'
+                : 'hover:opacity-80'
             }`}
+            style={{
+              backgroundColor: activeTab === 'timeline' ? 'var(--ct-surface)' : 'transparent',
+              color: activeTab === 'timeline' ? 'var(--ct-accent-text)' : 'var(--ct-text-secondary)',
+              border: activeTab === 'timeline' ? '1px solid var(--ct-border)' : '1px solid transparent',
+            }}
           >
             <Clock className="w-3.5 h-3.5" />
-            Investigation Timeline
+            <span>Investigation Timeline</span>
           </button>
+
           <button
             onClick={() => setActiveTab('evidence')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
               activeTab === 'evidence'
-                ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'shadow-sm'
+                : 'hover:opacity-80'
             }`}
+            style={{
+              backgroundColor: activeTab === 'evidence' ? 'var(--ct-surface)' : 'transparent',
+              color: activeTab === 'evidence' ? 'var(--ct-accent-text)' : 'var(--ct-text-secondary)',
+              border: activeTab === 'evidence' ? '1px solid var(--ct-border)' : '1px solid transparent',
+            }}
           >
             <FileText className="w-3.5 h-3.5" />
-            Forensic Evidence Chains
+            <span>Forensic Evidence Chains</span>
           </button>
         </div>
 
-        <span className="text-[11px] text-slate-400">
-          Ref: <strong className="text-cyan-400">{caseNumber}</strong>
-        </span>
+        <div className="flex items-center gap-1.5 text-xs">
+          <span style={{ color: 'var(--ct-text-tertiary)' }}>Case Ref:</span>
+          <span className="font-mono font-medium px-2 py-0.5 rounded border text-[11px]" style={{ backgroundColor: 'var(--ct-surface)', borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }}>
+            {caseNumber}
+          </span>
+        </div>
       </div>
 
       {/* Tab Content */}
@@ -112,7 +154,7 @@ export const WorkspaceBottomDrawer: React.FC<WorkspaceBottomDrawerProps> = ({
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-3">
               <div className="relative flex-1 max-w-sm">
-                <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
+                <Search className="w-3.5 h-3.5 absolute left-3 top-2.5" style={{ color: 'var(--ct-text-tertiary)' }} />
                 <input
                   type="text"
                   value={searchQuery}
@@ -121,50 +163,62 @@ export const WorkspaceBottomDrawer: React.FC<WorkspaceBottomDrawerProps> = ({
                     setPage(1);
                   }}
                   placeholder="Filter by hash or wallet address..."
-                  className="w-full bg-navy-950 border border-navy-700 text-slate-200 text-xs rounded pl-8 pr-2.5 py-1.5 focus:outline-none focus:border-cyan-500"
+                  className="ct-input pl-9 text-xs"
+                  style={{ height: '32px' }}
                 />
               </div>
-              <span className="text-xs text-slate-400">
+              <span className="text-xs" style={{ color: 'var(--ct-text-secondary)' }}>
                 Showing {paginatedHops.length} of {filteredHops.length} transactions
               </span>
             </div>
 
             {paginatedHops.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-slate-300">
-                  <thead className="bg-navy-950/80 text-[10px] uppercase text-slate-400 border-b border-navy-800">
+              <div className="overflow-x-auto rounded-lg border" style={{ borderColor: 'var(--ct-border)' }}>
+                <table className="w-full text-left text-xs">
+                  <thead
+                    className="text-[11px] font-semibold uppercase tracking-wider border-b"
+                    style={{
+                      backgroundColor: 'var(--ct-bg-subtle)',
+                      borderColor: 'var(--ct-border)',
+                      color: 'var(--ct-text-secondary)',
+                    }}
+                  >
                     <tr>
-                      <th className="py-2 px-3">Tx Hash</th>
-                      <th className="py-2 px-3">Hop</th>
-                      <th className="py-2 px-3">Sender</th>
-                      <th className="py-2 px-3">Recipient</th>
-                      <th className="py-2 px-3">Amount</th>
-                      <th className="py-2 px-3">Timestamp (UTC)</th>
-                      <th className="py-2 px-3 text-right">Inspect</th>
+                      <th className="py-2.5 px-3">Tx Hash</th>
+                      <th className="py-2.5 px-3">Hop</th>
+                      <th className="py-2.5 px-3">Sender</th>
+                      <th className="py-2.5 px-3">Recipient</th>
+                      <th className="py-2.5 px-3">Amount</th>
+                      <th className="py-2.5 px-3">Timestamp (UTC)</th>
+                      <th className="py-2.5 px-3 text-right">Inspect</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-navy-800/60">
+                  <tbody className="divide-y" style={{ borderColor: 'var(--ct-border-subtle)' }}>
                     {paginatedHops.map((tx, idx) => (
-                      <tr key={idx} className="hover:bg-navy-800/40 transition-colors">
-                        <td className="py-2 px-3 text-cyan-300 font-bold truncate max-w-[140px]" title={tx.txHash}>
-                          {tx.txHash.slice(0, 12)}...{tx.txHash.slice(-6)}
+                      <tr
+                        key={idx}
+                        className="transition-colors hover:opacity-90"
+                        style={{ backgroundColor: 'var(--ct-surface)' }}
+                      >
+                        <td className="py-2 px-3 font-mono text-[11px] font-semibold" style={{ color: 'var(--ct-accent-text)' }} title={tx.txHash}>
+                          {tx.txHash ? `${tx.txHash.slice(0, 10)}...${tx.txHash.slice(-6)}` : 'N/A'}
                         </td>
                         <td className="py-2 px-3">
-                          <span className="px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-400 text-[10px] font-bold border border-cyan-800/60">
+                          <span className="ct-badge ct-badge-info text-[10px] font-mono">
                             H{tx.hopNumber}
                           </span>
                         </td>
-                        <td className="py-2 px-3 text-slate-400 truncate max-w-[120px]" title={tx.from}>
-                          {tx.from.slice(0, 8)}...
+                        <td className="py-2 px-3 font-mono text-[11px]" style={{ color: 'var(--ct-text-secondary)' }} title={tx.from}>
+                          {tx.from ? `${tx.from.slice(0, 8)}...` : 'N/A'}
                         </td>
-                        <td className="py-2 px-3 text-slate-300 truncate max-w-[120px]" title={tx.to}>
-                          {tx.to.slice(0, 8)}...
+                        <td className="py-2 px-3 font-mono text-[11px]" style={{ color: 'var(--ct-text)' }} title={tx.to}>
+                          {tx.to ? `${tx.to.slice(0, 8)}...` : 'N/A'}
                         </td>
-                        <td className="py-2 px-3 text-emerald-400 font-bold">
+                        <td className="py-2 px-3 font-mono text-xs font-semibold" style={{ color: 'var(--ct-success-text)' }}>
                           {tx.amount} {tx.asset}
                         </td>
-                        <td className="py-2 px-3 text-slate-400 text-[11px]">
-                          {tx.timestamp?.slice(0, 19).replace('T', ' ')}
+                        <td className="py-2 px-3 font-mono text-[11px]" style={{ color: 'var(--ct-text-tertiary)' }}>
+                          {tx.timestamp?.slice(0, 19).replace('T', ' ') || 'Recent'}
                         </td>
                         <td className="py-2 px-3 text-right">
                           <button
@@ -181,7 +235,7 @@ export const WorkspaceBottomDrawer: React.FC<WorkspaceBottomDrawerProps> = ({
                                 hopNumber: tx.hopNumber,
                               })
                             }
-                            className="p-1 text-cyan-400 hover:text-cyan-300 hover:bg-navy-800 rounded transition-colors"
+                            className="ct-btn-icon"
                             title="Inspect in modal"
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
@@ -193,31 +247,33 @@ export const WorkspaceBottomDrawer: React.FC<WorkspaceBottomDrawerProps> = ({
                 </table>
               </div>
             ) : (
-              <div className="py-8 text-center text-xs text-slate-500 italic">
+              <div className="py-8 text-center text-xs" style={{ color: 'var(--ct-text-tertiary)' }}>
                 {allHops.length === 0 ? 'No transactions in active trace.' : 'No transactions match search criteria.'}
               </div>
             )}
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between pt-2 border-t border-navy-800/80 text-xs">
-                <span className="text-slate-400">
+              <div className="flex items-center justify-between pt-2 border-t text-xs" style={{ borderColor: 'var(--ct-border-subtle)' }}>
+                <span style={{ color: 'var(--ct-text-secondary)' }}>
                   Page {page} of {totalPages}
                 </span>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5">
                   <button
                     disabled={page === 1}
                     onClick={() => setPage((p) => Math.max(p - 1, 1))}
-                    className="px-2.5 py-1 bg-navy-950 border border-navy-700 disabled:opacity-40 rounded text-slate-300"
+                    className="ct-btn ct-btn-secondary ct-btn-sm"
                   >
-                    Prev
+                    <ChevronLeft className="w-3 h-3" />
+                    <span>Prev</span>
                   </button>
                   <button
                     disabled={page === totalPages}
                     onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-                    className="px-2.5 py-1 bg-navy-950 border border-navy-700 disabled:opacity-40 rounded text-slate-300"
+                    className="ct-btn ct-btn-secondary ct-btn-sm"
                   >
-                    Next
+                    <span>Next</span>
+                    <ChevronRight className="w-3 h-3" />
                   </button>
                 </div>
               </div>
@@ -227,22 +283,54 @@ export const WorkspaceBottomDrawer: React.FC<WorkspaceBottomDrawerProps> = ({
 
         {/* 2. Investigation Timeline */}
         {activeTab === 'timeline' && (
-          <div className="space-y-3 py-1">
-            <div className="relative pl-6 space-y-4 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-navy-700">
+          <div className="py-2">
+            <div
+              className="relative pl-6 space-y-4 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5"
+              style={{
+                // Timeline vertical bar color
+              }}
+            >
+              <div
+                className="absolute left-2.5 top-2 bottom-2 w-0.5"
+                style={{ backgroundColor: 'var(--ct-border)' }}
+              />
+
               <div className="relative flex items-start gap-3">
-                <div className="w-5 h-5 rounded-full bg-cyan-900 border-2 border-cyan-400 shrink-0 flex items-center justify-center -ml-6" />
+                <div
+                  className="w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center -ml-6 z-10"
+                  style={{
+                    backgroundColor: 'var(--ct-surface)',
+                    borderColor: 'var(--ct-accent)',
+                  }}
+                >
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--ct-accent)' }} />
+                </div>
                 <div>
-                  <span className="text-xs font-bold text-slate-200">Investigation Case Initialized</span>
-                  <p className="text-[11px] text-slate-400">Case intake recorded with suspect seed wallet and complaint metadata.</p>
+                  <span className="text-xs font-semibold" style={{ color: 'var(--ct-text)' }}>
+                    Investigation Case Initialized
+                  </span>
+                  <p className="text-[11px]" style={{ color: 'var(--ct-text-secondary)' }}>
+                    Case intake recorded with suspect seed wallet and complaint metadata.
+                  </p>
                 </div>
               </div>
 
               {allHops.length > 0 && (
                 <div className="relative flex items-start gap-3">
-                  <div className="w-5 h-5 rounded-full bg-emerald-900 border-2 border-emerald-400 shrink-0 flex items-center justify-center -ml-6" />
+                  <div
+                    className="w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center -ml-6 z-10"
+                    style={{
+                      backgroundColor: 'var(--ct-surface)',
+                      borderColor: 'var(--ct-success)',
+                    }}
+                  >
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--ct-success)' }} />
+                  </div>
                   <div>
-                    <span className="text-xs font-bold text-slate-200">N-Hop Breadth-First Traversal Executed</span>
-                    <p className="text-[11px] text-slate-400">
+                    <span className="text-xs font-semibold" style={{ color: 'var(--ct-text)' }}>
+                      N-Hop Breadth-First Traversal Executed
+                    </span>
+                    <p className="text-[11px]" style={{ color: 'var(--ct-text-secondary)' }}>
                       Discovered {allHops.length} transaction edges across {traceResult?.paths.length || 0} paths.
                     </p>
                   </div>
@@ -250,20 +338,40 @@ export const WorkspaceBottomDrawer: React.FC<WorkspaceBottomDrawerProps> = ({
               )}
 
               <div className="relative flex items-start gap-3">
-                <div className="w-5 h-5 rounded-full bg-amber-900 border-2 border-amber-400 shrink-0 flex items-center justify-center -ml-6" />
+                <div
+                  className="w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center -ml-6 z-10"
+                  style={{
+                    backgroundColor: 'var(--ct-surface)',
+                    borderColor: 'var(--ct-warning)',
+                  }}
+                >
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--ct-warning)' }} />
+                </div>
                 <div>
-                  <span className="text-xs font-bold text-slate-200">Rule-Based Intelligence Patterns Evaluated</span>
-                  <p className="text-[11px] text-slate-400">
+                  <span className="text-xs font-semibold" style={{ color: 'var(--ct-text)' }}>
+                    Rule-Based Intelligence Patterns Evaluated
+                  </span>
+                  <p className="text-[11px]" style={{ color: 'var(--ct-text-secondary)' }}>
                     Feature extractor scanned for rapid forwarding, fan-out, fan-in, and peel chain behaviors.
                   </p>
                 </div>
               </div>
 
               <div className="relative flex items-start gap-3">
-                <div className="w-5 h-5 rounded-full bg-purple-900 border-2 border-purple-400 shrink-0 flex items-center justify-center -ml-6" />
+                <div
+                  className="w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center -ml-6 z-10"
+                  style={{
+                    backgroundColor: 'var(--ct-surface)',
+                    borderColor: 'var(--ct-info)',
+                  }}
+                >
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--ct-info)' }} />
+                </div>
                 <div>
-                  <span className="text-xs font-bold text-slate-200">VASP Attribution & Risk Assessment Scored</span>
-                  <p className="text-[11px] text-slate-400">
+                  <span className="text-xs font-semibold" style={{ color: 'var(--ct-text)' }}>
+                    VASP Attribution & Risk Assessment Scored
+                  </span>
+                  <p className="text-[11px]" style={{ color: 'var(--ct-text-secondary)' }}>
                     Indexed terminal hops against curated labels; bounded explainable score synthesized.
                   </p>
                 </div>
@@ -274,21 +382,39 @@ export const WorkspaceBottomDrawer: React.FC<WorkspaceBottomDrawerProps> = ({
 
         {/* 3. Forensic Evidence Chains */}
         {activeTab === 'evidence' && (
-          <div className="space-y-2 py-1 text-xs">
-            <p className="text-slate-400 text-[11px]">
+          <div className="space-y-3 py-1">
+            <p className="text-xs" style={{ color: 'var(--ct-text-secondary)' }}>
               Forensic evidence links extracted directly from validated blockchain transfer events:
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
               {allHops.slice(0, 6).map((h, i) => (
-                <div key={i} className="bg-navy-950 p-2.5 rounded border border-navy-800 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                <div
+                  key={i}
+                  className="p-3 rounded-lg border flex items-center justify-between transition-all"
+                  style={{
+                    backgroundColor: 'var(--ct-bg-subtle)',
+                    borderColor: 'var(--ct-border)',
+                  }}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div
+                      className="w-7 h-7 rounded-md flex items-center justify-center shrink-0"
+                      style={{ backgroundColor: 'var(--ct-success-subtle)' }}
+                    >
+                      <CheckCircle2 className="w-4 h-4" style={{ color: 'var(--ct-success)' }} />
+                    </div>
                     <div>
-                      <span className="text-slate-200 font-bold">Transfer Event Ref #{i + 1}</span>
-                      <p className="text-[10px] text-slate-400 truncate max-w-[220px]">{h.txHash}</p>
+                      <span className="text-xs font-semibold" style={{ color: 'var(--ct-text)' }}>
+                        Transfer Event Ref #{i + 1}
+                      </span>
+                      <p className="text-[11px] font-mono truncate max-w-[200px]" style={{ color: 'var(--ct-text-secondary)' }}>
+                        {h.txHash}
+                      </p>
                     </div>
                   </div>
-                  <span className="text-emerald-400 font-bold">{h.amount} {h.asset}</span>
+                  <span className="font-mono text-xs font-semibold" style={{ color: 'var(--ct-success-text)' }}>
+                    {h.amount} {h.asset}
+                  </span>
                 </div>
               ))}
             </div>

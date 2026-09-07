@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Building2, CheckCircle, HelpCircle, AlertCircle, RotateCw } from 'lucide-react';
+import { Building2, CheckCircle, HelpCircle, AlertCircle, RotateCw, X } from 'lucide-react';
 import type { Case, AttributionAnalysisResult, WalletAttribution } from '@chaintrace/types';
 
 interface VaspAttributionPanelProps {
@@ -42,51 +42,110 @@ export const VaspAttributionPanel: React.FC<VaspAttributionPanelProps> = ({ acti
   const terminals = result?.terminal_attributions || result?.terminalAttributions || [];
   const matchedTerminals = terminals.filter((t) => t.status === 'MATCHED');
 
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'MATCHED':
+        return <span className="ct-badge ct-badge-success">{status}</span>;
+      case 'CONFLICTING_LABELS':
+        return <span className="ct-badge ct-badge-warning">{status}</span>;
+      default:
+        return <span className="ct-badge ct-badge-neutral">{status}</span>;
+    }
+  };
+
   return (
-    <div className="bg-navy-900/90 border border-navy-700/80 rounded-lg p-4 flex flex-col space-y-3">
-      <div className="flex items-center justify-between border-b border-navy-800 pb-2.5">
+    <div
+      className="rounded-xl border p-4 flex flex-col space-y-3 transition-colors"
+      style={{
+        backgroundColor: 'var(--ct-surface)',
+        borderColor: 'var(--ct-border)',
+        boxShadow: 'var(--ct-shadow-sm)',
+      }}
+    >
+      {/* Header */}
+      <div
+        className="flex items-center justify-between pb-3 border-b"
+        style={{ borderColor: 'var(--ct-border-subtle)' }}
+      >
         <div className="flex items-center gap-2">
-          <Building2 className="w-4 h-4 text-cyan-400" />
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-            VASP Attribution ({matchedTerminals.length} Identified)
-          </span>
+          <div
+            className="w-7 h-7 rounded-lg flex items-center justify-center"
+            style={{ backgroundColor: 'var(--ct-accent-subtle)' }}
+          >
+            <Building2 className="w-4 h-4" style={{ color: 'var(--ct-accent)' }} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--ct-text)' }}>
+                VASP Attribution
+              </span>
+              <span className="ct-badge ct-badge-neutral text-[10px]">
+                {matchedTerminals.length} Identified
+              </span>
+            </div>
+            <p className="text-[11px]" style={{ color: 'var(--ct-text-tertiary)' }}>
+              Virtual Asset Service Provider directory matching
+            </p>
+          </div>
         </div>
+
         <button
           onClick={fetchAttribution}
           disabled={loading}
-          className="text-slate-400 hover:text-cyan-400 text-xs flex items-center gap-1 transition-colors"
+          className="ct-btn ct-btn-secondary ct-btn-sm"
           title="Refresh attribution analysis"
         >
-          <RotateCw className={`w-3 h-3 ${loading ? 'animate-spin text-cyan-400' : ''}`} />
-          <span className="text-[10px] font-mono">Refresh</span>
+          <RotateCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} style={{ color: 'var(--ct-accent)' }} />
+          <span className="text-xs">Refresh</span>
         </button>
       </div>
 
+      {/* Loading State */}
       {loading && (
-        <div className="py-6 text-center text-xs text-slate-400 font-mono flex items-center justify-center gap-2">
-          <RotateCw className="w-3.5 h-3.5 animate-spin text-cyan-400" />
-          <span>Cross-referencing VASP directory...</span>
+        <div className="py-8 text-center flex flex-col items-center justify-center gap-2">
+          <RotateCw className="w-5 h-5 animate-spin" style={{ color: 'var(--ct-accent)' }} />
+          <span className="text-xs font-medium" style={{ color: 'var(--ct-text-secondary)' }}>
+            Cross-referencing verified entity directories...
+          </span>
         </div>
       )}
 
+      {/* Error State */}
       {error && !loading && (
-        <div className="p-2.5 rounded bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-mono">
-          {error}
+        <div
+          className="p-3 rounded-lg border text-xs flex items-center gap-2"
+          style={{
+            backgroundColor: 'var(--ct-danger-subtle)',
+            borderColor: 'var(--ct-danger)',
+            color: 'var(--ct-danger-text)',
+          }}
+        >
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span>{error}</span>
         </div>
       )}
 
+      {/* Empty State */}
       {!loading && !error && terminals.length === 0 && (
-        <div className="py-6 text-center text-xs text-slate-400">
-          <HelpCircle className="w-6 h-6 text-slate-500 mx-auto mb-1.5" />
-          <p className="font-medium text-slate-300">No Terminal Destinations Analyzed</p>
-          <p className="text-[11px] text-slate-500 mt-0.5">
-            Execute a multi-hop trace to discover cash-out endpoints.
+        <div className="py-8 text-center flex flex-col items-center justify-center">
+          <div
+            className="w-10 h-10 rounded-full flex items-center justify-center mb-2"
+            style={{ backgroundColor: 'var(--ct-bg-subtle)' }}
+          >
+            <HelpCircle className="w-5 h-5" style={{ color: 'var(--ct-text-tertiary)' }} />
+          </div>
+          <p className="text-xs font-medium" style={{ color: 'var(--ct-text)' }}>
+            No Terminal Destinations Analyzed
+          </p>
+          <p className="text-[11px] max-w-xs mt-0.5" style={{ color: 'var(--ct-text-tertiary)' }}>
+            Execute an automated fund trace to discover cash-out endpoints and exchange clusters.
           </p>
         </div>
       )}
 
+      {/* Attribution List */}
       {!loading && terminals.length > 0 && (
-        <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+        <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
           {terminals.map((item) => {
             const isMatched = item.status === 'MATCHED';
             const isConflict = item.status === 'CONFLICTING_LABELS';
@@ -95,47 +154,56 @@ export const VaspAttributionPanel: React.FC<VaspAttributionPanelProps> = ({ acti
               <div
                 key={item.wallet}
                 onClick={() => setSelectedWallet(item)}
-                className={`border rounded-lg p-2.5 text-xs transition-colors cursor-pointer space-y-1.5 ${
-                  isMatched
-                    ? 'bg-cyan-950/40 border-cyan-700/50 hover:bg-cyan-950/70'
+                className="group rounded-lg p-3 border transition-all cursor-pointer space-y-2"
+                style={{
+                  backgroundColor: 'var(--ct-bg-subtle)',
+                  borderColor: isMatched
+                    ? 'var(--ct-border)'
                     : isConflict
-                      ? 'bg-amber-950/40 border-amber-700/50 hover:bg-amber-950/70'
-                      : 'bg-navy-950/40 border-navy-800 hover:bg-navy-950/70 text-slate-400'
-                }`}
+                      ? 'var(--ct-warning)'
+                      : 'var(--ct-border)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--ct-accent)';
+                  e.currentTarget.style.boxShadow = 'var(--ct-shadow-md)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = isConflict ? 'var(--ct-warning)' : 'var(--ct-border)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 font-bold">
+                  <div className="flex items-center gap-2">
                     {isMatched ? (
-                      <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                      <CheckCircle className="w-4 h-4 shrink-0" style={{ color: 'var(--ct-success)' }} />
                     ) : isConflict ? (
-                      <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
+                      <AlertCircle className="w-4 h-4 shrink-0" style={{ color: 'var(--ct-warning)' }} />
                     ) : (
-                      <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
+                      <HelpCircle className="w-4 h-4 shrink-0" style={{ color: 'var(--ct-text-tertiary)' }} />
                     )}
-                    <span className={isMatched ? 'text-slate-100' : 'text-slate-400'}>
+                    <span className="text-xs font-semibold" style={{ color: 'var(--ct-text)' }}>
                       {item.entity ? item.entity.name : 'Unknown Destination'}
                     </span>
                   </div>
 
-                  <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded border ${
-                    isMatched
-                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                      : isConflict
-                        ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                        : 'bg-slate-800 text-slate-400 border-slate-700'
-                  }`}>
-                    {item.status}
+                  {getStatusBadge(item.status)}
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] font-mono" style={{ color: 'var(--ct-text-secondary)' }}>
+                  <span>
+                    Wallet: {item.wallet.slice(0, 8)}...{item.wallet.slice(-6)}
+                  </span>
+                  <span className="capitalize font-sans text-[11px]" style={{ color: 'var(--ct-text-tertiary)' }}>
+                    Conf: {item.confidence}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between font-mono text-[10px] text-slate-400">
-                  <span>Wallet: {item.wallet.slice(0, 10)}...</span>
-                  <span>Confidence: {item.confidence}</span>
-                </div>
-
                 {item.entity?.jurisdiction && (
-                  <div className="text-[10px] text-slate-500 font-mono">
-                    Jurisdiction: {item.entity.jurisdiction}
+                  <div className="text-[11px] flex items-center justify-between pt-1 border-t" style={{ borderColor: 'var(--ct-border-subtle)' }}>
+                    <span style={{ color: 'var(--ct-text-tertiary)' }}>Jurisdiction</span>
+                    <span className="font-medium" style={{ color: 'var(--ct-text-secondary)' }}>
+                      {item.entity.jurisdiction}
+                    </span>
                   </div>
                 )}
               </div>
@@ -146,52 +214,101 @@ export const VaspAttributionPanel: React.FC<VaspAttributionPanelProps> = ({ acti
 
       {/* Attribution Detail Modal */}
       {selectedWallet && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-navy-900 border border-navy-700 rounded-xl max-w-lg w-full p-5 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-navy-800 pb-3">
-              <div className="flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-cyan-400" />
-                <span className="text-sm font-bold text-slate-200">
-                  {selectedWallet.entity?.name || 'Unattributed Wallet'}
-                </span>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)' }}
+        >
+          <div
+            className="rounded-xl border max-w-lg w-full p-6 space-y-4 shadow-2xl animate-fade-in"
+            style={{
+              backgroundColor: 'var(--ct-surface)',
+              borderColor: 'var(--ct-border)',
+            }}
+          >
+            {/* Modal Header */}
+            <div
+              className="flex items-center justify-between border-b pb-3"
+              style={{ borderColor: 'var(--ct-border)' }}
+            >
+              <div className="flex items-center gap-2.5">
+                <div
+                  className="w-8 h-8 rounded-lg flex items-center justify-center"
+                  style={{ backgroundColor: 'var(--ct-accent-subtle)' }}
+                >
+                  <Building2 className="w-4 h-4" style={{ color: 'var(--ct-accent)' }} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold" style={{ color: 'var(--ct-text)' }}>
+                    {selectedWallet.entity?.name || 'Unattributed Wallet'}
+                  </h3>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    {getStatusBadge(selectedWallet.status)}
+                    <span className="text-[11px] font-mono uppercase" style={{ color: 'var(--ct-text-tertiary)' }}>
+                      {selectedWallet.chain}
+                    </span>
+                  </div>
+                </div>
               </div>
               <button
                 onClick={() => setSelectedWallet(null)}
-                className="text-slate-400 hover:text-slate-200 text-xs font-mono"
+                className="ct-btn-icon"
+                title="Close modal"
               >
-                ✕ Close
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-3 text-xs">
-              <div className="bg-navy-950 p-3 rounded-lg border border-navy-800 space-y-1 font-mono text-[11px]">
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Address:</span>
-                  <span className="text-cyan-300 font-bold">{selectedWallet.wallet}</span>
+            <div className="space-y-3">
+              {/* Technical Metadata */}
+              <div
+                className="p-3.5 rounded-lg border space-y-2 text-xs"
+                style={{
+                  backgroundColor: 'var(--ct-bg-subtle)',
+                  borderColor: 'var(--ct-border)',
+                }}
+              >
+                <div className="flex justify-between items-center">
+                  <span style={{ color: 'var(--ct-text-tertiary)' }}>Address:</span>
+                  <span className="font-mono text-[11px] font-semibold" style={{ color: 'var(--ct-accent-text)' }}>
+                    {selectedWallet.wallet}
+                  </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Chain:</span>
-                  <span className="text-slate-200">{selectedWallet.chain.toUpperCase()}</span>
+                <div className="flex justify-between items-center">
+                  <span style={{ color: 'var(--ct-text-tertiary)' }}>Attributed Via:</span>
+                  <span className="font-medium" style={{ color: 'var(--ct-text)' }}>
+                    {selectedWallet.attributed_via || selectedWallet.attributedVia || 'Direct Registry'}
+                  </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Attributed Via:</span>
-                  <span className="text-slate-200">{selectedWallet.attributed_via || selectedWallet.attributedVia}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Dataset Version:</span>
-                  <span className="text-slate-200">{selectedWallet.dataset_version || selectedWallet.datasetVersion}</span>
+                <div className="flex justify-between items-center">
+                  <span style={{ color: 'var(--ct-text-tertiary)' }}>Dataset Version:</span>
+                  <span className="font-mono text-[11px]" style={{ color: 'var(--ct-text-secondary)' }}>
+                    {selectedWallet.dataset_version || selectedWallet.datasetVersion || 'v1.4.0'}
+                  </span>
                 </div>
               </div>
 
               {/* Confidence & Reasoning */}
-              <div className="bg-navy-950 p-3 rounded-lg border border-navy-800 space-y-1.5">
-                <div className="flex justify-between text-xs">
-                  <span className="font-semibold text-slate-300">Attribution Confidence:</span>
-                  <span className="font-mono text-cyan-400 font-bold">{selectedWallet.confidence}</span>
+              <div
+                className="p-3.5 rounded-lg border space-y-2 text-xs"
+                style={{
+                  backgroundColor: 'var(--ct-bg-subtle)',
+                  borderColor: 'var(--ct-border)',
+                }}
+              >
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold" style={{ color: 'var(--ct-text)' }}>
+                    Attribution Confidence:
+                  </span>
+                  <span className="font-mono font-bold" style={{ color: 'var(--ct-accent-text)' }}>
+                    {selectedWallet.confidence}
+                  </span>
                 </div>
-                <div className="space-y-1 text-[11px] text-slate-400">
+                <div className="space-y-1 text-[11px]" style={{ color: 'var(--ct-text-secondary)' }}>
                   {(selectedWallet.confidence_reasons || selectedWallet.confidenceReasons || []).map((r, i) => (
-                    <div key={i}>• {r}</div>
+                    <div key={i} className="flex items-start gap-1.5">
+                      <span className="text-accent">•</span>
+                      <span>{r}</span>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -199,17 +316,31 @@ export const VaspAttributionPanel: React.FC<VaspAttributionPanelProps> = ({ acti
               {/* Labels & Provenance */}
               {selectedWallet.labels.length > 0 && (
                 <div>
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
+                  <span
+                    className="text-[10px] font-mono font-bold uppercase tracking-wider block mb-1.5"
+                    style={{ color: 'var(--ct-text-tertiary)' }}
+                  >
                     Source Provenance ({selectedWallet.labels.length})
                   </span>
-                  <div className="space-y-1.5 font-mono text-[10px]">
+                  <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
                     {selectedWallet.labels.map((lbl, idx) => (
-                      <div key={idx} className="p-2 bg-navy-950 rounded border border-navy-800 flex justify-between items-center text-slate-300">
+                      <div
+                        key={idx}
+                        className="p-2.5 rounded border flex justify-between items-center text-xs"
+                        style={{
+                          backgroundColor: 'var(--ct-surface)',
+                          borderColor: 'var(--ct-border-subtle)',
+                        }}
+                      >
                         <div>
-                          <div className="font-bold text-cyan-300">{lbl.source}</div>
-                          <div className="text-slate-500">{lbl.source_reference || lbl.sourceReference || 'Curated record'}</div>
+                          <div className="font-semibold" style={{ color: 'var(--ct-text)' }}>
+                            {lbl.source}
+                          </div>
+                          <div className="text-[11px]" style={{ color: 'var(--ct-text-tertiary)' }}>
+                            {lbl.source_reference || lbl.sourceReference || 'Verified registry entity'}
+                          </div>
                         </div>
-                        <span className="px-1.5 py-0.5 rounded bg-navy-900 border border-navy-700 text-slate-400">
+                        <span className="ct-badge ct-badge-neutral text-[10px]">
                           {lbl.label_type || lbl.labelType}
                         </span>
                       </div>
@@ -219,10 +350,14 @@ export const VaspAttributionPanel: React.FC<VaspAttributionPanelProps> = ({ acti
               )}
             </div>
 
-            <div className="pt-2 border-t border-navy-800 flex justify-end">
+            {/* Modal Footer */}
+            <div
+              className="pt-3 border-t flex justify-end"
+              style={{ borderColor: 'var(--ct-border)' }}
+            >
               <button
                 onClick={() => setSelectedWallet(null)}
-                className="bg-navy-800 hover:bg-navy-700 text-slate-200 px-3 py-1.5 rounded text-xs font-mono transition-colors"
+                className="ct-btn ct-btn-secondary ct-btn-sm"
               >
                 Dismiss
               </button>

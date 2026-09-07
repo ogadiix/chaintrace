@@ -64,15 +64,60 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379/0"
     REDIS_MOCK_FALLBACK: bool = True
 
-    # Blockchain Provider Endpoints
+    # Blockchain Provider Endpoints — TRON
     TRON_API_URL: str = "https://api.trongrid.io"
     TRON_API_KEY: str = ""
+    TRONSCAN_API_URL: str = "https://apilist.tronscanapi.com/api"
+    TRONSCAN_API_KEY: str = ""
+
+    # Blockchain Provider Endpoints — Ethereum & EVM L1
     ETH_RPC_URL: str = "https://eth.llamarpc.com"
     ETHEREUM_RPC_URL: str = ""  # If unset, defaults to ETH_RPC_URL
-    BSC_RPC_URL: str = "https://binance.llamarpc.com"
-    POLYGON_RPC_URL: str = "https://polygon.llamarpc.com"
     ETHERSCAN_API_KEY: str = ""
+    ETHERSCAN_API_URL: str = "https://api.etherscan.io/api"
+    ALCHEMY_API_KEY: str = ""
+    INFURA_PROJECT_ID: str = ""
+
+    # Blockchain Provider Endpoints — BNB Smart Chain (BSC)
+    BSC_RPC_URL: str = "https://binance.llamarpc.com"
+    BSCSCAN_API_KEY: str = ""
+    BSCSCAN_API_URL: str = "https://api.bscscan.com/api"
+
+    # Blockchain Provider Endpoints — Polygon
+    POLYGON_RPC_URL: str = "https://polygon.llamarpc.com"
+    POLYGONSCAN_API_KEY: str = ""
+    POLYGONSCAN_API_URL: str = "https://api.polygonscan.com/api"
+
+    # Blockchain Provider Endpoints — Bitcoin (BTC)
     BTC_API_URL: str = "https://blockstream.info/api"
+    MEMPOOL_SPACE_API_URL: str = "https://mempool.space/api"
+    BLOCKCHAIR_API_KEY: str = ""
+    BLOCKCHAIR_API_URL: str = "https://api.blockchair.com"
+
+    # Blockchain Provider Endpoints — Layer 2s & Alt-Chains
+    ARBITRUM_RPC_URL: str = "https://arb1.llamarpc.com"
+    ARBISCAN_API_KEY: str = ""
+    OPTIMISM_RPC_URL: str = "https://optimism.llamarpc.com"
+    OPTIMISMSCAN_API_KEY: str = ""
+    SOLANA_RPC_URL: str = "https://api.mainnet-beta.solana.com"
+    SOLSCAN_API_KEY: str = ""
+
+    # Market Price Feeds & Conversion
+    COINGECKO_API_KEY: str = ""
+    COINGECKO_API_URL: str = "https://api.coingecko.com/api/v3"
+    CRYPTOCOMPARE_API_KEY: str = ""
+
+    # Threat Intelligence, VASP Directory & Sanctions
+    OFAC_SANCTIONS_DATA_URL: str = ""
+    CHAINALYSIS_API_KEY: str = ""
+    ELLIPTIC_API_KEY: str = ""
+
+    # National Agency Gateway Integrations (Simulation/Sandbox)
+    NCRP_API_URL: str = "https://api.ncrp.gov.in/v1"
+    NCRP_API_KEY: str = ""
+    I4C_SAHYOG_API_URL: str = "https://sahyog.i4c.gov.in/api/v1"
+    I4C_SAHYOG_API_KEY: str = ""
+    I4C_SAHYOG_OFFICER_ID: str = "CT-LE-9081"
 
     # Blockchain Provider Resilience & Rate Limits
     PROVIDER_TIMEOUT_SECONDS: float = 10.0

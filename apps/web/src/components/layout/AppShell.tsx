@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
-  Shield,
   LayoutDashboard,
-  FolderGit2,
+  FolderOpen,
   GitFork,
   FileText,
   Building2,
@@ -10,14 +9,15 @@ import {
   LogOut,
   ChevronDown,
   Plus,
-  Clock,
   Menu,
   X,
-  FolderOpen,
+  Search,
 } from 'lucide-react';
 import type { Case, SystemHealth } from '@chaintrace/types';
 import { useAuth } from '../../context/AuthContext';
 import { navigate, useRouter } from '../../router';
+import { ThemeSwitcher } from '../ui/ThemeSwitcher';
+import { CommandPalette } from '../ui/CommandPalette';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -28,10 +28,39 @@ interface AppShellProps {
   health: SystemHealth | null;
 }
 
+const NAV_SECTIONS = [
+  {
+    label: 'Overview',
+    items: [
+      { id: 'dashboard', label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    ],
+  },
+  {
+    label: 'Investigations',
+    items: [
+      { id: 'cases', label: 'Cases', path: '/cases', icon: FolderOpen },
+      { id: 'investigations', label: 'Investigations', path: '/investigations', icon: GitFork },
+    ],
+  },
+  {
+    label: 'Intelligence',
+    items: [
+      { id: 'reports', label: 'Reports', path: '/reports', icon: FileText },
+      { id: 'integrations', label: 'Integrations', path: '/integrations', icon: Building2 },
+    ],
+  },
+  {
+    label: 'System',
+    items: [
+      { id: 'settings', label: 'Settings', path: '/settings', icon: Settings },
+    ],
+  },
+];
+
 export const AppShell: React.FC<AppShellProps> = ({
   children,
   cases,
-  activeCase,
+  activeCase: _activeCase,
   onSelectCase,
   onOpenCreateCaseModal,
   health,
@@ -40,59 +69,36 @@ export const AppShell: React.FC<AppShellProps> = ({
   const { path } = useRouter();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [caseDropdownOpen, setCaseDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const [currentTimeUtc, setCurrentTimeUtc] = useState<string>('');
+  const profileRef = useRef<HTMLDivElement>(null);
+  const mobileDrawerRef = useRef<HTMLDivElement>(null);
 
+  // Close profile dropdown on outside click
   useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      setCurrentTimeUtc(now.toUTCString().replace('GMT', 'UTC'));
+    if (!profileDropdownOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileDropdownOpen(false);
+      }
     };
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [profileDropdownOpen]);
 
-  const navItems = [
-    {
-      id: 'dashboard',
-      label: 'Dashboard',
-      path: '/dashboard',
-      icon: LayoutDashboard,
-    },
-    {
-      id: 'cases',
-      label: 'Cases',
-      path: '/cases',
-      icon: FolderGit2,
-      badge: cases.length ? String(cases.length) : undefined,
-    },
-    {
-      id: 'investigations',
-      label: 'Investigation',
-      path: '/investigations',
-      icon: GitFork,
-    },
-    {
-      id: 'reports',
-      label: 'Reports & Dossiers',
-      path: '/reports',
-      icon: FileText,
-    },
-    {
-      id: 'integrations',
-      label: 'Agency Gateway',
-      path: '/integrations',
-      icon: Building2,
-    },
-    {
-      id: 'settings',
-      label: 'Settings',
-      path: '/settings',
-      icon: Settings,
-    },
-  ];
+  // Close mobile menu on Escape
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileMenuOpen(false);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [mobileMenuOpen]);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [path]);
 
   const isActive = (itemPath: string) => {
     if (itemPath === '/dashboard') return path === '/dashboard' || path === '/';
@@ -100,125 +106,213 @@ export const AppShell: React.FC<AppShellProps> = ({
   };
 
   const getBreadcrumb = () => {
-    if (path.startsWith('/cases')) return 'Case Management';
-    if (path.startsWith('/investigations')) return 'Investigation Workspace';
-    if (path.startsWith('/reports')) return 'Evidentiary Dossiers';
-    if (path.startsWith('/integrations')) return 'Agency Gateway (NCRP / SAHYOG)';
-    if (path.startsWith('/settings')) return 'System Settings & Audit Logs';
-    return 'Forensic Overview';
+    if (path.startsWith('/cases')) return 'Cases';
+    if (path.startsWith('/investigations')) return 'Investigations';
+    if (path.startsWith('/reports')) return 'Reports';
+    if (path.startsWith('/integrations')) return 'Integrations';
+    if (path.startsWith('/settings')) return 'Settings';
+    return 'Dashboard';
   };
 
+  const NavItems = ({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: () => void }) => (
+    <nav className="flex-1 py-3 px-2 overflow-y-auto">
+      {NAV_SECTIONS.map((section) => (
+        <div key={section.label} className="mb-4">
+          {!collapsed && (
+            <div className="ct-section-label">{section.label}</div>
+          )}
+          <div className="space-y-0.5">
+            {section.items.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.path);
+              const badge = item.id === 'cases' && cases.length > 0 ? String(cases.length) : undefined;
+
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    navigate(item.path);
+                    onNavigate?.();
+                  }}
+                  title={collapsed ? item.label : undefined}
+                  className="w-full flex items-center gap-3 rounded-ct-md transition-colors relative group"
+                  style={{
+                    padding: collapsed ? '10px' : '8px 12px',
+                    justifyContent: collapsed ? 'center' : 'flex-start',
+                    color: active ? 'var(--ct-sidebar-text-active)' : 'var(--ct-sidebar-text)',
+                    background: active ? 'var(--ct-sidebar-active)' : 'transparent',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!active) e.currentTarget.style.background = 'var(--ct-surface-hover)';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!active) e.currentTarget.style.background = 'transparent';
+                  }}
+                >
+                  {/* Active indicator */}
+                  {active && (
+                    <div
+                      className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] rounded-r-full"
+                      style={{
+                        height: '20px',
+                        background: 'var(--ct-accent)',
+                      }}
+                    />
+                  )}
+                  <Icon className="w-[18px] h-[18px] shrink-0" />
+                  {!collapsed && (
+                    <div className="flex-1 flex items-center justify-between">
+                      <span className="text-sm font-medium">{item.label}</span>
+                      {badge && (
+                        <span
+                          className="text-xs font-mono px-1.5 py-0.5 rounded-ct-sm"
+                          style={{
+                            background: 'var(--ct-bg-subtle)',
+                            color: 'var(--ct-text-tertiary)',
+                            border: '1px solid var(--ct-border)',
+                          }}
+                        >
+                          {badge}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </nav>
+  );
+
   return (
-    <div className="flex h-screen bg-[#06090e] text-slate-100 font-sans overflow-hidden">
-      {/* Sidebar - Desktop */}
+    <div className="flex h-screen overflow-hidden" style={{ background: 'var(--ct-bg)', color: 'var(--ct-text)' }}>
+      {/* ═══ Desktop Sidebar ═══ */}
       <aside
-        className={`hidden md:flex flex-col border-r border-slate-800/80 bg-[#070c16] transition-all duration-200 z-30 ${
-          sidebarCollapsed ? 'w-16' : 'w-64'
-        }`}
+        className="hidden md:flex flex-col shrink-0 transition-all duration-200"
+        style={{
+          width: sidebarCollapsed ? '56px' : '240px',
+          background: 'var(--ct-sidebar-bg)',
+          borderRight: '1px solid var(--ct-sidebar-border)',
+        }}
       >
-        {/* Brand Header */}
-        <div className="h-14 border-b border-slate-800/80 px-4 flex items-center justify-between">
+        {/* Brand */}
+        <div
+          className="h-14 flex items-center justify-between px-3 shrink-0"
+          style={{ borderBottom: '1px solid var(--ct-sidebar-border)' }}
+        >
           <div
             onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-3 cursor-pointer select-none overflow-hidden"
+            className="flex items-center gap-2.5 cursor-pointer select-none overflow-hidden"
           >
-            <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
-              <Shield className="w-4 h-4" />
+            <div
+              className="w-8 h-8 rounded-ct-md flex items-center justify-center shrink-0 font-bold text-sm"
+              style={{
+                background: 'var(--ct-accent)',
+                color: '#FFFFFF',
+              }}
+            >
+              CT
             </div>
             {!sidebarCollapsed && (
-              <div className="truncate">
-                <div className="font-bold tracking-wider text-sm text-slate-100 font-mono">CHAINTRACE</div>
-                <div className="text-[9px] text-cyan-400 font-mono tracking-wider uppercase">Forensic OS</div>
-              </div>
+              <span className="font-semibold text-sm tracking-tight" style={{ color: 'var(--ct-text)' }}>
+                ChainTrace
+              </span>
             )}
           </div>
+          {!sidebarCollapsed && (
+            <button
+              onClick={() => setSidebarCollapsed(true)}
+              className="ct-btn-icon"
+              style={{ padding: '4px' }}
+              title="Collapse sidebar"
+            >
+              <Menu className="w-4 h-4" />
+            </button>
+          )}
+        </div>
 
+        {sidebarCollapsed && (
           <button
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="text-slate-500 hover:text-slate-300 p-1 rounded-md hover:bg-slate-800/60 transition-colors"
+            onClick={() => setSidebarCollapsed(false)}
+            className="ct-btn-icon mx-auto mt-2"
+            style={{ padding: '6px' }}
+            title="Expand sidebar"
           >
             <Menu className="w-4 h-4" />
           </button>
-        </div>
+        )}
 
-        {/* Navigation List */}
-        <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item.path);
+        {/* Navigation */}
+        <NavItems collapsed={sidebarCollapsed} />
 
-            return (
-              <button
-                key={item.id}
-                onClick={() => navigate(item.path)}
-                title={sidebarCollapsed ? item.label : undefined}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
-                  active
-                    ? 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 shadow-sm shadow-cyan-950/40'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border border-transparent'
-                }`}
-              >
-                <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-cyan-400' : 'text-slate-400'}`} />
-                {!sidebarCollapsed && (
-                  <div className="flex-1 flex items-center justify-between truncate">
-                    <span className="truncate">{item.label}</span>
-                    {item.badge && (
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700">
-                        {item.badge}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* System Health Status Indicator */}
+        {/* System health (collapsed: dot only) */}
         {!sidebarCollapsed && (
-          <div className="px-3 py-2.5 mx-2 mb-2 rounded-xl bg-slate-900/60 border border-slate-800/80">
-            <div className="flex items-center justify-between text-[11px] font-mono mb-1">
-              <span className="text-slate-400 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Node Cluster</span>
+          <div
+            className="mx-2 mb-2 px-3 py-2 rounded-ct-md"
+            style={{
+              background: 'var(--ct-bg-subtle)',
+              border: '1px solid var(--ct-border-subtle)',
+            }}
+          >
+            <div className="flex items-center gap-2 text-xs">
+              <span
+                className="w-2 h-2 rounded-full shrink-0"
+                style={{
+                  background: health?.status === 'healthy' || health?.services?.neo4j?.status === 'connected'
+                    ? 'var(--ct-success)'
+                    : 'var(--ct-warning)',
+                }}
+              />
+              <span style={{ color: 'var(--ct-text-secondary)' }}>System</span>
+              <span className="ml-auto font-medium" style={{ color: 'var(--ct-success-text)' }}>
+                Healthy
               </span>
-              <span className="text-emerald-400 text-[10px]">HEALTHY</span>
-            </div>
-            <div className="text-[10px] text-slate-400 truncate">
-              {health?.services?.neo4j?.status === 'connected' ? 'Neo4j Connected' : 'Graph Engine Active'}
             </div>
           </div>
         )}
 
-        {/* Officer Profile & Sign Out Bar */}
-        <div className="border-t border-slate-800/80 p-2.5 bg-slate-950/40">
-          <div className="flex items-center justify-between gap-2">
+        {/* User profile */}
+        <div
+          className="shrink-0 p-2"
+          style={{ borderTop: '1px solid var(--ct-sidebar-border)' }}
+        >
+          <div className={`flex items-center gap-2.5 ${sidebarCollapsed ? 'justify-center' : ''}`}>
             <div
               onClick={() => navigate('/settings')}
-              className={`flex items-center gap-2.5 cursor-pointer rounded-lg p-1.5 hover:bg-slate-800/60 transition-colors truncate ${
-                sidebarCollapsed ? 'justify-center w-full' : ''
-              }`}
+              className="flex items-center gap-2.5 cursor-pointer rounded-ct-md p-1.5 transition-colors flex-1 min-w-0"
+              style={{ maxWidth: sidebarCollapsed ? '40px' : undefined }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--ct-surface-hover)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
             >
-              <div className="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-mono font-bold text-cyan-400 shrink-0">
-                {currentUser?.fullName?.charAt(0) || 'O'}
+              <div
+                className="w-7 h-7 rounded-ct-md flex items-center justify-center text-xs font-semibold shrink-0"
+                style={{
+                  background: 'var(--ct-accent-subtle)',
+                  color: 'var(--ct-accent-text)',
+                  border: '1px solid var(--ct-accent-muted)',
+                }}
+              >
+                {currentUser?.fullName?.charAt(0) || 'U'}
               </div>
               {!sidebarCollapsed && (
-                <div className="truncate text-left">
-                  <div className="text-xs font-semibold text-slate-200 truncate leading-tight">
-                    {currentUser?.fullName || 'Investigator'}
+                <div className="truncate">
+                  <div className="text-sm font-medium truncate" style={{ color: 'var(--ct-text)' }}>
+                    {currentUser?.fullName || 'User'}
                   </div>
-                  <div className="text-[10px] font-mono text-cyan-400 truncate">
-                    {currentUser?.role || 'OFFICER'}
+                  <div className="text-xs truncate" style={{ color: 'var(--ct-text-tertiary)' }}>
+                    {currentUser?.role || 'Investigator'}
                   </div>
                 </div>
               )}
             </div>
-
             {!sidebarCollapsed && (
               <button
                 onClick={logout}
                 title="Sign Out"
-                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/30 transition-colors"
+                className="ct-btn-icon shrink-0"
+                style={{ padding: '6px' }}
               >
                 <LogOut className="w-4 h-4" />
               </button>
@@ -227,179 +321,155 @@ export const AppShell: React.FC<AppShellProps> = ({
         </div>
       </aside>
 
-      {/* Main App Workspace Area */}
+      {/* ═══ Main Content Area ═══ */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Top App Header Bar */}
-        <header className="h-14 border-b border-slate-800/80 bg-[#070c16]/90 backdrop-blur px-4 flex items-center justify-between z-20 shrink-0">
-          {/* Left: Mobile Toggle + Breadcrumb */}
+        {/* Top Header */}
+        <header
+          className="h-14 flex items-center justify-between px-4 shrink-0 backdrop-blur-sm z-20"
+          style={{
+            background: 'var(--ct-header-bg)',
+            borderBottom: '1px solid var(--ct-header-border)',
+          }}
+        >
+          {/* Left: mobile menu + breadcrumb */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden text-slate-400 hover:text-white p-1 rounded-md"
+              className="md:hidden ct-btn-icon"
+              style={{ padding: '6px' }}
+              aria-label="Open menu"
             >
               <Menu className="w-5 h-5" />
             </button>
 
-            <div className="flex items-center gap-2 text-xs font-mono">
-              <span className="text-slate-400 hidden sm:inline">ChainTrace</span>
-              <span className="text-slate-400 hidden sm:inline">/</span>
-              <span className="text-slate-200 font-semibold">{getBreadcrumb()}</span>
+            <div className="flex items-center gap-1.5 text-sm">
+              <span style={{ color: 'var(--ct-text-tertiary)' }} className="hidden sm:inline">
+                ChainTrace
+              </span>
+              <span style={{ color: 'var(--ct-text-tertiary)' }} className="hidden sm:inline">/</span>
+              <span className="font-medium" style={{ color: 'var(--ct-text)' }}>
+                {getBreadcrumb()}
+              </span>
             </div>
           </div>
 
-          {/* Center: Active Case Context Selector Pill */}
-          <div className="relative flex items-center">
-            <div
-              onClick={() => setCaseDropdownOpen(!caseDropdownOpen)}
-              className="flex items-center gap-1.5 sm:gap-2.5 px-2.5 sm:px-3 py-1.5 rounded-lg border border-slate-700/80 bg-slate-900/90 hover:border-slate-600 cursor-pointer transition-all max-w-[170px] sm:max-w-xs md:max-w-md select-none"
+          {/* Center: search trigger */}
+          <button
+            onClick={() => {
+              // Trigger ⌘K
+              window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }));
+            }}
+            className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-ct-md text-sm transition-colors"
+            style={{
+              background: 'var(--ct-bg-subtle)',
+              border: '1px solid var(--ct-border)',
+              color: 'var(--ct-text-tertiary)',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--ct-border-strong)'}
+            onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--ct-border)'}
+          >
+            <Search className="w-3.5 h-3.5" />
+            <span>Search...</span>
+            <kbd
+              className="ml-4 text-xs font-mono px-1.5 py-0.5 rounded"
+              style={{
+                background: 'var(--ct-surface)',
+                border: '1px solid var(--ct-border)',
+              }}
             >
-              <FolderOpen className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-              <div className="truncate text-xs">
-                {activeCase ? (
-                  <span className="truncate flex items-center">
-                    <strong className="text-white font-medium truncate">{activeCase.title}</strong>
-                    <span className="text-slate-400 ml-1.5 font-mono text-[11px] hidden sm:inline">
-                      ({activeCase.targetChain.toUpperCase()})
-                    </span>
-                  </span>
-                ) : (
-                  <span className="text-slate-400 italic text-xs">Select Case</span>
-                )}
-              </div>
-              <ChevronDown className="w-3 h-3 text-slate-400 shrink-0 ml-0.5 sm:ml-1" />
-            </div>
+              ⌘K
+            </kbd>
+          </button>
 
-            {/* Case Dropdown Menu */}
-            {caseDropdownOpen && (
-              <div className="absolute top-full left-0 sm:left-auto sm:right-0 lg:left-0 mt-1 w-80 sm:w-96 max-w-[calc(100vw-2rem)] rounded-xl border border-slate-700 bg-slate-900 shadow-2xl p-2 z-50 animate-fadeIn">
-                <div className="text-[10px] font-mono text-slate-400 uppercase px-2 py-1 flex items-center justify-between border-b border-slate-800">
-                  <span>Assigned Investigation Cases</span>
-                  <span className="text-cyan-400 font-bold">{cases.length} Total</span>
-                </div>
-                <div className="max-h-60 overflow-y-auto my-1 space-y-1">
-                  {cases.length === 0 ? (
-                    <div className="p-3 text-center text-xs text-slate-400">
-                      No cases found. Create a new case to begin tracing.
-                    </div>
-                  ) : (
-                    cases.map((c) => (
-                      <div
-                        key={c.id}
-                        onClick={() => {
-                          onSelectCase(c);
-                          setCaseDropdownOpen(false);
-                          navigate('/investigations');
-                        }}
-                        className={`p-2 rounded-lg cursor-pointer text-xs transition-colors ${
-                          activeCase?.id === c.id
-                            ? 'bg-cyan-500/10 border border-cyan-500/30 text-white'
-                            : 'hover:bg-slate-800/70 text-slate-300'
-                        }`}
-                      >
-                        <div className="font-semibold truncate">{c.title}</div>
-                        <div className="flex items-center gap-2 mt-0.5 text-[10px] font-mono text-slate-400">
-                          <span className="uppercase text-cyan-400 font-bold">{c.targetChain}</span>
-                          <span>&bull;</span>
-                          <span className="truncate">{c.suspectWallet}</span>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-                <div className="pt-1 border-t border-slate-800 flex justify-between">
-                  <button
-                    onClick={() => {
-                      setCaseDropdownOpen(false);
-                      navigate('/cases');
-                    }}
-                    className="text-[11px] text-cyan-400 hover:text-cyan-300 px-2 py-1"
-                  >
-                    View All Cases &rarr;
-                  </button>
-                  <button
-                    onClick={() => {
-                      setCaseDropdownOpen(false);
-                      onOpenCreateCaseModal();
-                    }}
-                    className="text-[11px] text-white bg-cyan-600 hover:bg-cyan-500 px-2.5 py-1 rounded font-semibold"
-                  >
-                    + New Case
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+          {/* Right: actions */}
+          <div className="flex items-center gap-1.5">
+            <ThemeSwitcher />
 
-          {/* Right: Actions, UTC Clock, New Case, Profile */}
-          <div className="flex items-center gap-3">
-            {/* Live UTC Clock */}
-            <div className="hidden xl:flex items-center gap-1.5 text-[11px] font-mono text-slate-400 px-2.5 py-1 rounded-md bg-slate-900 border border-slate-800">
-              <Clock className="w-3.5 h-3.5 text-cyan-400" />
-              <span>{currentTimeUtc || 'UTC'}</span>
-            </div>
-
-            {/* Quick New Case Button */}
             <button
               onClick={onOpenCreateCaseModal}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold shadow-sm transition-all"
+              className="ct-btn ct-btn-primary ct-btn-sm"
             >
               <Plus className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">New Case</span>
             </button>
 
-            {/* Profile Dropdown */}
-            <div className="relative">
+            {/* Profile dropdown */}
+            <div className="relative" ref={profileRef}>
               <button
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-800/80 border border-slate-700/60 transition-colors"
+                className="flex items-center gap-1.5 p-1.5 rounded-ct-md transition-colors"
+                style={{
+                  border: '1px solid var(--ct-border)',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--ct-surface-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
               >
-                <div className="w-6 h-6 rounded bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-xs font-mono font-bold text-white">
+                <div
+                  className="w-6 h-6 rounded-ct-sm flex items-center justify-center text-xs font-semibold"
+                  style={{
+                    background: 'var(--ct-accent)',
+                    color: '#FFFFFF',
+                  }}
+                >
                   {currentUser?.fullName?.charAt(0) || 'U'}
                 </div>
-                <ChevronDown className="w-3 h-3 text-slate-400 hidden sm:inline" />
+                <ChevronDown className="w-3 h-3 hidden sm:block" style={{ color: 'var(--ct-text-tertiary)' }} />
               </button>
 
               {profileDropdownOpen && (
-                <div className="absolute right-0 mt-1.5 w-56 rounded-xl border border-slate-700 bg-slate-900 shadow-2xl p-2 z-50 animate-fadeIn">
-                  <div className="px-3 py-2 border-b border-slate-800 text-xs">
-                    <div className="font-semibold text-white">{currentUser?.fullName}</div>
-                    <div className="text-[11px] font-mono text-slate-400 truncate">{currentUser?.email}</div>
-                    <div className="inline-block mt-1 px-1.5 py-0.5 rounded text-[9px] font-mono bg-cyan-950 text-cyan-400 border border-cyan-800">
-                      ROLE: {currentUser?.role}
+                <div
+                  className="absolute right-0 top-full mt-2 w-56 py-1 ct-animate-fade-in-up z-50"
+                  style={{
+                    background: 'var(--ct-surface)',
+                    border: '1px solid var(--ct-border)',
+                    borderRadius: 'var(--ct-radius-lg)',
+                    boxShadow: 'var(--ct-shadow-lg)',
+                  }}
+                >
+                  <div className="px-3 py-2.5" style={{ borderBottom: '1px solid var(--ct-border)' }}>
+                    <div className="text-sm font-medium" style={{ color: 'var(--ct-text)' }}>
+                      {currentUser?.fullName}
+                    </div>
+                    <div className="text-xs truncate" style={{ color: 'var(--ct-text-tertiary)' }}>
+                      {currentUser?.email}
+                    </div>
+                    <div
+                      className="ct-badge ct-badge-accent mt-1.5"
+                      style={{ fontSize: '10px' }}
+                    >
+                      {currentUser?.role}
                     </div>
                   </div>
+
                   <div className="py-1">
                     <button
                       onClick={() => {
                         setProfileDropdownOpen(false);
                         navigate('/settings');
                       }}
-                      className="w-full text-left px-3 py-2 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-white flex items-center gap-2"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors"
+                      style={{ color: 'var(--ct-text)' }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = 'var(--ct-surface-hover)'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                     >
-                      <Settings className="w-3.5 h-3.5 text-slate-400" />
-                      <span>Security & Preferences</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setProfileDropdownOpen(false);
-                        navigate('/integrations');
-                      }}
-                      className="w-full text-left px-3 py-2 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-white flex items-center gap-2"
-                    >
-                      <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                      <span>Agency Gateways</span>
+                      <Settings className="w-4 h-4" style={{ color: 'var(--ct-text-tertiary)' }} />
+                      Settings
                     </button>
                   </div>
-                  <div className="pt-1 border-t border-slate-800">
+
+                  <div style={{ borderTop: '1px solid var(--ct-border)' }}>
                     <button
                       onClick={() => {
                         setProfileDropdownOpen(false);
                         logout();
                       }}
-                      className="w-full text-left px-3 py-2 rounded-lg text-xs text-rose-400 hover:bg-rose-950/40 flex items-center gap-2"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors"
+                      style={{ color: 'var(--ct-danger-text)' }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = 'var(--ct-danger-subtle)'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                     >
-                      <LogOut className="w-3.5 h-3.5" />
-                      <span>Sign Out</span>
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
                     </button>
                   </div>
                 </div>
@@ -408,97 +478,100 @@ export const AppShell: React.FC<AppShellProps> = ({
           </div>
         </header>
 
-        {/* Mobile Navigation Drawer */}
+        {/* ═══ Mobile Navigation Drawer ═══ */}
         {mobileMenuOpen && (
           <div
-            className="md:hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm animate-fadeIn"
+            className="md:hidden fixed inset-0 z-50"
             onClick={() => setMobileMenuOpen(false)}
+            role="dialog"
+            aria-modal="true"
           >
+            {/* Overlay */}
+            <div className="absolute inset-0 ct-animate-fade-in" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }} />
+
+            {/* Drawer */}
             <div
-              className="w-72 max-w-[85vw] h-full bg-[#070c16] border-r border-slate-800 p-4 flex flex-col justify-between"
+              ref={mobileDrawerRef}
+              className="absolute left-0 top-0 h-full w-72 max-w-[85vw] flex flex-col"
+              style={{
+                background: 'var(--ct-sidebar-bg)',
+                borderRight: '1px solid var(--ct-sidebar-border)',
+                animation: 'ct-slide-in-left 0.25s var(--ct-ease-out)',
+              }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div>
-                <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-                  <div className="flex items-center gap-2.5 font-mono font-bold text-cyan-400">
-                    <Shield className="w-5 h-5 text-cyan-400" />
-                    <span>CHAINTRACE</span>
-                  </div>
-                  <button
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-slate-400 hover:text-white p-1 rounded-md"
+              {/* Drawer header */}
+              <div
+                className="h-14 flex items-center justify-between px-4 shrink-0"
+                style={{ borderBottom: '1px solid var(--ct-sidebar-border)' }}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div
+                    className="w-8 h-8 rounded-ct-md flex items-center justify-center font-bold text-sm"
+                    style={{ background: 'var(--ct-accent)', color: '#FFFFFF' }}
                   >
-                    <X className="w-5 h-5" />
-                  </button>
+                    CT
+                  </div>
+                  <span className="font-semibold text-sm" style={{ color: 'var(--ct-text)' }}>ChainTrace</span>
                 </div>
-                <div className="mt-4 space-y-1">
-                  {navItems.map((item) => {
-                    const Icon = item.icon;
-                    const active = isActive(item.path);
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => {
-                          setMobileMenuOpen(false);
-                          navigate(item.path);
-                        }}
-                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
-                          active
-                            ? 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 font-semibold'
-                            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <Icon className={`w-4 h-4 ${active ? 'text-cyan-400' : 'text-slate-400'}`} />
-                          <span>{item.label}</span>
-                        </div>
-                        {item.badge && (
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700">
-                            {item.badge}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="ct-btn-icon"
+                  style={{ padding: '4px' }}
+                  aria-label="Close menu"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
-              {/* Mobile Profile & Logout Footer */}
-              <div className="pt-4 border-t border-slate-800/80 space-y-3">
-                <div className="flex items-center gap-2.5 p-2 rounded-lg bg-slate-900 border border-slate-800">
-                  <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-mono font-bold text-cyan-400">
-                    {currentUser?.fullName?.charAt(0) || 'O'}
+              {/* Nav items */}
+              <NavItems collapsed={false} onNavigate={() => setMobileMenuOpen(false)} />
+
+              {/* User footer */}
+              <div className="shrink-0 p-3" style={{ borderTop: '1px solid var(--ct-sidebar-border)' }}>
+                <div className="flex items-center gap-2.5 mb-3 p-2 rounded-ct-md" style={{ background: 'var(--ct-bg-subtle)' }}>
+                  <div
+                    className="w-8 h-8 rounded-ct-md flex items-center justify-center text-xs font-semibold"
+                    style={{
+                      background: 'var(--ct-accent-subtle)',
+                      color: 'var(--ct-accent-text)',
+                    }}
+                  >
+                    {currentUser?.fullName?.charAt(0) || 'U'}
                   </div>
                   <div className="truncate">
-                    <div className="text-xs font-semibold text-slate-200 truncate">
-                      {currentUser?.fullName || 'Investigator'}
+                    <div className="text-sm font-medium truncate" style={{ color: 'var(--ct-text)' }}>
+                      {currentUser?.fullName || 'User'}
                     </div>
-                    <div className="text-[10px] font-mono text-cyan-400">
-                      {currentUser?.role || 'OFFICER'}
+                    <div className="text-xs truncate" style={{ color: 'var(--ct-text-tertiary)' }}>
+                      {currentUser?.role || 'Investigator'}
                     </div>
                   </div>
                 </div>
-
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);
                     logout();
                   }}
-                  className="w-full py-2.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/40 text-rose-400 border border-rose-800/40 text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
+                  className="ct-btn ct-btn-secondary w-full ct-btn-sm"
+                  style={{ color: 'var(--ct-danger-text)' }}
                 >
                   <LogOut className="w-4 h-4" />
-                  <span>Sign Out</span>
+                  Sign Out
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Viewport Content Area */}
+        {/* ═══ Main Content ═══ */}
         <main className="flex-1 overflow-y-auto relative">
           {children}
         </main>
       </div>
+
+      {/* ═══ Command Palette ═══ */}
+      <CommandPalette cases={cases} onSelectCase={onSelectCase} />
     </div>
   );
 };

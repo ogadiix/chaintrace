@@ -12,6 +12,7 @@ import {
   Clock,
   Sparkles,
   FolderOpen,
+  X,
 } from 'lucide-react';
 import type { Case, NcrpComplaint, SahyogRequest } from '@chaintrace/types';
 import { SahyogRequestModal } from './SahyogRequestModal';
@@ -186,7 +187,6 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
       fetchComplaints();
 
       if (result.case_id) {
-        // Fetch created case details
         const caseRes = await fetch(`/api/v1/cases/${result.case_id}`, {
           headers: { Authorization: `Bearer ${authToken}` },
         });
@@ -203,54 +203,77 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 bg-navy-950 text-slate-100 overflow-y-auto">
+    <div className="flex-1 flex flex-col min-h-0 overflow-y-auto" style={{ color: 'var(--ct-text)' }}>
       {/* Top Banner & Header */}
-      <div className="px-6 py-4 bg-navy-900 border-b border-navy-800 flex flex-wrap items-center justify-between gap-4">
+      <div
+        className="p-5 border-b flex flex-wrap items-center justify-between gap-4 transition-colors"
+        style={{
+          backgroundColor: 'var(--ct-surface)',
+          borderColor: 'var(--ct-border)',
+        }}
+      >
         <div>
           <div className="flex items-center gap-3">
-            <h2 className="text-lg font-bold text-slate-100 tracking-wide flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-cyan-400" />
+            <h2 className="text-base font-semibold tracking-tight flex items-center gap-2" style={{ color: 'var(--ct-text)' }}>
+              <ShieldAlert className="w-5 h-5" style={{ color: 'var(--ct-accent)' }} />
               National Intelligence Integrations
             </h2>
-            <span className="px-2.5 py-0.5 rounded text-[11px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 uppercase tracking-wider font-semibold">
-              AGENCY GATEWAY SANDBOX
+            <span className="ct-badge ct-badge-info text-[10px] font-mono">
+              Agency Gateway Sandbox
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs mt-1" style={{ color: 'var(--ct-text-secondary)' }}>
             Interoperability sandbox connecting NCRP complaint intake with I4C SAHYOG VASP requisitions
           </p>
         </div>
 
         {/* Global SubTab Switcher */}
-        <div className="flex items-center bg-navy-950 p-1 rounded-md border border-navy-800 gap-1">
+        <div
+          className="flex items-center p-1 rounded-lg border gap-1"
+          style={{
+            backgroundColor: 'var(--ct-bg-subtle)',
+            borderColor: 'var(--ct-border)',
+          }}
+        >
           <button
             onClick={() => setSubTab('ncrp')}
-            className={`px-3 py-1.5 text-xs rounded transition-colors flex items-center gap-1.5 ${
-              subTab === 'ncrp'
-                ? 'bg-cyan-500/20 text-cyan-300 font-semibold border border-cyan-500/40'
-                : 'text-slate-400 hover:text-slate-200'
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-1.5 ${
+              subTab === 'ncrp' ? 'shadow-sm' : 'hover:opacity-80'
             }`}
+            style={{
+              backgroundColor: subTab === 'ncrp' ? 'var(--ct-surface)' : 'transparent',
+              color: subTab === 'ncrp' ? 'var(--ct-accent-text)' : 'var(--ct-text-secondary)',
+            }}
           >
             <ShieldAlert className="w-3.5 h-3.5" />
-            NCRP Complaint Intake
+            <span>NCRP Complaint Intake</span>
           </button>
           <button
             onClick={() => setSubTab('sahyog')}
-            className={`px-3 py-1.5 text-xs rounded transition-colors flex items-center gap-1.5 ${
-              subTab === 'sahyog'
-                ? 'bg-cyan-500/20 text-cyan-300 font-semibold border border-cyan-500/40'
-                : 'text-slate-400 hover:text-slate-200'
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-1.5 ${
+              subTab === 'sahyog' ? 'shadow-sm' : 'hover:opacity-80'
             }`}
+            style={{
+              backgroundColor: subTab === 'sahyog' ? 'var(--ct-surface)' : 'transparent',
+              color: subTab === 'sahyog' ? 'var(--ct-accent-text)' : 'var(--ct-text-secondary)',
+            }}
           >
             <Building2 className="w-3.5 h-3.5" />
-            SAHYOG VASP Requisitions ({sahyogRequests.length})
+            <span>SAHYOG VASP Requisitions ({sahyogRequests.length})</span>
           </button>
         </div>
       </div>
 
       {/* Mandatory Regulatory Simulation Banner */}
-      <div className="px-6 py-2 bg-amber-950/20 border-b border-amber-800/40 text-[11px] text-amber-300/90 flex items-center gap-2">
-        <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+      <div
+        className="px-6 py-2.5 border-b text-xs flex items-center gap-2"
+        style={{
+          backgroundColor: 'var(--ct-warning-subtle)',
+          borderColor: 'var(--ct-warning)',
+          color: 'var(--ct-warning-text)',
+        }}
+      >
+        <AlertTriangle className="w-4 h-4 shrink-0" style={{ color: 'var(--ct-warning)' }} />
         <span>
           <strong>SIMULATION NOTICE:</strong> Zero live government or financial exchange requests are dispatched. All returned account records and complaint intakes operate on sandboxed synthetic mock data for SIH evaluation.
         </span>
@@ -259,20 +282,23 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
       {/* Main Content Area */}
       <div className="p-6 flex-1 min-h-0 space-y-6">
         {subTab === 'ncrp' ? (
-          /* =========================================================================
-             NCRP COMPLAINT INTAKE TAB
-             ========================================================================= */
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Left: Complaint Submission Form */}
             <div className="lg:col-span-6 space-y-4">
-              <div className="bg-navy-900 border border-navy-800 rounded-lg p-5">
-                <div className="flex items-center justify-between mb-4">
+              <div
+                className="rounded-xl border p-5 space-y-4 shadow-sm"
+                style={{
+                  backgroundColor: 'var(--ct-surface)',
+                  borderColor: 'var(--ct-border)',
+                }}
+              >
+                <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-semibold text-slate-100 flex items-center gap-2">
-                      <FileCheck className="w-4 h-4 text-cyan-400" />
+                    <h3 className="text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--ct-text)' }}>
+                      <FileCheck className="w-4 h-4" style={{ color: 'var(--ct-accent)' }} />
                       Ingest NCRP Complaint
                     </h3>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs" style={{ color: 'var(--ct-text-tertiary)' }}>
                       Standardized intake with wallet validation & automatic case setup
                     </p>
                   </div>
@@ -281,14 +307,14 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
                     <button
                       type="button"
                       onClick={() => loadPreset('tron')}
-                      className="px-2 py-1 text-[10px] rounded bg-navy-800 hover:bg-navy-700 text-cyan-300 border border-cyan-500/20 flex items-center gap-1"
+                      className="ct-btn ct-btn-secondary ct-btn-sm text-[11px]"
                     >
                       <Sparkles className="w-3 h-3" /> TRON Template
                     </button>
                     <button
                       type="button"
                       onClick={() => loadPreset('eth')}
-                      className="px-2 py-1 text-[10px] rounded bg-navy-800 hover:bg-navy-700 text-purple-300 border border-purple-500/20 flex items-center gap-1"
+                      className="ct-btn ct-btn-secondary ct-btn-sm text-[11px]"
                     >
                       <Sparkles className="w-3 h-3" /> ETH Template
                     </button>
@@ -297,21 +323,35 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
 
                 {/* Notifications */}
                 {ingestError && (
-                  <div className="mb-4 p-3 rounded bg-red-950/40 border border-red-800/50 text-xs text-red-300 flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4 flex-shrink-0 text-red-400" />
+                  <div
+                    className="p-3 rounded-lg border text-xs flex items-center gap-2"
+                    style={{
+                      backgroundColor: 'var(--ct-danger-subtle)',
+                      borderColor: 'var(--ct-danger)',
+                      color: 'var(--ct-danger-text)',
+                    }}
+                  >
+                    <AlertTriangle className="w-4 h-4 shrink-0" />
                     <span>{ingestError}</span>
                   </div>
                 )}
 
                 {ingestSuccess && (
-                  <div className="mb-4 p-3 rounded bg-emerald-950/40 border border-emerald-800/50 text-xs text-emerald-300 space-y-2">
+                  <div
+                    className="p-3 rounded-lg border text-xs space-y-2"
+                    style={{
+                      backgroundColor: 'var(--ct-success-subtle)',
+                      borderColor: 'var(--ct-success)',
+                      color: 'var(--ct-success-text)',
+                    }}
+                  >
                     <div className="flex items-center gap-2 font-semibold">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <CheckCircle2 className="w-4 h-4" style={{ color: 'var(--ct-success)' }} />
                       {ingestSuccess.isDuplicate
                         ? 'Idempotency Alert: Existing Complaint Found (Zero Duplicate Creation)'
                         : 'Complaint Successfully Ingested & Registered!'}
                     </div>
-                    <div className="font-mono text-[11px] text-slate-300">
+                    <div className="font-mono text-[11px]" style={{ color: 'var(--ct-text-secondary)' }}>
                       <div>Complaint ID: {ingestSuccess.complaint.complaint_id}</div>
                       {ingestSuccess.complaint.case_number && (
                         <div>Linked Case: {ingestSuccess.complaint.case_number}</div>
@@ -325,7 +365,7 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
                             onOpenCase(matchedCase);
                           }
                         }}
-                        className="mt-1 px-3 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-semibold text-[11px] flex items-center gap-1.5"
+                        className="ct-btn ct-btn-primary ct-btn-sm text-[11px] inline-flex items-center gap-1.5 mt-1"
                       >
                         <FolderOpen className="w-3 h-3" /> Open Linked Case in Investigation Workspace
                       </button>
@@ -337,21 +377,25 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
                 <form onSubmit={handleNcrpSubmit} className="space-y-3.5">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs text-slate-400 mb-1">NCRP Complaint ID</label>
+                      <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--ct-text)' }}>
+                        NCRP Complaint ID
+                      </label>
                       <input
                         type="text"
                         required
                         value={complaintId}
                         onChange={(e) => setComplaintId(e.target.value)}
-                        className="w-full bg-navy-950 border border-navy-700 rounded px-2.5 py-1.5 text-xs text-slate-200 font-mono focus:border-cyan-500 focus:outline-none"
+                        className="ct-input text-xs font-mono"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-slate-400 mb-1">Fraud Category</label>
+                      <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--ct-text)' }}>
+                        Fraud Category
+                      </label>
                       <select
                         value={category}
                         onChange={(e) => setCategory(e.target.value)}
-                        className="w-full bg-navy-950 border border-navy-700 rounded px-2.5 py-1.5 text-xs text-slate-200 focus:border-cyan-500 focus:outline-none"
+                        className="ct-input text-xs"
                       >
                         <option value="INVESTMENT_FRAUD">INVESTMENT_FRAUD</option>
                         <option value="EXTORTION">EXTORTION</option>
@@ -366,11 +410,13 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs text-slate-400 mb-1">Target Blockchain</label>
+                      <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--ct-text)' }}>
+                        Target Blockchain
+                      </label>
                       <select
                         value={blockchain}
                         onChange={(e) => setBlockchain(e.target.value)}
-                        className="w-full bg-navy-950 border border-navy-700 rounded px-2.5 py-1.5 text-xs text-slate-200 focus:border-cyan-500 focus:outline-none font-mono"
+                        className="ct-input text-xs font-mono"
                       >
                         <option value="tron">TRON</option>
                         <option value="ethereum">ETHEREUM</option>
@@ -381,20 +427,22 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs text-slate-400 mb-1">Victim Anonymous Reference</label>
+                      <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--ct-text)' }}>
+                        Victim Reference
+                      </label>
                       <input
                         type="text"
                         value={victimRef}
                         onChange={(e) => setVictimRef(e.target.value)}
                         placeholder="e.g. VIC-DEMO-001"
-                        className="w-full bg-navy-950 border border-navy-700 rounded px-2.5 py-1.5 text-xs text-slate-200 font-mono focus:border-cyan-500 focus:outline-none"
+                        className="ct-input text-xs font-mono"
                       />
                     </div>
                   </div>
 
                   {/* Target Suspect Wallet */}
                   <div>
-                    <label className="block text-xs text-slate-400 mb-1">
+                    <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--ct-text)' }}>
                       Suspect Receiving Wallet Address
                     </label>
                     <input
@@ -403,55 +451,62 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
                       value={walletAddress}
                       onChange={(e) => setWalletAddress(e.target.value)}
                       placeholder="TRON (T...) or EVM (0x...)"
-                      className="w-full bg-navy-950 border border-navy-700 rounded px-2.5 py-1.5 text-xs text-slate-200 font-mono focus:border-cyan-500 focus:outline-none"
+                      className="ct-input text-xs font-mono"
                     />
                   </div>
 
                   {/* Amount & Currency */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs text-slate-400 mb-1">Reported Amount</label>
+                      <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--ct-text)' }}>
+                        Reported Amount
+                      </label>
                       <input
                         type="text"
                         required
                         value={reportedAmount}
                         onChange={(e) => setReportedAmount(e.target.value)}
-                        className="w-full bg-navy-950 border border-navy-700 rounded px-2.5 py-1.5 text-xs text-slate-200 font-mono focus:border-cyan-500 focus:outline-none"
+                        className="ct-input text-xs font-mono"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-slate-400 mb-1">Asset Currency</label>
+                      <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--ct-text)' }}>
+                        Asset Currency
+                      </label>
                       <input
                         type="text"
                         required
                         value={currency}
                         onChange={(e) => setCurrency(e.target.value)}
-                        className="w-full bg-navy-950 border border-navy-700 rounded px-2.5 py-1.5 text-xs text-slate-200 font-mono focus:border-cyan-500 focus:outline-none"
+                        className="ct-input text-xs font-mono"
                       />
                     </div>
                   </div>
 
                   {/* Transaction Hash */}
                   <div>
-                    <label className="block text-xs text-slate-400 mb-1">
-                      Initial Transfer Transaction Hash (Optional)
+                    <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--ct-text)' }}>
+                      Initial Transfer Transaction Hash <span style={{ color: 'var(--ct-text-tertiary)', fontWeight: 400 }}>(Optional)</span>
                     </label>
                     <input
                       type="text"
                       value={txHash}
                       onChange={(e) => setTxHash(e.target.value)}
-                      className="w-full bg-navy-950 border border-navy-700 rounded px-2.5 py-1.5 text-xs text-slate-200 font-mono focus:border-cyan-500 focus:outline-none"
+                      className="ct-input text-xs font-mono"
                     />
                   </div>
 
-                  {/* Description */}
+                  {/* Incident Summary */}
                   <div>
-                    <label className="block text-xs text-slate-400 mb-1">Incident Summary</label>
+                    <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--ct-text)' }}>
+                      Incident Summary
+                    </label>
                     <textarea
                       rows={2}
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      className="w-full bg-navy-950 border border-navy-700 rounded px-2.5 py-1.5 text-xs text-slate-200 focus:border-cyan-500 focus:outline-none"
+                      className="ct-input text-xs"
+                      style={{ height: 'auto' }}
                     />
                   </div>
 
@@ -462,9 +517,9 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
                       id="autoCreateCase"
                       checked={autoCreateCase}
                       onChange={(e) => setAutoCreateCase(e.target.checked)}
-                      className="rounded bg-navy-950 border-navy-700 text-cyan-500 focus:ring-0 cursor-pointer"
+                      className="rounded"
                     />
-                    <label htmlFor="autoCreateCase" className="text-xs text-slate-300 cursor-pointer">
+                    <label htmlFor="autoCreateCase" className="text-xs cursor-pointer" style={{ color: 'var(--ct-text)' }}>
                       Automatically establish active ChainTrace Case upon intake validation
                     </label>
                   </div>
@@ -474,17 +529,17 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
                     <button
                       type="submit"
                       disabled={ingesting}
-                      className="w-full flex items-center justify-center gap-2 py-2 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-semibold rounded text-xs transition-colors disabled:opacity-50"
+                      className="ct-btn ct-btn-primary w-full py-2.5 text-xs font-semibold inline-flex items-center justify-center gap-2"
                     >
                       {ingesting ? (
                         <>
                           <Clock className="w-4 h-4 animate-spin" />
-                          Validating Complaint...
+                          <span>Validating Complaint...</span>
                         </>
                       ) : (
                         <>
                           <Send className="w-4 h-4" />
-                          Ingest NCRP Complaint & Validate Address
+                          <span>Ingest NCRP Complaint & Validate Address</span>
                         </>
                       )}
                     </button>
@@ -495,21 +550,27 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
 
             {/* Right: Ingested NCRP Complaints Ledger */}
             <div className="lg:col-span-6 space-y-4">
-              <div className="bg-navy-900 border border-navy-800 rounded-lg p-5 flex flex-col h-full">
+              <div
+                className="rounded-xl border p-5 flex flex-col h-full shadow-sm"
+                style={{
+                  backgroundColor: 'var(--ct-surface)',
+                  borderColor: 'var(--ct-border)',
+                }}
+              >
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <h3 className="text-sm font-semibold text-slate-100 flex items-center gap-2">
-                      <ShieldAlert className="w-4 h-4 text-cyan-400" />
+                    <h3 className="text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--ct-text)' }}>
+                      <ShieldAlert className="w-4 h-4" style={{ color: 'var(--ct-accent)' }} />
                       Ingested NCRP Complaints Ledger
                     </h3>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs" style={{ color: 'var(--ct-text-tertiary)' }}>
                       Synchronized simulated feed from NCRP portal
                     </p>
                   </div>
                   <button
                     onClick={fetchComplaints}
                     disabled={loadingComplaints}
-                    className="p-1.5 rounded bg-navy-800 hover:bg-navy-700 text-slate-300 border border-navy-700 text-xs"
+                    className="ct-btn ct-btn-secondary ct-btn-sm"
                     title="Refresh complaints"
                   >
                     <RefreshCw className={`w-3.5 h-3.5 ${loadingComplaints ? 'animate-spin' : ''}`} />
@@ -517,8 +578,8 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
                 </div>
 
                 {ncrpComplaints.length === 0 ? (
-                  <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-400 text-xs">
-                    <ShieldAlert className="w-8 h-8 text-slate-600 mb-2" />
+                  <div className="flex-1 flex flex-col items-center justify-center p-12 text-center text-xs" style={{ color: 'var(--ct-text-tertiary)' }}>
+                    <ShieldAlert className="w-8 h-8 mb-2 opacity-50" />
                     No complaints ingested yet. Submit the form or load a demo preset.
                   </div>
                 ) : (
@@ -526,26 +587,32 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
                     {ncrpComplaints.map((c: NcrpComplaint) => (
                       <div
                         key={c.id}
-                        className="p-3 bg-navy-950 border border-navy-800 rounded-md hover:border-cyan-500/30 transition-colors text-xs space-y-1.5"
+                        className="p-3.5 rounded-lg border transition-all text-xs space-y-2"
+                        style={{
+                          backgroundColor: 'var(--ct-bg-subtle)',
+                          borderColor: 'var(--ct-border)',
+                        }}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-mono font-bold text-cyan-400">{c.complaint_id}</span>
-                          <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-cyan-950/60 text-cyan-300 border border-cyan-800/40 uppercase">
+                          <span className="font-mono font-bold" style={{ color: 'var(--ct-accent-text)' }}>
+                            {c.complaint_id}
+                          </span>
+                          <span className="ct-badge ct-badge-info text-[10px] uppercase font-mono">
                             {c.blockchain}
                           </span>
                         </div>
-                        <div className="text-[11px] text-slate-300">
-                          <span className="text-slate-400">Category:</span> {c.category} |{' '}
-                          <span className="text-slate-400">Amount:</span>{' '}
-                          <strong className="text-emerald-400">
+                        <div className="text-[11px]" style={{ color: 'var(--ct-text-secondary)' }}>
+                          <span>Category:</span> <strong style={{ color: 'var(--ct-text)' }}>{c.category}</strong> |{' '}
+                          <span>Amount:</span>{' '}
+                          <strong style={{ color: 'var(--ct-success-text)' }}>
                             {c.reported_amount} {c.currency}
                           </strong>
                         </div>
-                        <div className="font-mono text-[11px] text-slate-400 truncate">
-                          Wallet: <span className="text-slate-200">{c.wallet_address}</span>
+                        <div className="font-mono text-[11px] truncate" style={{ color: 'var(--ct-text-secondary)' }}>
+                          Wallet: <span style={{ color: 'var(--ct-text)' }}>{c.wallet_address}</span>
                         </div>
-                        <div className="flex items-center justify-between pt-1 border-t border-navy-800/80 text-[10px]">
-                          <span className="text-slate-500">
+                        <div className="flex items-center justify-between pt-2 border-t text-[11px]" style={{ borderColor: 'var(--ct-border-subtle)' }}>
+                          <span style={{ color: 'var(--ct-text-tertiary)' }}>
                             {new Date(c.created_at).toLocaleString()}
                           </span>
                           {c.case_id ? (
@@ -554,12 +621,14 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
                                 const matched = cases.find((item) => item.id === c.case_id);
                                 if (matched) onOpenCase(matched);
                               }}
-                              className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-semibold"
+                              className="inline-flex items-center gap-1 font-semibold text-xs transition-colors"
+                              style={{ color: 'var(--ct-accent-text)' }}
                             >
-                              Case #{c.case_number || 'Linked'} <ExternalLink className="w-3 h-3" />
+                              <span>Case #{c.case_number || 'Linked'}</span>
+                              <ExternalLink className="w-3 h-3" />
                             </button>
                           ) : (
-                            <span className="text-slate-500">No linked case</span>
+                            <span style={{ color: 'var(--ct-text-tertiary)' }}>No linked case</span>
                           )}
                         </div>
                       </div>
@@ -570,18 +639,22 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
             </div>
           </div>
         ) : (
-          /* =========================================================================
-             SAHYOG REQUISITIONS TAB
-             ========================================================================= */
+          /* SAHYOG REQUISITIONS TAB */
           <div className="space-y-4">
-            <div className="bg-navy-900 border border-navy-800 rounded-lg p-5">
-              <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+            <div
+              className="rounded-xl border p-5 shadow-sm space-y-4"
+              style={{
+                backgroundColor: 'var(--ct-surface)',
+                borderColor: 'var(--ct-border)',
+              }}
+            >
+              <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-100 flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-cyan-400" />
+                  <h3 className="text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--ct-text)' }}>
+                    <Building2 className="w-4 h-4" style={{ color: 'var(--ct-accent)' }} />
                     I4C SAHYOG VASP Coordination Portal
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs" style={{ color: 'var(--ct-text-tertiary)' }}>
                     Dispatched intermediary requests, account KYC records, and emergency freezing requisitions
                   </p>
                 </div>
@@ -593,7 +666,8 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
                         const found = cases.find((c) => c.id === e.target.value);
                         if (found) setSelectedCaseForSahyog(found);
                       }}
-                      className="bg-navy-950 border border-navy-700 text-slate-200 text-xs rounded px-2.5 py-1.5 focus:outline-none"
+                      className="ct-input text-xs"
+                      style={{ height: '34px', width: 'auto' }}
                     >
                       {cases.map((c) => (
                         <option key={c.id} value={c.id}>
@@ -605,7 +679,7 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
                   <button
                     onClick={fetchSahyogRequests}
                     disabled={loadingSahyog}
-                    className="p-1.5 rounded bg-navy-800 hover:bg-navy-750 text-slate-300 border border-navy-700 text-xs"
+                    className="ct-btn ct-btn-secondary ct-btn-sm"
                     title="Refresh requests"
                   >
                     <RefreshCw className={`w-3.5 h-3.5 ${loadingSahyog ? 'animate-spin' : ''}`} />
@@ -613,24 +687,31 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
                   <button
                     onClick={() => setIsSahyogModalOpen(true)}
                     disabled={!selectedCaseForSahyog}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-semibold text-xs transition-colors disabled:opacity-50"
+                    className="ct-btn ct-btn-primary ct-btn-sm inline-flex items-center gap-1.5"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    New SAHYOG Requisition
+                    <span>New SAHYOG Requisition</span>
                   </button>
                 </div>
               </div>
 
               {/* SAHYOG Requests Table */}
               {sahyogRequests.length === 0 ? (
-                <div className="p-8 text-center text-slate-400 text-xs">
-                  <Building2 className="w-8 h-8 text-slate-600 mx-auto mb-2" />
+                <div className="p-12 text-center text-xs" style={{ color: 'var(--ct-text-tertiary)' }}>
+                  <Building2 className="w-8 h-8 mx-auto mb-2 opacity-50" />
                   No SAHYOG requests dispatched yet. Click "New SAHYOG Requisition" to test the simulation.
                 </div>
               ) : (
-                <div className="overflow-x-auto border border-navy-800 rounded-md">
-                  <table className="w-full text-left text-xs font-mono">
-                    <thead className="bg-navy-950 text-slate-400 uppercase text-[10px] tracking-wider border-b border-navy-800">
+                <div className="overflow-x-auto rounded-lg border" style={{ borderColor: 'var(--ct-border)' }}>
+                  <table className="w-full text-left text-xs">
+                    <thead
+                      className="text-[11px] font-semibold uppercase tracking-wider border-b"
+                      style={{
+                        backgroundColor: 'var(--ct-bg-subtle)',
+                        borderColor: 'var(--ct-border)',
+                        color: 'var(--ct-text-secondary)',
+                      }}
+                    >
                       <tr>
                         <th className="py-2.5 px-3">Req Number</th>
                         <th className="py-2.5 px-3">Type</th>
@@ -642,46 +723,54 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
                         <th className="py-2.5 px-3 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-navy-800/60 text-slate-200">
+                    <tbody className="divide-y" style={{ borderColor: 'var(--ct-border-subtle)' }}>
                       {sahyogRequests.map((req: SahyogRequest) => (
-                        <tr key={req.id} className="hover:bg-navy-800/40 transition-colors">
-                          <td className="py-2.5 px-3 text-cyan-400 font-semibold">{req.request_number}</td>
-                          <td className="py-2.5 px-3 text-slate-300 text-[11px]">{req.request_type}</td>
-                          <td className="py-2.5 px-3 text-slate-100 font-sans">{req.recipient_entity}</td>
-                          <td className="py-2.5 px-3 text-slate-400 max-w-[140px] truncate" title={req.target_wallet}>
+                        <tr
+                          key={req.id}
+                          className="transition-colors hover:opacity-90"
+                          style={{ backgroundColor: 'transparent' }}
+                        >
+                          <td className="py-2.5 px-3 font-mono font-semibold" style={{ color: 'var(--ct-accent-text)' }}>
+                            {req.request_number}
+                          </td>
+                          <td className="py-2.5 px-3 font-mono text-[11px]" style={{ color: 'var(--ct-text-secondary)' }}>
+                            {req.request_type}
+                          </td>
+                          <td className="py-2.5 px-3 font-semibold" style={{ color: 'var(--ct-text)' }}>
+                            {req.recipient_entity}
+                          </td>
+                          <td className="py-2.5 px-3 font-mono text-[11px] max-w-[140px] truncate" style={{ color: 'var(--ct-text-secondary)' }} title={req.target_wallet}>
                             {req.target_wallet}
                           </td>
                           <td className="py-2.5 px-3">
                             <span
-                              className={`px-2 py-0.5 rounded text-[10px] uppercase font-semibold ${
+                              className={
                                 req.status === 'RESPONSE_RECEIVED'
-                                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                                  ? 'ct-badge ct-badge-success'
                                   : req.status === 'NO_MATCH'
-                                  ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
-                                  : req.status === 'FREEZE_REQUEST_DEMO'
-                                  ? 'bg-purple-500/10 text-purple-400 border border-purple-500/30'
-                                  : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
-                              }`}
+                                  ? 'ct-badge ct-badge-warning'
+                                  : 'ct-badge ct-badge-info'
+                              }
                             >
                               {req.status}
                             </span>
                           </td>
-                          <td className="py-2.5 px-3 text-slate-300">
+                          <td className="py-2.5 px-3">
                             {req.response?.evidence_id ? (
-                              <span className="text-cyan-400 font-mono text-[11px]">
+                              <span className="font-mono text-[11px] font-semibold" style={{ color: 'var(--ct-accent-text)' }}>
                                 {req.response.evidence_id}
                               </span>
                             ) : (
-                              <span className="text-slate-600">—</span>
+                              <span style={{ color: 'var(--ct-text-tertiary)' }}>—</span>
                             )}
                           </td>
-                          <td className="py-2.5 px-3 text-slate-400 text-[10px]">
+                          <td className="py-2.5 px-3 text-[11px]" style={{ color: 'var(--ct-text-tertiary)' }}>
                             {new Date(req.created_at).toLocaleString()}
                           </td>
                           <td className="py-2.5 px-3 text-right">
                             <button
                               onClick={() => setInspectingRequest(req)}
-                              className="px-2 py-1 rounded bg-navy-800 hover:bg-navy-700 text-cyan-300 text-[11px] border border-cyan-500/20"
+                              className="ct-btn ct-btn-secondary ct-btn-sm text-[11px]"
                             >
                               View Payload
                             </button>
@@ -712,42 +801,89 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
 
       {/* Inspect Requisition Payload Modal */}
       {inspectingRequest && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-navy-900 border border-navy-700 rounded-lg max-w-xl w-full p-6 text-slate-100 space-y-4">
-            <div className="flex items-center justify-between border-b border-navy-800 pb-3">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)' }}
+        >
+          <div
+            className="rounded-xl border max-w-xl w-full p-6 space-y-4 shadow-2xl animate-fade-in"
+            style={{
+              backgroundColor: 'var(--ct-surface)',
+              borderColor: 'var(--ct-border)',
+            }}
+          >
+            <div
+              className="flex items-center justify-between border-b pb-3"
+              style={{ borderColor: 'var(--ct-border)' }}
+            >
               <div>
-                <h4 className="text-sm font-bold text-slate-100">{inspectingRequest.request_number}</h4>
-                <p className="text-xs text-slate-400">{inspectingRequest.recipient_entity}</p>
+                <h4 className="text-sm font-semibold" style={{ color: 'var(--ct-text)' }}>
+                  {inspectingRequest.request_number}
+                </h4>
+                <p className="text-xs" style={{ color: 'var(--ct-text-secondary)' }}>
+                  {inspectingRequest.recipient_entity}
+                </p>
               </div>
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/10 text-amber-400 border border-amber-500/30">
-                SIMULATED DATA
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="ct-badge ct-badge-warning text-[10px]">
+                  Simulated Data
+                </span>
+                <button
+                  onClick={() => setInspectingRequest(null)}
+                  className="ct-btn-icon"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
-            <div className="space-y-2 text-xs font-mono">
-              <div>
-                <span className="text-slate-400">Target Wallet:</span>{' '}
-                <span className="text-slate-200">{inspectingRequest.target_wallet}</span>
+            <div className="space-y-3 text-xs">
+              <div
+                className="p-3 rounded-lg border space-y-1 font-mono text-[11px]"
+                style={{
+                  backgroundColor: 'var(--ct-bg-subtle)',
+                  borderColor: 'var(--ct-border)',
+                }}
+              >
+                <div>
+                  <span style={{ color: 'var(--ct-text-tertiary)' }}>Target Wallet: </span>
+                  <span className="font-semibold" style={{ color: 'var(--ct-accent-text)' }}>{inspectingRequest.target_wallet}</span>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--ct-text-tertiary)' }}>Authority Ref: </span>
+                  <span style={{ color: 'var(--ct-text)' }}>{inspectingRequest.authority_reference}</span>
+                </div>
               </div>
+
               <div>
-                <span className="text-slate-400">Authority Ref:</span>{' '}
-                <span className="text-slate-200">{inspectingRequest.authority_reference}</span>
-              </div>
-              <div>
-                <span className="text-slate-400">Information Scope:</span>
-                <p className="text-slate-300 font-sans mt-0.5 p-2 bg-navy-950 rounded border border-navy-800">
+                <span className="font-semibold block mb-1" style={{ color: 'var(--ct-text-secondary)' }}>Information Scope:</span>
+                <p
+                  className="p-2.5 rounded-lg border leading-relaxed"
+                  style={{
+                    backgroundColor: 'var(--ct-bg-subtle)',
+                    borderColor: 'var(--ct-border)',
+                    color: 'var(--ct-text)',
+                  }}
+                >
                   {inspectingRequest.requested_information}
                 </p>
               </div>
 
               {inspectingRequest.response && (
                 <div>
-                  <span className="text-slate-400">Simulated VASP Response:</span>
-                  <pre className="text-[11px] text-emerald-300 bg-navy-950 p-2.5 rounded border border-navy-800 overflow-x-auto mt-1 max-h-48">
+                  <span className="font-semibold block mb-1" style={{ color: 'var(--ct-text-secondary)' }}>Simulated VASP Response:</span>
+                  <pre
+                    className="text-[11px] font-mono p-3 rounded-lg border overflow-x-auto max-h-48"
+                    style={{
+                      backgroundColor: 'var(--ct-bg-subtle)',
+                      borderColor: 'var(--ct-border)',
+                      color: 'var(--ct-success-text)',
+                    }}
+                  >
                     {JSON.stringify(inspectingRequest.response.account_details, null, 2)}
                   </pre>
                   {inspectingRequest.response.evidence_id && (
-                    <div className="mt-2 text-cyan-300 text-[11px]">
+                    <div className="mt-2 text-xs font-mono" style={{ color: 'var(--ct-accent-text)' }}>
                       Evidence Ref: <strong>{inspectingRequest.response.evidence_id}</strong>
                     </div>
                   )}
@@ -755,10 +891,13 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
               )}
             </div>
 
-            <div className="flex justify-end pt-2">
+            <div
+              className="flex justify-end pt-3 border-t"
+              style={{ borderColor: 'var(--ct-border)' }}
+            >
               <button
                 onClick={() => setInspectingRequest(null)}
-                className="px-4 py-1.5 rounded bg-navy-800 hover:bg-navy-700 text-slate-200 text-xs"
+                className="ct-btn ct-btn-secondary ct-btn-sm"
               >
                 Close
               </button>

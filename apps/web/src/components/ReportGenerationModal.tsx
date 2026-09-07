@@ -86,140 +86,200 @@ export const ReportGenerationModal: React.FC<ReportGenerationModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 animate-fade-in">
-      <div className="bg-navy-900 border border-navy-700/80 rounded-xl max-w-lg w-full shadow-2xl overflow-hidden">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)' }}
+    >
+      <div
+        className="rounded-xl border max-w-lg w-full shadow-2xl overflow-hidden animate-fade-in transition-all"
+        style={{
+          backgroundColor: 'var(--ct-surface)',
+          borderColor: 'var(--ct-border)',
+        }}
+      >
         {/* Modal Header */}
-        <div className="bg-navy-950 px-6 py-4 border-b border-navy-800 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-              <FileText className="w-5 h-5" />
+        <div
+          className="px-6 py-4 border-b flex items-center justify-between"
+          style={{
+            backgroundColor: 'var(--ct-bg-subtle)',
+            borderColor: 'var(--ct-border)',
+          }}
+        >
+          <div className="flex items-center gap-2.5">
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: 'var(--ct-accent-subtle)' }}
+            >
+              <FileText className="w-4 h-4" style={{ color: 'var(--ct-accent)' }} />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-100 uppercase tracking-wide">
+              <h3 className="text-sm font-semibold" style={{ color: 'var(--ct-text)' }}>
                 Generate Evidentiary Report
               </h3>
-              <p className="text-[11px] text-slate-400">
-                Case: <span className="font-mono text-cyan-400">{activeCase.caseNumber}</span>
+              <p className="text-[11px]" style={{ color: 'var(--ct-text-tertiary)' }}>
+                Case: <span className="font-mono font-medium" style={{ color: 'var(--ct-accent-text)' }}>{activeCase.caseNumber}</span>
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-200 transition-colors"
+            className="ct-btn-icon"
+            title="Close modal"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Modal Body */}
         <div className="p-6">
           {error && (
-            <div className="mb-4 p-3 bg-red-950/40 border border-red-800/80 rounded-lg flex items-start gap-2 text-red-300 text-xs">
-              <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+            <div
+              className="mb-4 p-3 rounded-lg border text-xs flex items-center gap-2"
+              style={{
+                backgroundColor: 'var(--ct-danger-subtle)',
+                borderColor: 'var(--ct-danger)',
+                color: 'var(--ct-danger-text)',
+              }}
+            >
+              <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           {generatedReport ? (
             <div className="space-y-4">
-              <div className="bg-emerald-950/30 border border-emerald-800/60 rounded-lg p-4 flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+              <div
+                className="p-4 rounded-xl border flex items-start gap-3"
+                style={{
+                  backgroundColor: 'var(--ct-success-subtle)',
+                  borderColor: 'var(--ct-success)',
+                }}
+              >
+                <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--ct-success)' }} />
                 <div className="space-y-1">
-                  <h4 className="text-xs font-bold text-emerald-300">
+                  <h4 className="text-xs font-semibold" style={{ color: 'var(--ct-success-text)' }}>
                     Evidentiary Dossier Successfully Generated
                   </h4>
-                  <p className="text-[11px] text-slate-300">
+                  <p className="text-[11px]" style={{ color: 'var(--ct-text-secondary)' }}>
                     Compiled complete multi-hop trace, heuristic rule findings, VASP attributions,
-                    and bounded risk assessment.
+                    and bounded risk assessment into a certified package.
                   </p>
                 </div>
               </div>
 
-              <div className="bg-navy-950 rounded-lg p-3 border border-navy-800 space-y-2 text-xs">
-                <div className="flex justify-between items-center py-1 border-b border-navy-900">
-                  <span className="text-slate-400">Report Dossier No:</span>
-                  <span className="font-mono font-bold text-slate-200">
+              <div
+                className="rounded-xl p-4 border space-y-2.5 text-xs"
+                style={{
+                  backgroundColor: 'var(--ct-bg-subtle)',
+                  borderColor: 'var(--ct-border)',
+                }}
+              >
+                <div className="flex justify-between items-center py-1 border-b" style={{ borderColor: 'var(--ct-border-subtle)' }}>
+                  <span style={{ color: 'var(--ct-text-tertiary)' }}>Report Dossier No:</span>
+                  <span className="font-mono font-bold" style={{ color: 'var(--ct-text)' }}>
                     {generatedReport.reportNumber}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-1 border-b border-navy-900">
-                  <span className="text-slate-400">Version:</span>
-                  <span className="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 font-bold border border-cyan-500/20 text-[10px]">
+                <div className="flex justify-between items-center py-1 border-b" style={{ borderColor: 'var(--ct-border-subtle)' }}>
+                  <span style={{ color: 'var(--ct-text-tertiary)' }}>Version:</span>
+                  <span className="ct-badge ct-badge-info text-[10px] font-mono">
                     v{generatedReport.version}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-1 border-b border-navy-900">
-                  <span className="text-slate-400">File Size:</span>
-                  <span className="text-slate-300">
+                <div className="flex justify-between items-center py-1 border-b" style={{ borderColor: 'var(--ct-border-subtle)' }}>
+                  <span style={{ color: 'var(--ct-text-tertiary)' }}>File Size:</span>
+                  <span className="font-mono" style={{ color: 'var(--ct-text)' }}>
                     {(generatedReport.fileSizeBytes / 1024).toFixed(1)} KB
                   </span>
                 </div>
                 <div className="py-1">
-                  <span className="text-slate-400 block mb-1 flex items-center gap-1">
-                    <Hash className="w-3 h-3 text-cyan-400" />
+                  <span className="block mb-1.5 flex items-center gap-1 text-[11px]" style={{ color: 'var(--ct-text-tertiary)' }}>
+                    <Hash className="w-3 h-3" style={{ color: 'var(--ct-accent)' }} />
                     Cryptographic SHA-256 Digest:
                   </span>
-                  <code className="text-[10px] text-cyan-300 bg-navy-900 px-2 py-1 rounded block truncate font-mono border border-navy-800">
+                  <code
+                    className="text-[10px] p-2 rounded block truncate font-mono border"
+                    style={{
+                      backgroundColor: 'var(--ct-surface)',
+                      borderColor: 'var(--ct-border)',
+                      color: 'var(--ct-accent-text)',
+                    }}
+                  >
                     {generatedReport.sha256Hash || 'N/A'}
                   </code>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 pt-2">
+              <div className="flex items-center gap-2.5 pt-2">
                 <button
                   type="button"
                   onClick={handleDownload}
-                  className="flex-1 flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold py-2.5 px-4 rounded text-xs transition-colors"
+                  className="ct-btn ct-btn-primary flex-1 inline-flex items-center justify-center gap-2"
                 >
                   <Download className="w-4 h-4" />
-                  Download PDF Dossier
+                  <span>Download PDF Dossier</span>
                 </button>
                 <button
                   type="button"
                   onClick={handlePreview}
-                  className="flex items-center gap-1.5 bg-navy-800 hover:bg-navy-750 text-slate-200 border border-navy-700 py-2.5 px-4 rounded text-xs transition-colors"
+                  className="ct-btn ct-btn-secondary inline-flex items-center gap-1.5"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
-                  Inline Preview
+                  <span>Inline Preview</span>
                 </button>
               </div>
             </div>
           ) : (
             <form onSubmit={handleGenerate} className="space-y-4 text-xs">
-              <div className="space-y-1.5">
-                <label className="text-slate-300 font-bold">Custom Report Title (Optional)</label>
+              <div className="space-y-1">
+                <label className="font-semibold block" style={{ color: 'var(--ct-text)' }}>
+                  Custom Report Title <span style={{ color: 'var(--ct-text-tertiary)', fontWeight: 400 }}>(Optional)</span>
+                </label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder={`Investigation Dossier: ${activeCase.title}`}
-                  className="w-full bg-navy-950 border border-navy-800 rounded px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500"
+                  className="ct-input text-xs"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-navy-950 p-3 rounded border border-navy-800 space-y-2">
-                  <label className="flex items-center gap-2 cursor-pointer text-slate-300 font-medium">
+                <div
+                  className="p-3 rounded-lg border space-y-1.5"
+                  style={{
+                    backgroundColor: 'var(--ct-bg-subtle)',
+                    borderColor: 'var(--ct-border)',
+                  }}
+                >
+                  <label className="flex items-center gap-2 cursor-pointer font-medium" style={{ color: 'var(--ct-text)' }}>
                     <input
                       type="checkbox"
                       checked={includeAppendix}
                       onChange={(e) => setIncludeAppendix(e.target.checked)}
-                      className="rounded border-navy-700 bg-navy-900 text-cyan-500 focus:ring-0"
+                      className="rounded"
                     />
                     <span>Include Tx Appendix</span>
                   </label>
-                  <p className="text-[10px] text-slate-400">
-                    Appends chronological table of traced transactions to the report.
+                  <p className="text-[11px]" style={{ color: 'var(--ct-text-tertiary)' }}>
+                    Appends chronological table of traced transactions.
                   </p>
                 </div>
 
-                <div className="bg-navy-950 p-3 rounded border border-navy-800 space-y-2">
-                  <label className="text-slate-300 font-medium block">Max Appendix Txs</label>
+                <div
+                  className="p-3 rounded-lg border space-y-1.5"
+                  style={{
+                    backgroundColor: 'var(--ct-bg-subtle)',
+                    borderColor: 'var(--ct-border)',
+                  }}
+                >
+                  <label className="font-medium block" style={{ color: 'var(--ct-text)' }}>Max Appendix Txs</label>
                   <select
                     value={maxTxs}
                     disabled={!includeAppendix}
                     onChange={(e) => setMaxTxs(Number(e.target.value))}
-                    className="w-full bg-navy-900 border border-navy-700 rounded px-2 py-1 text-slate-200 text-xs focus:outline-none"
+                    className="ct-input text-xs"
+                    style={{ height: '32px' }}
                   >
                     <option value={25}>25 Transactions</option>
                     <option value={50}>50 Transactions</option>
@@ -228,46 +288,57 @@ export const ReportGenerationModal: React.FC<ReportGenerationModalProps> = ({
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-slate-300 font-bold">Investigator Remarks / Notes</label>
+              <div className="space-y-1">
+                <label className="font-semibold block" style={{ color: 'var(--ct-text)' }}>Investigator Remarks / Notes</label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={2}
                   placeholder="Add confidential investigative context or statutory filing references..."
-                  className="w-full bg-navy-950 border border-navy-800 rounded px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500"
+                  className="ct-input text-xs"
+                  style={{ height: 'auto' }}
                 />
               </div>
 
-              <div className="bg-navy-950 p-3 rounded border border-navy-800 flex items-center gap-2 text-[11px] text-slate-400">
-                <Shield className="w-4 h-4 text-cyan-400 flex-shrink-0" />
+              <div
+                className="p-3 rounded-lg border flex items-center gap-2 text-[11px]"
+                style={{
+                  backgroundColor: 'var(--ct-accent-subtle)',
+                  borderColor: 'var(--ct-border-subtle)',
+                  color: 'var(--ct-accent-text)',
+                }}
+              >
+                <Shield className="w-4 h-4 shrink-0" />
                 <span>
                   Generates an immutable ReportLab PDF with SHA-256 chain-of-custody verification.
                 </span>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-2">
+              <div
+                className="flex items-center justify-end gap-2.5 pt-3 border-t"
+                style={{ borderColor: 'var(--ct-border)' }}
+              >
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 bg-navy-800 hover:bg-navy-750 text-slate-300 rounded text-xs transition-colors"
+                  className="ct-btn ct-btn-secondary"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-slate-950 font-bold px-4 py-2 rounded text-xs transition-colors"
+                  className="ct-btn ct-btn-primary"
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Compiling Dossier...
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Compiling Dossier...</span>
                     </>
                   ) : (
                     <>
-                      <FileCheck className="w-4 h-4" />
-                      Generate Dossier
+                      <FileCheck className="w-3.5 h-3.5" />
+                      <span>Generate Dossier</span>
                     </>
                   )}
                 </button>

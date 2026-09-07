@@ -3,7 +3,6 @@ import {
   Play,
   RotateCw,
   FileText,
-  RefreshCw,
   Layers,
   AlertCircle,
   Building2,
@@ -25,11 +24,24 @@ interface InvestigationWorkspaceProps {
   onStatusUpdated?: (updatedCase: Case) => void;
 }
 
+const TABS = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'fundflow', label: 'Fund Flow' },
+  { id: 'transactions', label: 'Transactions' },
+  { id: 'intelligence', label: 'Intelligence' },
+  { id: 'attribution', label: 'Attribution' },
+  { id: 'risk', label: 'Risk' },
+] as const;
+
+type TabId = typeof TABS[number]['id'];
+
 export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
   activeCase,
   authToken,
   onStatusUpdated,
 }) => {
+  const [activeTab, setActiveTab] = useState<TabId>('overview');
+
   // Trace State
   const [maxHops, setMaxHops] = useState<number>(4);
   const [minimumAmount, setMinimumAmount] = useState<string>('10.0');
@@ -42,10 +54,7 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
   const [isSahyogModalOpen, setIsSahyogModalOpen] = useState<boolean>(false);
 
-  // Status updating
   const [statusUpdating, setStatusUpdating] = useState<boolean>(false);
-
-  // Modals for selection
   const [selectedNode, setSelectedNode] = useState<GraphCanvasNode | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<GraphCanvasEdge | null>(null);
 
@@ -143,54 +152,58 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
     }
   };
 
+  const getPriorityStyle = () => {
+    switch (activeCase.priority) {
+      case 'CRITICAL': return 'ct-badge-danger';
+      case 'HIGH': return 'ct-badge-warning';
+      default: return 'ct-badge-success';
+    }
+  };
+
   return (
-    <div className="flex flex-col h-full space-y-4 font-mono">
-      {/* 1. Case Investigation Header */}
-      <div className="bg-navy-900/95 border border-navy-700/80 rounded-lg p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1">
+    <div className="flex flex-col h-full gap-4">
+      {/* ═══ Investigation Header ═══ */}
+      <div
+        className="ct-card flex flex-col md:flex-row md:items-center justify-between gap-4"
+        style={{ padding: 'var(--ct-space-4)' }}
+      >
+        <div className="space-y-2">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-bold">
-              {activeCase.caseNumber}
-            </span>
+            <span className="ct-badge ct-badge-accent font-mono">{activeCase.caseNumber}</span>
+            <span className="ct-badge ct-badge-default uppercase">{activeCase.targetChain}</span>
+            <span className={`ct-badge ${getPriorityStyle()}`}>{activeCase.priority}</span>
             {activeCase.complaintId && (
-              <span className="text-xs px-2 py-0.5 rounded bg-navy-950 text-slate-400 border border-navy-800">
-                Complaint Ref: {activeCase.complaintId}
-              </span>
+              <span className="ct-badge ct-badge-default font-mono">Ref: {activeCase.complaintId}</span>
             )}
-            <span className="text-xs px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20 font-bold uppercase">
-              {activeCase.targetChain}
-            </span>
-            <span
-              className={`text-xs px-2 py-0.5 rounded font-bold border ${
-                activeCase.priority === 'CRITICAL'
-                  ? 'bg-rose-500/10 text-rose-400 border-rose-500/20'
-                  : activeCase.priority === 'HIGH'
-                  ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                  : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-              }`}
-            >
-              {activeCase.priority} PRIORITY
-            </span>
           </div>
-          <h2 className="text-base font-bold text-slate-100">{activeCase.title}</h2>
-          <div className="flex items-center gap-2 text-xs text-slate-400">
-            <span>Suspect Wallet:</span>
-            <code className="text-cyan-300 bg-navy-950 px-1.5 py-0.5 rounded border border-navy-800 truncate max-w-[180px] sm:max-w-none inline-block align-middle">
+          <h2 className="text-lg font-semibold" style={{ color: 'var(--ct-text)' }}>
+            {activeCase.title}
+          </h2>
+          <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--ct-text-secondary)' }}>
+            <span>Suspect:</span>
+            <code
+              className="font-mono px-1.5 py-0.5 rounded-ct-sm text-xs"
+              style={{
+                background: 'var(--ct-bg-subtle)',
+                border: '1px solid var(--ct-border)',
+                color: 'var(--ct-accent-text)',
+              }}
+            >
               {activeCase.suspectWallet}
             </code>
           </div>
         </div>
 
-        {/* Right Header Actions */}
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Status selector */}
-          <div className="flex items-center gap-1.5 bg-navy-950 px-2.5 py-1.5 rounded border border-navy-700">
-            <span className="text-xs text-slate-400">Status:</span>
+          {/* Status */}
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-ct-md" style={{ background: 'var(--ct-bg-subtle)', border: '1px solid var(--ct-border)' }}>
+            <span className="text-xs" style={{ color: 'var(--ct-text-secondary)' }}>Status:</span>
             <select
               value={activeCase.status}
               disabled={statusUpdating}
               onChange={(e) => handleStatusChange(e.target.value)}
-              className="bg-transparent text-slate-200 text-xs font-bold focus:outline-none"
+              className="bg-transparent text-xs font-medium focus:outline-none"
+              style={{ color: 'var(--ct-text)' }}
             >
               <option value="NEW">NEW</option>
               <option value="ASSIGNED">ASSIGNED</option>
@@ -201,186 +214,182 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
             </select>
           </div>
 
-          <button
-            onClick={startTrace}
-            disabled={loadingTrace}
-            className="flex items-center gap-1.5 bg-navy-800 hover:bg-navy-750 text-cyan-300 border border-cyan-500/30 px-3 py-1.5 rounded text-xs transition-colors"
-            title="Re-run recursive graph traversal on suspect address"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${loadingTrace ? 'animate-spin' : ''}`} />
-            {loadingTrace ? 'Tracing...' : 'Refresh Graph'}
+          <button onClick={() => setIsSahyogModalOpen(true)} className="ct-btn ct-btn-secondary ct-btn-sm">
+            <Building2 className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">SAHYOG</span>
           </button>
 
-          <button
-            onClick={() => setIsSahyogModalOpen(true)}
-            className="flex items-center gap-1.5 bg-navy-800 hover:bg-navy-750 text-cyan-300 border border-cyan-500/30 px-3 py-1.5 rounded text-xs transition-colors"
-            title="Issue Statutory Intermediary Requisition via I4C SAHYOG"
-          >
-            <Building2 className="w-3.5 h-3.5 text-cyan-400" />
-            SAHYOG Requisition
-          </button>
-
-          <button
-            onClick={() => setIsReportModalOpen(true)}
-            className="flex items-center gap-1.5 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold border border-cyan-400/30 px-3 py-1.5 rounded text-xs transition-colors shadow-sm"
-            title="Generate Court-Admissible PDF Evidentiary Dossier"
-          >
+          <button onClick={() => setIsReportModalOpen(true)} className="ct-btn ct-btn-primary ct-btn-sm">
             <FileText className="w-3.5 h-3.5" />
-            Generate Report
+            <span className="hidden sm:inline">Report</span>
           </button>
         </div>
       </div>
 
-      {/* 2. Trace Parameters Controls Bar */}
-      <div className="bg-navy-900/90 border border-navy-800 rounded-lg p-3 flex flex-wrap items-center gap-3 text-xs">
-        <div className="flex items-center gap-1.5">
-          <Layers className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="text-slate-300">Max Depth:</span>
-          <select
-            value={maxHops}
-            onChange={(e) => setMaxHops(Number(e.target.value))}
-            className="bg-navy-950 border border-navy-700 text-slate-200 rounded px-2 py-1 focus:outline-none"
+      {/* ═══ Tab Navigation ═══ */}
+      <div className="ct-tabs">
+        {TABS.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`ct-tab ${activeTab === tab.id ? 'ct-tab-active' : ''}`}
           >
-            {[1, 2, 3, 4, 5, 6, 7].map((h) => (
-              <option key={h} value={h}>
-                {h} hops
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="flex items-center gap-1.5">
-          <span className="text-slate-300">Min Amount:</span>
-          <input
-            type="text"
-            value={minimumAmount}
-            onChange={(e) => setMinimumAmount(e.target.value)}
-            placeholder="0.0"
-            className="w-20 bg-navy-950 border border-navy-700 text-slate-200 rounded px-2 py-1 focus:outline-none"
-          />
-        </div>
-
-        <div className="flex items-center gap-1.5">
-          <span className="text-slate-300">Asset:</span>
-          <select
-            value={asset}
-            onChange={(e) => setAsset(e.target.value)}
-            className="bg-navy-950 border border-navy-700 text-slate-200 rounded px-2 py-1 focus:outline-none"
-          >
-            <option value="USDT">USDT</option>
-            <option value="TRX">TRX</option>
-            <option value="ETH">ETH</option>
-            <option value="USDC">USDC</option>
-          </select>
-        </div>
-
-        <div className="flex items-center gap-1.5">
-          <span className="text-slate-300">Direction:</span>
-          <select
-            value={direction}
-            onChange={(e) => setDirection(e.target.value as any)}
-            className="bg-navy-950 border border-navy-700 text-slate-200 rounded px-2 py-1 focus:outline-none"
-          >
-            <option value="FORWARD">Forward (Outflow)</option>
-            <option value="BACKWARD">Backward (Inflow)</option>
-          </select>
-        </div>
-
-        <button
-          onClick={startTrace}
-          disabled={loadingTrace}
-          className="w-full sm:w-auto sm:ml-auto flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-slate-950 font-bold px-4 py-2 sm:py-1.5 rounded text-xs transition-colors shadow-lg shadow-cyan-900/30"
-        >
-          {loadingTrace ? <RotateCw className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5 fill-current" />}
-          <span>{loadingTrace ? 'Tracing...' : 'Run Trace'}</span>
-        </button>
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      {/* Trace Job Status Banner */}
-      {traceJob && (
-        <div className="flex items-center justify-between bg-navy-900/80 border border-navy-800 rounded-lg px-4 py-2 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="text-slate-400">Trace Job:</span>
-            <span className="text-cyan-400 font-mono font-bold">{traceJob.id}</span>
-            <span
-              className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
-                traceJob.status === 'COMPLETED'
-                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                  : traceJob.status === 'RUNNING'
-                  ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 animate-pulse'
-                  : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
-              }`}
-            >
-              {traceJob.status}
-            </span>
+      {/* ═══ Tab Content ═══ */}
+
+      {/* Overview: shows graph + panels */}
+      {(activeTab === 'overview' || activeTab === 'fundflow') && (
+        <>
+          {/* Trace Parameters */}
+          <div
+            className="flex flex-wrap items-center gap-3 p-3 rounded-ct-md text-xs"
+            style={{ background: 'var(--ct-bg-subtle)', border: '1px solid var(--ct-border)' }}
+          >
+            <div className="flex items-center gap-1.5">
+              <Layers className="w-3.5 h-3.5" style={{ color: 'var(--ct-accent-text)' }} />
+              <span style={{ color: 'var(--ct-text-secondary)' }}>Depth:</span>
+              <select value={maxHops} onChange={(e) => setMaxHops(Number(e.target.value))} className="ct-select" style={{ padding: '4px 28px 4px 8px', fontSize: '12px' }}>
+                {[1, 2, 3, 4, 5, 6, 7].map((h) => (<option key={h} value={h}>{h} hops</option>))}
+              </select>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span style={{ color: 'var(--ct-text-secondary)' }}>Min Amount:</span>
+              <input type="text" value={minimumAmount} onChange={(e) => setMinimumAmount(e.target.value)} className="ct-input" style={{ width: '70px', padding: '4px 8px', fontSize: '12px' }} />
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span style={{ color: 'var(--ct-text-secondary)' }}>Asset:</span>
+              <select value={asset} onChange={(e) => setAsset(e.target.value)} className="ct-select" style={{ padding: '4px 28px 4px 8px', fontSize: '12px' }}>
+                <option value="USDT">USDT</option>
+                <option value="TRX">TRX</option>
+                <option value="ETH">ETH</option>
+                <option value="USDC">USDC</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span style={{ color: 'var(--ct-text-secondary)' }}>Direction:</span>
+              <select value={direction} onChange={(e) => setDirection(e.target.value as any)} className="ct-select" style={{ padding: '4px 28px 4px 8px', fontSize: '12px' }}>
+                <option value="FORWARD">Forward</option>
+                <option value="BACKWARD">Backward</option>
+              </select>
+            </div>
+            <button onClick={startTrace} disabled={loadingTrace} className="ct-btn ct-btn-primary ct-btn-sm ml-auto">
+              {loadingTrace ? <RotateCw className="w-3.5 h-3.5 ct-animate-spin" /> : <Play className="w-3.5 h-3.5" />}
+              {loadingTrace ? 'Tracing...' : 'Run Trace'}
+            </button>
           </div>
-          {traceJob.progress && (
-            <div className="flex items-center gap-3 text-[11px] text-slate-400 font-mono">
-              <span>Nodes: <strong className="text-slate-200">{traceJob.progress.nodes_processed ?? 0}</strong></span>
-              <span>Edges: <strong className="text-slate-200">{traceJob.progress.edges_processed ?? 0}</strong></span>
-              <span>Paths: <strong className="text-slate-200">{traceJob.progress.paths_found ?? 0}</strong></span>
+
+          {/* Trace job status */}
+          {traceJob && (
+            <div
+              className="flex items-center justify-between rounded-ct-md px-4 py-2 text-xs"
+              style={{ background: 'var(--ct-bg-subtle)', border: '1px solid var(--ct-border)' }}
+            >
+              <div className="flex items-center gap-2">
+                <span style={{ color: 'var(--ct-text-secondary)' }}>Job:</span>
+                <span className="font-mono font-medium" style={{ color: 'var(--ct-accent-text)' }}>{traceJob.id}</span>
+                <span className={`ct-badge ${
+                  traceJob.status === 'COMPLETED' ? 'ct-badge-success' :
+                  traceJob.status === 'RUNNING' ? 'ct-badge-warning' :
+                  'ct-badge-danger'
+                }`}>
+                  {traceJob.status}
+                </span>
+              </div>
+              {traceJob.progress && (
+                <div className="flex items-center gap-3 font-mono" style={{ color: 'var(--ct-text-tertiary)' }}>
+                  <span>Nodes: <strong style={{ color: 'var(--ct-text)' }}>{traceJob.progress.nodes_processed ?? 0}</strong></span>
+                  <span>Edges: <strong style={{ color: 'var(--ct-text)' }}>{traceJob.progress.edges_processed ?? 0}</strong></span>
+                  <span>Paths: <strong style={{ color: 'var(--ct-text)' }}>{traceJob.progress.paths_found ?? 0}</strong></span>
+                </div>
+              )}
             </div>
           )}
-        </div>
+
+          {traceError && (
+            <div
+              className="flex items-center gap-2 p-3 rounded-ct-md text-sm"
+              style={{ background: 'var(--ct-danger-subtle)', color: 'var(--ct-danger-text)', border: '1px solid transparent' }}
+            >
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{traceError}</span>
+            </div>
+          )}
+
+          {/* Graph + Panels grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-[500px]">
+            <div className="lg:col-span-2 flex flex-col h-full">
+              <FundFlowGraph
+                traceResult={traceResult}
+                seedWallet={activeCase.suspectWallet}
+                chain={activeCase.targetChain}
+                onSelectNode={(node) => setSelectedNode(node)}
+                onSelectEdge={(edge) => setSelectedEdge(edge)}
+              />
+            </div>
+            <div className="flex flex-col gap-4">
+              <RiskEnginePanel activeCase={activeCase} authToken={authToken} />
+              <IntelligencePanel activeCase={activeCase} authToken={authToken} />
+              <VaspAttributionPanel activeCase={activeCase} authToken={authToken} />
+            </div>
+          </div>
+        </>
       )}
 
-      {traceError && (
-        <div className="flex items-center gap-2 bg-rose-500/10 border border-rose-500/20 text-rose-400 p-2.5 rounded text-xs">
-          <AlertCircle className="w-4 h-4 shrink-0" />
-          <span>{traceError}</span>
-        </div>
+      {/* Transactions tab */}
+      {activeTab === 'transactions' && (
+        <WorkspaceBottomDrawer
+          traceResult={traceResult}
+          caseId={activeCase.id}
+          caseNumber={activeCase.caseNumber}
+          onSelectEdge={(edge) => setSelectedEdge(edge)}
+        />
       )}
 
-      {/* 3. Main Workspace Grid: Fund-Flow Graph (Left/Center) + Intelligence/Attribution/Risk Panels (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-[500px]">
-        {/* Interactive Fund-Flow Graph Canvas */}
-        <div className="lg:col-span-2 flex flex-col h-full">
-          <FundFlowGraph
-            traceResult={traceResult}
-            seedWallet={activeCase.suspectWallet}
-            chain={activeCase.targetChain}
-            onSelectNode={(node) => setSelectedNode(node)}
-            onSelectEdge={(edge) => setSelectedEdge(edge)}
-          />
-        </div>
+      {/* Intelligence tab */}
+      {activeTab === 'intelligence' && (
+        <IntelligencePanel activeCase={activeCase} authToken={authToken} />
+      )}
 
-        {/* Forensic Panels Column */}
-        <div className="flex flex-col gap-4">
-          <RiskEnginePanel activeCase={activeCase} authToken={authToken} />
-          <IntelligencePanel activeCase={activeCase} authToken={authToken} />
-          <VaspAttributionPanel activeCase={activeCase} authToken={authToken} />
-        </div>
-      </div>
+      {/* Attribution tab */}
+      {activeTab === 'attribution' && (
+        <VaspAttributionPanel activeCase={activeCase} authToken={authToken} />
+      )}
 
-      {/* 4. Bottom Forensic Explorer Drawer */}
-      <WorkspaceBottomDrawer
-        traceResult={traceResult}
-        caseId={activeCase.id}
-        caseNumber={activeCase.caseNumber}
-        onSelectEdge={(edge) => setSelectedEdge(edge)}
-      />
+      {/* Risk tab */}
+      {activeTab === 'risk' && (
+        <RiskEnginePanel activeCase={activeCase} authToken={authToken} />
+      )}
 
-      {/* 5. Modals */}
+      {/* Bottom drawer (only in overview/fundflow) */}
+      {(activeTab === 'overview' || activeTab === 'fundflow') && (
+        <WorkspaceBottomDrawer
+          traceResult={traceResult}
+          caseId={activeCase.id}
+          caseNumber={activeCase.caseNumber}
+          onSelectEdge={(edge) => setSelectedEdge(edge)}
+        />
+      )}
+
+      {/* Modals */}
       <WalletDetailModal
         node={selectedNode}
         onClose={() => setSelectedNode(null)}
-        onRecenterTrace={(_addr) => {
-          startTrace();
-        }}
+        onRecenterTrace={() => startTrace()}
       />
-
       <TransactionDetailModal
         edge={selectedEdge}
         onClose={() => setSelectedEdge(null)}
       />
-
       <ReportGenerationModal
         isOpen={isReportModalOpen}
         onClose={() => setIsReportModalOpen(false)}
         activeCase={activeCase}
         authToken={authToken}
       />
-
       <SahyogRequestModal
         isOpen={isSahyogModalOpen}
         onClose={() => setIsSahyogModalOpen(false)}

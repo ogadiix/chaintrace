@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Shield,
   CheckCircle2,
   ChevronLeft,
   AlertTriangle,
@@ -30,252 +29,181 @@ export const RegisterPage: React.FC = () => {
     setSubmitted(true);
   };
 
+  const handleChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
   return (
-    <div className="min-h-screen bg-[#050811] text-slate-100 flex flex-col justify-between font-sans selection:bg-cyan-500/25 relative overflow-hidden">
-      {/* Background Decorative */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(14,165,233,0.08),rgba(255,255,255,0))] pointer-events-none" />
-
-      {/* Top Banner */}
-      <header className="border-b border-slate-800/80 bg-slate-950/70 backdrop-blur-md px-6 py-4 flex items-center justify-between z-10">
-        <div
-          onClick={() => navigate('/')}
-          className="flex items-center gap-3 cursor-pointer group select-none"
-        >
-          <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-            <Shield className="w-4 h-4" />
+    <div className="min-h-screen flex flex-col" style={{ background: 'var(--ct-bg)', color: 'var(--ct-text)' }}>
+      {/* Header */}
+      <header
+        className="h-14 flex items-center justify-between px-6 shrink-0"
+        style={{ borderBottom: '1px solid var(--ct-border)' }}
+      >
+        <div className="flex items-center gap-2.5 cursor-pointer select-none" onClick={() => navigate('/')}>
+          <div className="w-8 h-8 rounded-ct-md flex items-center justify-center font-bold text-sm" style={{ background: 'var(--ct-accent)', color: '#FFFFFF' }}>
+            CT
           </div>
-          <div>
-            <div className="font-bold tracking-wider text-sm text-slate-100 font-mono">CHAINTRACE</div>
-            <div className="text-[10px] text-slate-400 font-mono">INSTITUTIONAL CLEARANCE REGISTRY</div>
-          </div>
+          <span className="font-semibold text-sm" style={{ color: 'var(--ct-text)' }}>ChainTrace</span>
         </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate('/login')}
-            className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white border border-slate-700 bg-slate-900/60 transition-colors"
-          >
-            Existing Officer Sign In &rarr;
-          </button>
-        </div>
+        <button onClick={() => navigate('/login')} className="ct-btn ct-btn-ghost ct-btn-sm">
+          <ChevronLeft className="w-4 h-4" /> Sign In
+        </button>
       </header>
 
-      {/* Form Container */}
-      <main className="flex-1 flex items-center justify-center p-4 sm:p-8 z-10">
-        <div className="w-full max-w-2xl">
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-7 sm:p-9 shadow-2xl backdrop-blur-xl">
-            {submitted ? (
-              <div className="text-center py-6">
-                <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle2 className="w-9 h-9" />
-                </div>
-                <h2 className="text-2xl font-bold text-white mb-2">Agency Clearance Application Logged</h2>
-                <p className="text-sm text-slate-300 max-w-md mx-auto mb-6 leading-relaxed">
-                  Your credentials and verification request for <strong className="text-white">{formData.agencyName}</strong>{' '}
-                  have been securely submitted to the ChainTrace Security Clearance Division.
-                </p>
-
-                <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 text-xs font-mono text-left space-y-2 mb-6 max-w-md mx-auto">
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Application Reference:</span>
-                    <span className="text-cyan-400 font-bold">{ticketId}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Officer Name:</span>
-                    <span className="text-slate-200">{formData.fullName} ({formData.designation})</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Registered Email:</span>
-                    <span className="text-slate-200">{formData.officialEmail}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Verification Status:</span>
-                    <span className="text-amber-400 font-semibold">Under Manual Verification (SLA 4-12 hrs)</span>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
-                  <button
-                    onClick={() => navigate('/')}
-                    className="px-5 py-2.5 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 hover:text-white text-xs font-medium"
-                  >
-                    Return to Platform Home
-                  </button>
-                  <button
-                    onClick={() => navigate('/login')}
-                    className="px-5 py-2.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition-colors"
-                  >
-                    Proceed to Officer Sign In
-                  </button>
-                </div>
+      {/* Main */}
+      <main className="flex-1 flex items-start justify-center p-4 sm:p-8">
+        <div className="w-full max-w-lg">
+          {submitted ? (
+            <div className="text-center py-12 ct-animate-fade-in-up">
+              <div
+                className="w-14 h-14 rounded-ct-lg flex items-center justify-center mx-auto mb-4"
+                style={{ background: 'var(--ct-success-subtle)', color: 'var(--ct-success-text)' }}
+              >
+                <CheckCircle2 className="w-7 h-7" />
               </div>
-            ) : (
+              <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--ct-text)' }}>
+                Access Request Submitted
+              </h2>
+              <p className="text-sm mb-4 max-w-sm mx-auto" style={{ color: 'var(--ct-text-secondary)' }}>
+                Your clearance application has been submitted for review. You will be notified at your official email.
+              </p>
+              <div
+                className="inline-block px-3 py-1.5 rounded-ct-md font-mono text-sm mb-6"
+                style={{ background: 'var(--ct-bg-subtle)', border: '1px solid var(--ct-border)', color: 'var(--ct-accent-text)' }}
+              >
+                Reference: {ticketId}
+              </div>
               <div>
-                <button
-                  type="button"
-                  onClick={() => navigate('/')}
-                  className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white mb-4 transition-colors"
-                >
-                  <ChevronLeft className="w-3.5 h-3.5" /> Back to Platform Overview
+                <button onClick={() => navigate('/login')} className="ct-btn ct-btn-primary">
+                  Return to Sign In
                 </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="mb-6">
+                <h1 className="text-xl font-semibold mb-1" style={{ color: 'var(--ct-text)' }}>
+                  Request Access
+                </h1>
+                <p className="text-sm" style={{ color: 'var(--ct-text-secondary)' }}>
+                  Submit your organization details for platform access clearance.
+                </p>
+              </div>
 
-                <div className="mb-6">
-                  <span className="text-[11px] font-mono text-cyan-400 uppercase tracking-widest font-semibold">
-                    OFFICIAL APPLICATION
-                  </span>
-                  <h1 className="text-2xl font-bold text-white mt-1">Agency Clearance & Workstation Provisioning</h1>
-                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                    ChainTrace access is restricted to verified law enforcement officials, financial intelligence officers,
-                    and licensed VASP compliance departments.
-                  </p>
-                </div>
+              <div
+                className="p-3 rounded-ct-md mb-6 flex items-start gap-2 text-sm"
+                style={{
+                  background: 'var(--ct-warning-subtle)',
+                  color: 'var(--ct-warning-text)',
+                  border: '1px solid transparent',
+                }}
+              >
+                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>Access is restricted to authorized law enforcement and regulatory personnel.</span>
+              </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-medium text-slate-300 mb-1">Full Name & Rank</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. Dy. SP Vikram Deshmukh"
-                        value={formData.fullName}
-                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                        className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-cyan-500 font-mono"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-slate-300 mb-1">Official Designation</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. Cyber Crime Unit Head"
-                        value={formData.designation}
-                        onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
-                        className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-cyan-500"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-medium text-slate-300 mb-1">
-                        Govt / Institutional Email <span className="text-cyan-400">*</span>
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        placeholder="officer@police.gov.in"
-                        value={formData.officialEmail}
-                        onChange={(e) => setFormData({ ...formData, officialEmail: e.target.value })}
-                        className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-cyan-500 font-mono"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-slate-300 mb-1">Official Phone / Ext.</label>
-                      <input
-                        type="tel"
-                        required
-                        placeholder="+91 (022) 2202-XXXX"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-cyan-500 font-mono"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-medium text-slate-300 mb-1">Agency / Department Name</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. State Cyber Cell / ED / FIU-IND"
-                        value={formData.agencyName}
-                        onChange={(e) => setFormData({ ...formData, agencyName: e.target.value })}
-                        className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-cyan-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-slate-300 mb-1">Institutional Category</label>
-                      <select
-                        value={formData.agencyType}
-                        onChange={(e) => setFormData({ ...formData, agencyType: e.target.value })}
-                        className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-cyan-500"
-                      >
-                        <option value="POLICE_CYBER_CRIME">State Police / Cyber Crime Cell</option>
-                        <option value="CENTRAL_LAW_ENFORCEMENT">Central LEA / Federal Agency</option>
-                        <option value="FINANCIAL_INTELLIGENCE">Financial Intelligence Unit (FIU)</option>
-                        <option value="VASP_COMPLIANCE">VASP / Crypto Exchange Compliance Desk</option>
-                        <option value="JUDICIAL_PROSECUTION">Judicial / Public Prosecutor Office</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-medium text-slate-300 mb-1">Jurisdiction / Zone</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. Mumbai Cyber Zone 1"
-                        value={formData.jurisdiction}
-                        onChange={(e) => setFormData({ ...formData, jurisdiction: e.target.value })}
-                        className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-cyan-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-slate-300 mb-1">Supervisory Officer Email</label>
-                      <input
-                        type="email"
-                        required
-                        placeholder="sp.cyber@police.gov.in"
-                        value={formData.supervisorEmail}
-                        onChange={(e) => setFormData({ ...formData, supervisorEmail: e.target.value })}
-                        className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-cyan-500 font-mono"
-                      />
-                    </div>
-                  </div>
-
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-slate-300 mb-1">
-                      Investigation Scope & Case Justification
-                    </label>
-                    <textarea
-                      rows={3}
-                      required
-                      placeholder="Briefly state ongoing investigations requiring crypto tracing (e.g. NCRP cyber scam cases, multi-mule bank account money laundering)..."
-                      value={formData.justification}
-                      onChange={(e) => setFormData({ ...formData, justification: e.target.value })}
-                      className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-cyan-500"
+                    <label className="ct-label">Full Name</label>
+                    <input
+                      type="text" required value={formData.fullName}
+                      onChange={(e) => handleChange('fullName', e.target.value)}
+                      className="ct-input" placeholder="Full legal name"
                     />
                   </div>
-
-                  <div className="pt-2">
-                    <button
-                      type="submit"
-                      className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white text-sm font-bold shadow-lg shadow-cyan-950/40 transition-all flex items-center justify-center gap-2"
-                    >
-                      <Send className="w-4 h-4" />
-                      <span>Submit Official Clearance Requisition</span>
-                    </button>
+                  <div>
+                    <label className="ct-label">Designation</label>
+                    <input
+                      type="text" required value={formData.designation}
+                      onChange={(e) => handleChange('designation', e.target.value)}
+                      className="ct-input" placeholder="e.g. Sub-Inspector"
+                    />
                   </div>
-                </form>
-
-                <div className="mt-5 p-3 rounded-xl bg-slate-950 border border-slate-800/80 text-[11px] text-slate-400 font-mono flex items-start gap-2">
-                  <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                  <span>
-                    Applications are cross-checked with government agency directories. False submission of official credentials constitutes an offense under national penal laws.
-                  </span>
                 </div>
-              </div>
-            )}
-          </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="ct-label">Official Email</label>
+                    <input
+                      type="email" required value={formData.officialEmail}
+                      onChange={(e) => handleChange('officialEmail', e.target.value)}
+                      className="ct-input" placeholder="name@agency.gov.in"
+                    />
+                  </div>
+                  <div>
+                    <label className="ct-label">Phone</label>
+                    <input
+                      type="tel" value={formData.phone}
+                      onChange={(e) => handleChange('phone', e.target.value)}
+                      className="ct-input" placeholder="+91 XXXXX XXXXX"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="ct-label">Agency / Organization</label>
+                    <input
+                      type="text" required value={formData.agencyName}
+                      onChange={(e) => handleChange('agencyName', e.target.value)}
+                      className="ct-input" placeholder="Agency name"
+                    />
+                  </div>
+                  <div>
+                    <label className="ct-label">Agency Type</label>
+                    <select
+                      value={formData.agencyType}
+                      onChange={(e) => handleChange('agencyType', e.target.value)}
+                      className="ct-select w-full"
+                    >
+                      <option value="POLICE_CYBER_CRIME">Police — Cyber Crime</option>
+                      <option value="ECONOMIC_OFFENCES">Economic Offences Wing</option>
+                      <option value="FIU">Financial Intelligence Unit</option>
+                      <option value="REGULATORY">Regulatory Authority</option>
+                      <option value="OTHER">Other</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="ct-label">Jurisdiction</label>
+                  <input
+                    type="text" required value={formData.jurisdiction}
+                    onChange={(e) => handleChange('jurisdiction', e.target.value)}
+                    className="ct-input" placeholder="State / District"
+                  />
+                </div>
+
+                <div>
+                  <label className="ct-label">Supervisor Email</label>
+                  <input
+                    type="email" value={formData.supervisorEmail}
+                    onChange={(e) => handleChange('supervisorEmail', e.target.value)}
+                    className="ct-input" placeholder="supervisor@agency.gov.in"
+                  />
+                </div>
+
+                <div>
+                  <label className="ct-label">Purpose / Justification</label>
+                  <textarea
+                    rows={3} required value={formData.justification}
+                    onChange={(e) => handleChange('justification', e.target.value)}
+                    className="ct-input" style={{ resize: 'vertical' }}
+                    placeholder="Brief description of investigative use case"
+                  />
+                </div>
+
+                <button type="submit" className="ct-btn ct-btn-primary w-full" style={{ padding: '10px 16px', fontWeight: 600 }}>
+                  <Send className="w-4 h-4" />
+                  Submit Access Request
+                </button>
+              </form>
+            </>
+          )}
         </div>
       </main>
-
-      <footer className="border-t border-slate-800/60 py-4 px-6 text-center text-[11px] text-slate-400 font-mono">
-        Official Clearance Registry &bull; National Forensic Intelligence Network
-      </footer>
     </div>
   );
 };
