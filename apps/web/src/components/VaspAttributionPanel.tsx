@@ -215,11 +215,11 @@ export const VaspAttributionPanel: React.FC<VaspAttributionPanelProps> = ({ acti
       {/* Attribution Detail Modal */}
       {selectedWallet && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
           style={{ backgroundColor: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)' }}
         >
           <div
-            className="rounded-xl border max-w-lg w-full p-6 space-y-4 shadow-2xl animate-fade-in"
+            className="rounded-xl border max-w-lg w-full max-h-[90vh] overflow-y-auto my-auto p-4 sm:p-6 space-y-4 shadow-2xl animate-fade-in"
             style={{
               backgroundColor: 'var(--ct-surface)',
               borderColor: 'var(--ct-border)',
@@ -267,9 +267,9 @@ export const VaspAttributionPanel: React.FC<VaspAttributionPanelProps> = ({ acti
                   borderColor: 'var(--ct-border)',
                 }}
               >
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                   <span style={{ color: 'var(--ct-text-tertiary)' }}>Address:</span>
-                  <span className="font-mono text-[11px] font-semibold" style={{ color: 'var(--ct-accent-text)' }}>
+                  <span className="font-mono text-[11px] font-semibold break-all sm:truncate max-w-full sm:max-w-[280px]" style={{ color: 'var(--ct-accent-text)' }}>
                     {selectedWallet.wallet}
                   </span>
                 </div>

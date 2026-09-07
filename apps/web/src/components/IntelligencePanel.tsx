@@ -223,11 +223,11 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({ activeCase
       {/* Finding Inspector Modal */}
       {selectedFinding && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
           style={{ backgroundColor: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)' }}
         >
           <div
-            className="rounded-xl border max-w-lg w-full p-6 space-y-4 shadow-2xl animate-fade-in"
+            className="rounded-xl border max-w-lg w-full max-h-[90vh] overflow-y-auto my-auto p-4 sm:p-6 space-y-4 shadow-2xl animate-fade-in"
             style={{
               backgroundColor: 'var(--ct-surface)',
               borderColor: 'var(--ct-border)',
@@ -327,7 +327,7 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({ activeCase
                       <span className="font-semibold" style={{ color: 'var(--ct-accent-text)' }}>
                         {ev.type}:
                       </span>
-                      <span className="font-mono text-[11px] truncate max-w-[280px]" style={{ color: 'var(--ct-text-secondary)' }}>
+                      <span className="font-mono text-[11px] truncate max-w-[150px] sm:max-w-[280px]" style={{ color: 'var(--ct-text-secondary)' }}>
                         {ev.refId || ev.ref_id}
                       </span>
                     </div>

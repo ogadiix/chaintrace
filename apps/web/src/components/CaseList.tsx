@@ -168,11 +168,11 @@ export const CaseList: React.FC<CaseListProps> = ({
               <tr>
                 <th className="py-3 px-4">Case Number</th>
                 <th className="py-3 px-4">Title & Category</th>
-                <th className="py-3 px-4">Chain</th>
-                <th className="py-3 px-4">Suspect Wallet</th>
-                <th className="py-3 px-4">Reported Loss</th>
+                <th className="py-3 px-4 hidden sm:table-cell">Chain</th>
+                <th className="py-3 px-4 hidden md:table-cell">Suspect Wallet</th>
+                <th className="py-3 px-4 hidden lg:table-cell">Reported Loss</th>
                 <th className="py-3 px-4">Priority</th>
-                <th className="py-3 px-4">Status</th>
+                <th className="py-3 px-4 hidden sm:table-cell">Status</th>
                 <th className="py-3 px-4 text-right">Action</th>
               </tr>
             </thead>
@@ -221,19 +221,19 @@ export const CaseList: React.FC<CaseListProps> = ({
                       {c.caseNumber}
                     </td>
                     <td className="py-3.5 px-4">
-                      <div className="font-semibold transition-colors" style={{ color: 'var(--ct-text)' }}>
+                      <div className="font-semibold transition-colors truncate max-w-[140px] sm:max-w-[220px]" style={{ color: 'var(--ct-text)' }}>
                         {c.title}
                       </div>
                       <div className="text-[11px]" style={{ color: 'var(--ct-text-tertiary)' }}>
                         {c.fraudCategory.replace('_', ' ')}
                       </div>
                     </td>
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-4 hidden sm:table-cell">
                       <span className="uppercase font-mono text-[11px] px-2 py-0.5 rounded border" style={{ backgroundColor: 'var(--ct-bg-subtle)', borderColor: 'var(--ct-border)', color: 'var(--ct-text-secondary)' }}>
                         {c.targetChain}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 font-mono">
+                    <td className="py-3.5 px-4 font-mono hidden md:table-cell">
                       <div className="flex items-center gap-1.5" style={{ color: 'var(--ct-text-secondary)' }}>
                         <span>
                           {c.suspectWallet.slice(0, 8)}...{c.suspectWallet.slice(-6)}
@@ -251,13 +251,13 @@ export const CaseList: React.FC<CaseListProps> = ({
                         </button>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 font-mono font-semibold" style={{ color: 'var(--ct-text)' }}>
+                    <td className="py-3.5 px-4 font-mono font-semibold hidden lg:table-cell" style={{ color: 'var(--ct-text)' }}>
                       {Number(c.reportedAmount).toLocaleString()} {c.currency}
                     </td>
                     <td className="py-3.5 px-4">
                       {getPriorityBadge(c.priority)}
                     </td>
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-4 hidden sm:table-cell">
                       {getStatusBadge(c.status)}
                     </td>
                     <td className="py-3.5 px-4 text-right">
@@ -268,7 +268,8 @@ export const CaseList: React.FC<CaseListProps> = ({
                         }}
                         className="ct-btn ct-btn-secondary ct-btn-sm inline-flex items-center gap-1 text-xs"
                       >
-                        <span>Open Console</span>
+                        <span className="hidden sm:inline">Open Console</span>
+                        <span className="sm:hidden">Open</span>
                         <ArrowUpRight className="w-3.5 h-3.5" />
                       </button>
                     </td>

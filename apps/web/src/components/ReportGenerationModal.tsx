@@ -87,11 +87,11 @@ export const ReportGenerationModal: React.FC<ReportGenerationModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)' }}
     >
       <div
-        className="rounded-xl border max-w-lg w-full shadow-2xl overflow-hidden animate-fade-in transition-all"
+        className="rounded-xl border max-w-lg w-full max-h-[90vh] overflow-y-auto my-auto shadow-2xl animate-fade-in transition-all"
         style={{
           backgroundColor: 'var(--ct-surface)',
           borderColor: 'var(--ct-border)',
@@ -99,7 +99,7 @@ export const ReportGenerationModal: React.FC<ReportGenerationModalProps> = ({
       >
         {/* Modal Header */}
         <div
-          className="px-6 py-4 border-b flex items-center justify-between"
+          className="px-4 sm:px-6 py-4 border-b flex items-center justify-between"
           style={{
             backgroundColor: 'var(--ct-bg-subtle)',
             borderColor: 'var(--ct-border)',
@@ -131,7 +131,7 @@ export const ReportGenerationModal: React.FC<ReportGenerationModalProps> = ({
         </div>
 
         {/* Modal Body */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {error && (
             <div
               className="mb-4 p-3 rounded-lg border text-xs flex items-center gap-2"
@@ -210,7 +210,7 @@ export const ReportGenerationModal: React.FC<ReportGenerationModalProps> = ({
                 </div>
               </div>
 
-              <div className="flex items-center gap-2.5 pt-2">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 pt-2">
                 <button
                   type="button"
                   onClick={handleDownload}
@@ -222,7 +222,7 @@ export const ReportGenerationModal: React.FC<ReportGenerationModalProps> = ({
                 <button
                   type="button"
                   onClick={handlePreview}
-                  className="ct-btn ct-btn-secondary inline-flex items-center gap-1.5"
+                  className="ct-btn ct-btn-secondary inline-flex items-center justify-center gap-1.5"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                   <span>Inline Preview</span>
@@ -244,7 +244,7 @@ export const ReportGenerationModal: React.FC<ReportGenerationModalProps> = ({
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div
                   className="p-3 rounded-lg border space-y-1.5"
                   style={{
@@ -315,20 +315,20 @@ export const ReportGenerationModal: React.FC<ReportGenerationModalProps> = ({
               </div>
 
               <div
-                className="flex items-center justify-end gap-2.5 pt-3 border-t"
+                className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 pt-3 border-t"
                 style={{ borderColor: 'var(--ct-border)' }}
               >
                 <button
                   type="button"
                   onClick={onClose}
-                  className="ct-btn ct-btn-secondary"
+                  className="ct-btn ct-btn-secondary justify-center"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="ct-btn ct-btn-primary"
+                  className="ct-btn ct-btn-primary justify-center"
                 >
                   {loading ? (
                     <>

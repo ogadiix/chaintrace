@@ -241,8 +241,8 @@ export const RiskEnginePanel: React.FC<RiskEnginePanelProps> = ({ activeCase, au
 
       {/* Override Modal */}
       {showOverrideModal && (
-        <div className="ct-overlay flex items-center justify-center p-4" onClick={() => setShowOverrideModal(false)}>
-          <div className="ct-modal w-full max-w-md p-5" onClick={(e) => e.stopPropagation()}>
+        <div className="ct-overlay flex items-center justify-center p-4 overflow-y-auto" onClick={() => setShowOverrideModal(false)}>
+          <div className="ct-modal w-full max-w-md max-h-[90vh] overflow-y-auto my-auto p-4 sm:p-5" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-base font-semibold mb-2 flex items-center gap-2" style={{ color: 'var(--ct-text)' }}>
               <UserCheck className="w-4 h-4" style={{ color: 'var(--ct-accent-text)' }} />
               Risk Classification Override

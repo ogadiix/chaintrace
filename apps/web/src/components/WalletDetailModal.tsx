@@ -62,11 +62,11 @@ export const WalletDetailModal: React.FC<WalletDetailModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)' }}
     >
       <div
-        className="rounded-xl border p-6 max-w-lg w-full space-y-4 shadow-2xl animate-fade-in"
+        className="rounded-xl border p-4 sm:p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto my-auto space-y-4 shadow-2xl animate-fade-in"
         style={{
           backgroundColor: 'var(--ct-surface)',
           borderColor: 'var(--ct-border)',
@@ -85,7 +85,7 @@ export const WalletDetailModal: React.FC<WalletDetailModalProps> = ({
               {roleMeta.icon}
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-sm font-semibold" style={{ color: 'var(--ct-text)' }}>
                   {node.entityName || `${node.role} Wallet Forensics`}
                 </h3>
@@ -138,7 +138,7 @@ export const WalletDetailModal: React.FC<WalletDetailModalProps> = ({
         </div>
 
         {/* Details Grid */}
-        <div className="grid grid-cols-2 gap-3 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           <div
             className="p-3 rounded-lg border"
             style={{
@@ -199,12 +199,12 @@ export const WalletDetailModal: React.FC<WalletDetailModalProps> = ({
 
         {/* Action Buttons */}
         <div
-          className="flex justify-end gap-2.5 pt-3 border-t"
+          className="flex flex-col-reverse sm:flex-row justify-end gap-2.5 pt-3 border-t"
           style={{ borderColor: 'var(--ct-border)' }}
         >
           <button
             onClick={onClose}
-            className="ct-btn ct-btn-secondary ct-btn-sm"
+            className="ct-btn ct-btn-secondary ct-btn-sm justify-center"
           >
             Close
           </button>
@@ -214,7 +214,7 @@ export const WalletDetailModal: React.FC<WalletDetailModalProps> = ({
                 onRecenterTrace(node.address);
                 onClose();
               }}
-              className="ct-btn ct-btn-primary ct-btn-sm inline-flex items-center gap-1.5"
+              className="ct-btn ct-btn-primary ct-btn-sm inline-flex items-center justify-center gap-1.5"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               <span>Re-center Trace on Wallet</span>

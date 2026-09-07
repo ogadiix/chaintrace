@@ -179,10 +179,10 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
           <h2 className="text-lg font-semibold" style={{ color: 'var(--ct-text)' }}>
             {activeCase.title}
           </h2>
-          <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--ct-text-secondary)' }}>
+          <div className="flex items-center gap-2 text-xs flex-wrap" style={{ color: 'var(--ct-text-secondary)' }}>
             <span>Suspect:</span>
             <code
-              className="font-mono px-1.5 py-0.5 rounded-ct-sm text-xs"
+              className="font-mono px-1.5 py-0.5 rounded-ct-sm text-xs break-all max-w-full"
               style={{
                 background: 'var(--ct-bg-subtle)',
                 border: '1px solid var(--ct-border)',
@@ -227,12 +227,12 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
       </div>
 
       {/* ═══ Tab Navigation ═══ */}
-      <div className="ct-tabs">
+      <div className="ct-tabs flex items-center overflow-x-auto whitespace-nowrap scrollbar-none">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`ct-tab ${activeTab === tab.id ? 'ct-tab-active' : ''}`}
+            className={`ct-tab shrink-0 ${activeTab === tab.id ? 'ct-tab-active' : ''}`}
           >
             {tab.label}
           </button>
@@ -246,7 +246,7 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
         <>
           {/* Trace Parameters */}
           <div
-            className="flex flex-wrap items-center gap-3 p-3 rounded-ct-md text-xs"
+            className="flex flex-wrap items-center gap-2.5 sm:gap-3 p-3 rounded-ct-md text-xs"
             style={{ background: 'var(--ct-bg-subtle)', border: '1px solid var(--ct-border)' }}
           >
             <div className="flex items-center gap-1.5">
@@ -257,7 +257,7 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
               </select>
             </div>
             <div className="flex items-center gap-1.5">
-              <span style={{ color: 'var(--ct-text-secondary)' }}>Min Amount:</span>
+              <span style={{ color: 'var(--ct-text-secondary)' }}>Min:</span>
               <input type="text" value={minimumAmount} onChange={(e) => setMinimumAmount(e.target.value)} className="ct-input" style={{ width: '70px', padding: '4px 8px', fontSize: '12px' }} />
             </div>
             <div className="flex items-center gap-1.5">
@@ -270,13 +270,13 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
               </select>
             </div>
             <div className="flex items-center gap-1.5">
-              <span style={{ color: 'var(--ct-text-secondary)' }}>Direction:</span>
+              <span style={{ color: 'var(--ct-text-secondary)' }}>Dir:</span>
               <select value={direction} onChange={(e) => setDirection(e.target.value as any)} className="ct-select" style={{ padding: '4px 28px 4px 8px', fontSize: '12px' }}>
                 <option value="FORWARD">Forward</option>
                 <option value="BACKWARD">Backward</option>
               </select>
             </div>
-            <button onClick={startTrace} disabled={loadingTrace} className="ct-btn ct-btn-primary ct-btn-sm ml-auto">
+            <button onClick={startTrace} disabled={loadingTrace} className="ct-btn ct-btn-primary ct-btn-sm w-full sm:w-auto sm:ml-auto justify-center">
               {loadingTrace ? <RotateCw className="w-3.5 h-3.5 ct-animate-spin" /> : <Play className="w-3.5 h-3.5" />}
               {loadingTrace ? 'Tracing...' : 'Run Trace'}
             </button>
@@ -285,12 +285,12 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
           {/* Trace job status */}
           {traceJob && (
             <div
-              className="flex items-center justify-between rounded-ct-md px-4 py-2 text-xs"
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-ct-md px-3 sm:px-4 py-2 text-xs"
               style={{ background: 'var(--ct-bg-subtle)', border: '1px solid var(--ct-border)' }}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span style={{ color: 'var(--ct-text-secondary)' }}>Job:</span>
-                <span className="font-mono font-medium" style={{ color: 'var(--ct-accent-text)' }}>{traceJob.id}</span>
+                <span className="font-mono font-medium truncate max-w-[140px] sm:max-w-none" style={{ color: 'var(--ct-accent-text)' }}>{traceJob.id}</span>
                 <span className={`ct-badge ${
                   traceJob.status === 'COMPLETED' ? 'ct-badge-success' :
                   traceJob.status === 'RUNNING' ? 'ct-badge-warning' :

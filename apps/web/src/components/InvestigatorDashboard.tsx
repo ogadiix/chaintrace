@@ -110,7 +110,7 @@ export const InvestigatorDashboard: React.FC<InvestigatorDashboardProps> = ({
       </div>
 
       {/* Metrics row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {metrics.map((m) => {
           const Icon = m.icon;
           return (
@@ -132,7 +132,7 @@ export const InvestigatorDashboard: React.FC<InvestigatorDashboardProps> = ({
 
       {/* Quick navigation */}
       {quickLinks.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
           {quickLinks.map((link) => {
             const Icon = link.icon;
             return (

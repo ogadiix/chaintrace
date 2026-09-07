@@ -195,6 +195,20 @@ export const FundFlowGraph: React.FC<FundFlowGraphProps> = ({
 
   const handleMouseUp = () => setIsDragging(false);
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      setIsDragging(true);
+      setDragStart({ x: e.touches[0].clientX - pan.x, y: e.touches[0].clientY - pan.y });
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || e.touches.length !== 1) return;
+    setPan({ x: e.touches[0].clientX - dragStart.x, y: e.touches[0].clientY - dragStart.y });
+  };
+
+  const handleTouchEnd = () => setIsDragging(false);
+
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
     const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
@@ -280,7 +294,7 @@ export const FundFlowGraph: React.FC<FundFlowGraphProps> = ({
     >
       {/* Filter bar */}
       <div
-        className="absolute top-3 left-3 z-10 flex items-center gap-2 px-3 py-1.5 rounded-ct-md"
+        className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-ct-md max-w-[50%]"
         style={{
           background: 'var(--ct-surface-overlay)',
           border: '1px solid var(--ct-border)',
@@ -288,16 +302,16 @@ export const FundFlowGraph: React.FC<FundFlowGraphProps> = ({
           boxShadow: 'var(--ct-shadow-md)',
         }}
       >
-        <span className="text-xs font-medium" style={{ color: 'var(--ct-accent-text)' }}>
-          Fund Flow
+        <span className="text-[11px] sm:text-xs font-medium hidden xs:inline" style={{ color: 'var(--ct-accent-text)' }}>
+          Filter
         </span>
-        <div style={{ width: '1px', height: '14px', background: 'var(--ct-border)' }} />
+        <div className="hidden xs:block" style={{ width: '1px', height: '14px', background: 'var(--ct-border)' }} />
         <Filter className="w-3 h-3 hidden sm:block" style={{ color: 'var(--ct-text-tertiary)' }} />
         <select
           value={filterRole}
           onChange={(e) => setFilterRole(e.target.value)}
           className="ct-select"
-          style={{ padding: '2px 24px 2px 6px', fontSize: '11px' }}
+          style={{ padding: '2px 20px 2px 4px', fontSize: '11px' }}
         >
           <option value="ALL">All ({nodes.length})</option>
           <option value="SUSPECT">Suspect</option>
@@ -311,7 +325,7 @@ export const FundFlowGraph: React.FC<FundFlowGraphProps> = ({
 
       {/* Zoom toolbar */}
       <div
-        className="absolute top-3 right-3 z-10 flex items-center gap-0.5 p-1 rounded-ct-md"
+        className="absolute top-2.5 right-2.5 z-10 flex items-center gap-0.5 p-0.5 sm:p-1 rounded-ct-md"
         style={{
           background: 'var(--ct-surface-overlay)',
           border: '1px solid var(--ct-border)',
@@ -329,24 +343,27 @@ export const FundFlowGraph: React.FC<FundFlowGraphProps> = ({
             key={title}
             onClick={action}
             className="ct-btn-icon"
-            style={{ padding: '6px' }}
+            style={{ padding: '5px' }}
             title={title}
           >
-            <Icon className="w-4 h-4" />
+            <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
         ))}
-        <span className="text-xs font-mono px-2" style={{ color: 'var(--ct-text-tertiary)' }}>
+        <span className="text-[11px] sm:text-xs font-mono px-1 sm:px-2 hidden sm:inline" style={{ color: 'var(--ct-text-tertiary)' }}>
           {Math.round(zoom * 100)}%
         </span>
       </div>
 
       {/* SVG Canvas */}
       <svg
-        className={`w-full h-full flex-1 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        className={`w-full h-full flex-1 touch-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
         onWheel={handleWheel}
       >
         <defs>
@@ -480,7 +497,7 @@ export const FundFlowGraph: React.FC<FundFlowGraphProps> = ({
       {/* Hover tooltip */}
       {hoveredNode && (
         <div
-          className="absolute bottom-3 left-3 right-3 px-3 py-2 rounded-ct-md text-xs flex items-center justify-between pointer-events-none"
+          className="absolute bottom-2.5 left-2.5 right-2.5 px-3 py-2 rounded-ct-md text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-1 pointer-events-none"
           style={{
             background: 'var(--ct-surface-overlay)',
             border: '1px solid var(--ct-border)',
@@ -488,14 +505,14 @@ export const FundFlowGraph: React.FC<FundFlowGraphProps> = ({
             boxShadow: 'var(--ct-shadow-md)',
           }}
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="font-medium" style={{ color: 'var(--ct-accent-text)' }}>{getRoleLabel(hoveredNode.role)}:</span>
-            <span className="font-mono" style={{ color: 'var(--ct-text)' }}>{hoveredNode.address}</span>
+            <span className="font-mono truncate max-w-[200px] sm:max-w-none" style={{ color: 'var(--ct-text)' }}>{hoveredNode.address}</span>
             {hoveredNode.entityName && (
-              <span style={{ color: 'var(--ct-text-secondary)' }}>({hoveredNode.entityName})</span>
+              <span className="hidden xs:inline" style={{ color: 'var(--ct-text-secondary)' }}>({hoveredNode.entityName})</span>
             )}
           </div>
-          <div className="flex items-center gap-3" style={{ color: 'var(--ct-text-tertiary)' }}>
+          <div className="flex items-center gap-3 text-[11px] sm:text-xs" style={{ color: 'var(--ct-text-tertiary)' }}>
             <span>Hop: <strong style={{ color: 'var(--ct-text)' }}>{hoveredNode.hopLevel}</strong></span>
             <span>Connections: <strong style={{ color: 'var(--ct-text)' }}>{hoveredNode.txCount}</strong></span>
           </div>

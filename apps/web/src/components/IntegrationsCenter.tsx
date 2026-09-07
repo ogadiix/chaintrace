@@ -229,7 +229,7 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
 
         {/* Global SubTab Switcher */}
         <div
-          className="flex items-center p-1 rounded-lg border gap-1"
+          className="flex items-center p-1 rounded-lg border gap-1 overflow-x-auto whitespace-nowrap max-w-full scrollbar-none"
           style={{
             backgroundColor: 'var(--ct-bg-subtle)',
             borderColor: 'var(--ct-border)',
@@ -237,7 +237,7 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
         >
           <button
             onClick={() => setSubTab('ncrp')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-1.5 shrink-0 ${
               subTab === 'ncrp' ? 'shadow-sm' : 'hover:opacity-80'
             }`}
             style={{
@@ -250,7 +250,7 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
           </button>
           <button
             onClick={() => setSubTab('sahyog')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-1.5 shrink-0 ${
               subTab === 'sahyog' ? 'shadow-sm' : 'hover:opacity-80'
             }`}
             style={{
@@ -266,7 +266,7 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
 
       {/* Mandatory Regulatory Simulation Banner */}
       <div
-        className="px-6 py-2.5 border-b text-xs flex items-center gap-2"
+        className="px-4 sm:px-6 py-2.5 border-b text-xs flex items-center gap-2"
         style={{
           backgroundColor: 'var(--ct-warning-subtle)',
           borderColor: 'var(--ct-warning)',
@@ -280,19 +280,19 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
       </div>
 
       {/* Main Content Area */}
-      <div className="p-6 flex-1 min-h-0 space-y-6">
+      <div className="p-4 sm:p-6 flex-1 min-h-0 space-y-6">
         {subTab === 'ncrp' ? (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Left: Complaint Submission Form */}
             <div className="lg:col-span-6 space-y-4">
               <div
-                className="rounded-xl border p-5 space-y-4 shadow-sm"
+                className="rounded-xl border p-4 sm:p-5 space-y-4 shadow-sm"
                 style={{
                   backgroundColor: 'var(--ct-surface)',
                   borderColor: 'var(--ct-border)',
                 }}
               >
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <h3 className="text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--ct-text)' }}>
                       <FileCheck className="w-4 h-4" style={{ color: 'var(--ct-accent)' }} />

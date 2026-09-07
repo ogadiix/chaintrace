@@ -113,7 +113,7 @@ export const CreateCaseModal: React.FC<CreateCaseModalProps> = ({
       >
         {/* Header */}
         <div
-          className="px-6 py-4 border-b flex items-center justify-between"
+          className="px-4 sm:px-6 py-4 border-b flex items-center justify-between"
           style={{
             backgroundColor: 'var(--ct-bg-subtle)',
             borderColor: 'var(--ct-border)',
@@ -145,7 +145,7 @@ export const CreateCaseModal: React.FC<CreateCaseModalProps> = ({
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 flex flex-col gap-4">
           {error && (
             <div
               className="p-3 rounded-lg border text-xs flex items-center gap-2"
@@ -358,20 +358,20 @@ export const CreateCaseModal: React.FC<CreateCaseModalProps> = ({
 
           {/* Footer buttons */}
           <div
-            className="pt-4 border-t flex items-center justify-end gap-2.5"
+            className="pt-4 border-t flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5"
             style={{ borderColor: 'var(--ct-border)' }}
           >
             <button
               type="button"
               onClick={onClose}
-              className="ct-btn ct-btn-secondary"
+              className="ct-btn ct-btn-secondary justify-center"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading || !isAddressValid || !title.trim()}
-              className="ct-btn ct-btn-primary"
+              className="ct-btn ct-btn-primary justify-center"
             >
               {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               <span>Create Case Record</span>

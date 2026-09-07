@@ -135,7 +135,7 @@ export const SahyogRequestModal: React.FC<SahyogRequestModalProps> = ({
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)' }}
     >
       <div
-        className="rounded-xl border shadow-2xl max-w-2xl w-full overflow-hidden my-8 animate-fade-in transition-all"
+        className="rounded-xl border shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto my-auto animate-fade-in transition-all"
         style={{
           backgroundColor: 'var(--ct-surface)',
           borderColor: 'var(--ct-border)',
@@ -143,7 +143,7 @@ export const SahyogRequestModal: React.FC<SahyogRequestModalProps> = ({
       >
         {/* Header */}
         <div
-          className="px-6 py-4 border-b flex items-center justify-between"
+          className="px-4 sm:px-6 py-4 border-b flex items-center justify-between"
           style={{
             backgroundColor: 'var(--ct-bg-subtle)',
             borderColor: 'var(--ct-border)',
@@ -181,7 +181,7 @@ export const SahyogRequestModal: React.FC<SahyogRequestModalProps> = ({
 
         {/* Disclaimer Banner */}
         <div
-          className="px-6 py-2.5 border-b flex items-center gap-2.5 text-xs"
+          className="px-4 sm:px-6 py-2.5 border-b flex items-center gap-2.5 text-xs"
           style={{
             backgroundColor: 'var(--ct-warning-subtle)',
             borderColor: 'var(--ct-warning)',
@@ -196,7 +196,7 @@ export const SahyogRequestModal: React.FC<SahyogRequestModalProps> = ({
 
         {!submittedResult ? (
           /* Form Body */
-          <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs">
+          <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 text-xs">
             {error && (
               <div
                 className="p-3 rounded-lg border text-xs flex items-center gap-2"
@@ -325,7 +325,7 @@ export const SahyogRequestModal: React.FC<SahyogRequestModalProps> = ({
                 </span>
                 <span className="text-[10px] font-mono" style={{ color: 'var(--ct-text-tertiary)' }}>Sandbox Test Mode</span>
               </div>
-              <div className="grid grid-cols-3 gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 <button
                   type="button"
                   onClick={() => setScenario('SUCCESS')}
@@ -375,20 +375,20 @@ export const SahyogRequestModal: React.FC<SahyogRequestModalProps> = ({
 
             {/* Footer Buttons */}
             <div
-              className="pt-3 flex items-center justify-end gap-2.5 border-t"
+              className="pt-3 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 border-t"
               style={{ borderColor: 'var(--ct-border)' }}
             >
               <button
                 type="button"
                 onClick={onClose}
-                className="ct-btn ct-btn-secondary"
+                className="ct-btn ct-btn-secondary justify-center"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="ct-btn ct-btn-primary inline-flex items-center gap-1.5"
+                className="ct-btn ct-btn-primary inline-flex items-center justify-center gap-1.5"
               >
                 {loading ? (
                   <>
@@ -406,7 +406,7 @@ export const SahyogRequestModal: React.FC<SahyogRequestModalProps> = ({
           </form>
         ) : (
           /* Result View */
-          <div className="p-6 space-y-4">
+          <div className="p-4 sm:p-6 space-y-4">
             <div
               className="p-4 rounded-xl border space-y-3"
               style={{
@@ -517,16 +517,16 @@ export const SahyogRequestModal: React.FC<SahyogRequestModalProps> = ({
               )}
             </div>
 
-            <div className="flex items-center justify-end gap-2.5 pt-2">
+            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 pt-2">
               <button
                 onClick={resetForm}
-                className="ct-btn ct-btn-secondary"
+                className="ct-btn ct-btn-secondary justify-center"
               >
                 Submit Another Requisition
               </button>
               <button
                 onClick={onClose}
-                className="ct-btn ct-btn-primary"
+                className="ct-btn ct-btn-primary justify-center"
               >
                 Done
               </button>

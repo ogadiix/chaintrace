@@ -282,11 +282,11 @@ export const LandingPage: React.FC = () => {
               <br className="hidden sm:block" />
               A forensic intelligence platform for cryptocurrency fraud investigation.
             </p>
-            <div className="flex flex-col sm:flex-row items-start gap-3">
-              <button onClick={() => setIsModalOpen(true)} className="ct-btn ct-btn-primary ct-btn-lg">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-3 w-full sm:w-auto">
+              <button onClick={() => setIsModalOpen(true)} className="ct-btn ct-btn-primary ct-btn-lg justify-center">
                 Request Access <ArrowRight className="w-4 h-4" />
               </button>
-              <button onClick={() => navigate('/login')} className="ct-btn ct-btn-secondary ct-btn-lg">
+              <button onClick={() => navigate('/login')} className="ct-btn ct-btn-secondary ct-btn-lg justify-center">
                 Sign In
               </button>
             </div>
@@ -401,11 +401,11 @@ export const LandingPage: React.FC = () => {
           <p className="text-base mb-8 max-w-md mx-auto" style={{ color: 'var(--ct-text-secondary)' }}>
             Request platform access for your organization to begin blockchain forensic analysis.
           </p>
-          <div className="flex justify-center gap-3">
-            <button onClick={() => setIsModalOpen(true)} className="ct-btn ct-btn-primary ct-btn-lg">
+          <div className="flex flex-col sm:flex-row justify-center gap-3 max-w-sm sm:max-w-none mx-auto">
+            <button onClick={() => setIsModalOpen(true)} className="ct-btn ct-btn-primary ct-btn-lg justify-center">
               Request Access <ArrowRight className="w-4 h-4" />
             </button>
-            <button onClick={() => navigate('/login')} className="ct-btn ct-btn-secondary ct-btn-lg">
+            <button onClick={() => navigate('/login')} className="ct-btn ct-btn-secondary ct-btn-lg justify-center">
               Sign In
             </button>
           </div>
@@ -429,8 +429,8 @@ export const LandingPage: React.FC = () => {
 
       {/* ═══ Access Request Modal ═══ */}
       {isModalOpen && (
-        <div className="ct-overlay flex items-center justify-center p-4" onClick={() => setIsModalOpen(false)}>
-          <div className="ct-modal w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="ct-overlay flex items-center justify-center p-4 overflow-y-auto" onClick={() => setIsModalOpen(false)}>
+          <div className="ct-modal w-full max-w-md max-h-[90vh] overflow-y-auto my-auto p-4 sm:p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
               <h3 className="text-lg font-semibold" style={{ color: 'var(--ct-text)' }}>
                 {modalSubmitted ? 'Request Submitted' : 'Request Access'}

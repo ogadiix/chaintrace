@@ -20,11 +20,11 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({ 
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)' }}
     >
       <div
-        className="rounded-xl border p-6 max-w-lg w-full space-y-4 shadow-2xl animate-fade-in"
+        className="rounded-xl border p-4 sm:p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto my-auto space-y-4 shadow-2xl animate-fade-in"
         style={{
           backgroundColor: 'var(--ct-surface)',
           borderColor: 'var(--ct-border)',
@@ -105,11 +105,11 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({ 
             borderColor: 'var(--ct-border)',
           }}
         >
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <span className="text-[10px] uppercase font-semibold" style={{ color: 'var(--ct-text-tertiary)' }}>
               From (Sender):
             </span>
-            <code className="font-mono text-[11px] truncate max-w-[280px]" style={{ color: 'var(--ct-text)' }}>
+            <code className="font-mono text-[11px] break-all sm:truncate max-w-full sm:max-w-[280px]" style={{ color: 'var(--ct-text)' }}>
               {edge.source}
             </code>
           </div>
@@ -121,18 +121,18 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({ 
               <ArrowRight className="w-3.5 h-3.5" style={{ color: 'var(--ct-accent)' }} />
             </div>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <span className="text-[10px] uppercase font-semibold" style={{ color: 'var(--ct-text-tertiary)' }}>
               To (Recipient):
             </span>
-            <code className="font-mono text-[11px] truncate max-w-[280px]" style={{ color: 'var(--ct-text)' }}>
+            <code className="font-mono text-[11px] break-all sm:truncate max-w-full sm:max-w-[280px]" style={{ color: 'var(--ct-text)' }}>
               {edge.target}
             </code>
           </div>
         </div>
 
         {/* Financial & Time Metrics */}
-        <div className="grid grid-cols-2 gap-3 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           <div
             className="p-3 rounded-lg border"
             style={{
@@ -162,7 +162,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({ 
             </p>
           </div>
           <div
-            className="p-3 rounded-lg border col-span-2"
+            className="p-3 rounded-lg border col-span-1 sm:col-span-2"
             style={{
               backgroundColor: 'var(--ct-bg-subtle)',
               borderColor: 'var(--ct-border)',

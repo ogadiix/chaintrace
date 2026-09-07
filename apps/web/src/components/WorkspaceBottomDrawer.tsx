@@ -71,16 +71,16 @@ export const WorkspaceBottomDrawer: React.FC<WorkspaceBottomDrawerProps> = ({
     >
       {/* Tab Navigation Header */}
       <div
-        className="flex items-center justify-between border-b px-4 py-2"
+        className="flex flex-col sm:flex-row sm:items-center justify-between border-b px-3 sm:px-4 py-2 gap-2"
         style={{
           backgroundColor: 'var(--ct-bg-subtle)',
           borderColor: 'var(--ct-border)',
         }}
       >
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 overflow-x-auto whitespace-nowrap scrollbar-none max-w-full">
           <button
             onClick={() => setActiveTab('transactions')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all shrink-0 ${
               activeTab === 'transactions'
                 ? 'shadow-sm'
                 : 'hover:opacity-80'
@@ -92,7 +92,7 @@ export const WorkspaceBottomDrawer: React.FC<WorkspaceBottomDrawerProps> = ({
             }}
           >
             <Terminal className="w-3.5 h-3.5" />
-            <span>Transaction Ledger</span>
+            <span>Ledger</span>
             <span
               className="text-[10px] px-1.5 py-0.2 rounded-full font-mono"
               style={{
@@ -106,7 +106,7 @@ export const WorkspaceBottomDrawer: React.FC<WorkspaceBottomDrawerProps> = ({
 
           <button
             onClick={() => setActiveTab('timeline')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all shrink-0 ${
               activeTab === 'timeline'
                 ? 'shadow-sm'
                 : 'hover:opacity-80'
@@ -118,12 +118,12 @@ export const WorkspaceBottomDrawer: React.FC<WorkspaceBottomDrawerProps> = ({
             }}
           >
             <Clock className="w-3.5 h-3.5" />
-            <span>Investigation Timeline</span>
+            <span>Timeline</span>
           </button>
 
           <button
             onClick={() => setActiveTab('evidence')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all shrink-0 ${
               activeTab === 'evidence'
                 ? 'shadow-sm'
                 : 'hover:opacity-80'
@@ -135,11 +135,11 @@ export const WorkspaceBottomDrawer: React.FC<WorkspaceBottomDrawerProps> = ({
             }}
           >
             <FileText className="w-3.5 h-3.5" />
-            <span>Forensic Evidence Chains</span>
+            <span>Evidence</span>
           </button>
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs">
+        <div className="flex items-center gap-1.5 text-xs shrink-0 self-end sm:self-auto">
           <span style={{ color: 'var(--ct-text-tertiary)' }}>Case Ref:</span>
           <span className="font-mono font-medium px-2 py-0.5 rounded border text-[11px]" style={{ backgroundColor: 'var(--ct-surface)', borderColor: 'var(--ct-border)', color: 'var(--ct-text)' }}>
             {caseNumber}
@@ -148,11 +148,11 @@ export const WorkspaceBottomDrawer: React.FC<WorkspaceBottomDrawerProps> = ({
       </div>
 
       {/* Tab Content */}
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         {/* 1. Transaction Ledger */}
         {activeTab === 'transactions' && (
           <div className="space-y-3">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
               <div className="relative flex-1 max-w-sm">
                 <Search className="w-3.5 h-3.5 absolute left-3 top-2.5" style={{ color: 'var(--ct-text-tertiary)' }} />
                 <input
@@ -186,10 +186,10 @@ export const WorkspaceBottomDrawer: React.FC<WorkspaceBottomDrawerProps> = ({
                     <tr>
                       <th className="py-2.5 px-3">Tx Hash</th>
                       <th className="py-2.5 px-3">Hop</th>
-                      <th className="py-2.5 px-3">Sender</th>
-                      <th className="py-2.5 px-3">Recipient</th>
+                      <th className="py-2.5 px-3 hidden md:table-cell">Sender</th>
+                      <th className="py-2.5 px-3 hidden lg:table-cell">Recipient</th>
                       <th className="py-2.5 px-3">Amount</th>
-                      <th className="py-2.5 px-3">Timestamp (UTC)</th>
+                      <th className="py-2.5 px-3 hidden sm:table-cell">Timestamp (UTC)</th>
                       <th className="py-2.5 px-3 text-right">Inspect</th>
                     </tr>
                   </thead>
@@ -208,16 +208,16 @@ export const WorkspaceBottomDrawer: React.FC<WorkspaceBottomDrawerProps> = ({
                             H{tx.hopNumber}
                           </span>
                         </td>
-                        <td className="py-2 px-3 font-mono text-[11px]" style={{ color: 'var(--ct-text-secondary)' }} title={tx.from}>
+                        <td className="py-2 px-3 font-mono text-[11px] hidden md:table-cell" style={{ color: 'var(--ct-text-secondary)' }} title={tx.from}>
                           {tx.from ? `${tx.from.slice(0, 8)}...` : 'N/A'}
                         </td>
-                        <td className="py-2 px-3 font-mono text-[11px]" style={{ color: 'var(--ct-text)' }} title={tx.to}>
+                        <td className="py-2 px-3 font-mono text-[11px] hidden lg:table-cell" style={{ color: 'var(--ct-text)' }} title={tx.to}>
                           {tx.to ? `${tx.to.slice(0, 8)}...` : 'N/A'}
                         </td>
                         <td className="py-2 px-3 font-mono text-xs font-semibold" style={{ color: 'var(--ct-success-text)' }}>
                           {tx.amount} {tx.asset}
                         </td>
-                        <td className="py-2 px-3 font-mono text-[11px]" style={{ color: 'var(--ct-text-tertiary)' }}>
+                        <td className="py-2 px-3 font-mono text-[11px] hidden sm:table-cell" style={{ color: 'var(--ct-text-tertiary)' }}>
                           {tx.timestamp?.slice(0, 19).replace('T', ' ') || 'Recent'}
                         </td>
                         <td className="py-2 px-3 text-right">

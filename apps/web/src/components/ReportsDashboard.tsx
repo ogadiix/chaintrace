@@ -137,7 +137,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
 
       {/* Filter / Search Bar */}
       <div
-        className="p-3 rounded-xl border flex flex-wrap items-center justify-between gap-3 text-xs"
+        className="p-3 rounded-xl border flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs"
         style={{
           backgroundColor: 'var(--ct-surface)',
           borderColor: 'var(--ct-border)',
@@ -157,7 +157,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-4 text-xs" style={{ color: 'var(--ct-text-secondary)' }}>
+        <div className="flex items-center justify-between sm:justify-end gap-4 text-xs" style={{ color: 'var(--ct-text-secondary)' }}>
           <span>
             Total Reports: <strong style={{ color: 'var(--ct-text)' }}>{reports.length}</strong>
           </span>
@@ -230,11 +230,11 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
                 <tr>
                   <th className="py-3 px-4">Dossier / Case</th>
                   <th className="py-3 px-4">Report Title</th>
-                  <th className="py-3 px-4">Version</th>
+                  <th className="py-3 px-4 hidden sm:table-cell">Version</th>
                   <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">Cryptographic Digest</th>
-                  <th className="py-3 px-4">File Size</th>
-                  <th className="py-3 px-4">Generated (UTC)</th>
+                  <th className="py-3 px-4 hidden lg:table-cell">Cryptographic Digest</th>
+                  <th className="py-3 px-4 hidden md:table-cell">File Size</th>
+                  <th className="py-3 px-4 hidden sm:table-cell">Generated (UTC)</th>
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
@@ -254,14 +254,14 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
                       </div>
                     </td>
                     <td className="py-3 px-4">
-                      <span className="font-semibold block" style={{ color: 'var(--ct-text)' }}>
+                      <span className="font-semibold block truncate max-w-[140px] sm:max-w-[200px]" style={{ color: 'var(--ct-text)' }}>
                         {report.title}
                       </span>
-                      <span className="text-[10px] font-mono" style={{ color: 'var(--ct-text-tertiary)' }}>
+                      <span className="text-[10px] font-mono truncate max-w-[140px] sm:max-w-[200px] block" style={{ color: 'var(--ct-text-tertiary)' }}>
                         {report.filename}
                       </span>
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="py-3 px-4 hidden sm:table-cell">
                       <span className="ct-badge ct-badge-info text-[10px] font-mono">
                         v{report.version}
                       </span>
@@ -278,7 +278,7 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
                         </span>
                       )}
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="py-3 px-4 hidden lg:table-cell">
                       {report.sha256Hash ? (
                         <div className="flex items-center gap-1.5">
                           <code
@@ -307,10 +307,10 @@ export const ReportsDashboard: React.FC<ReportsDashboardProps> = ({
                         <span style={{ color: 'var(--ct-text-tertiary)' }}>N/A</span>
                       )}
                     </td>
-                    <td className="py-3 px-4 font-mono text-[11px]" style={{ color: 'var(--ct-text-secondary)' }}>
+                    <td className="py-3 px-4 font-mono text-[11px] hidden md:table-cell" style={{ color: 'var(--ct-text-secondary)' }}>
                       {(report.fileSizeBytes / 1024).toFixed(1)} KB
                     </td>
-                    <td className="py-3 px-4 text-[11px]" style={{ color: 'var(--ct-text-tertiary)' }}>
+                    <td className="py-3 px-4 text-[11px] hidden sm:table-cell" style={{ color: 'var(--ct-text-tertiary)' }}>
                       {new Date(report.createdAt).toLocaleString([], {
                         month: 'short',
                         day: 'numeric',
