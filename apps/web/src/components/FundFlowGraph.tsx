@@ -326,18 +326,18 @@ export const FundFlowGraph: React.FC<FundFlowGraphProps> = ({
       className="relative w-full h-full min-h-[440px] bg-[#050810] border border-navy-800 rounded-lg overflow-hidden select-none flex flex-col"
     >
       {/* Top Controls & Filter Bar */}
-      <div className="absolute top-3 left-3 z-10 flex items-center gap-2 bg-navy-900/90 border border-navy-700 backdrop-blur px-3 py-1.5 rounded-lg shadow-lg">
-        <span className="text-[11px] font-mono text-cyan-400 font-bold flex items-center gap-1">
-          <Sparkles className="w-3 h-3 text-cyan-400" />
-          HOP-FLOW CANVAS
+      <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5 sm:gap-2 bg-navy-900/90 border border-navy-700 backdrop-blur px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg shadow-lg max-w-[calc(100%-7.5rem)] sm:max-w-none">
+        <span className="text-[10px] sm:text-[11px] font-mono text-cyan-400 font-bold flex items-center gap-1 truncate">
+          <Sparkles className="w-3 h-3 text-cyan-400 shrink-0" />
+          <span className="hidden xs:inline sm:inline">HOP-FLOW</span> CANVAS
         </span>
-        <div className="h-3 w-[1px] bg-navy-700 mx-1" />
-        <div className="flex items-center gap-1.5 text-xs text-slate-300 font-mono">
-          <Filter className="w-3 h-3 text-slate-400" />
+        <div className="h-3 w-[1px] bg-navy-700 mx-0.5 sm:mx-1" />
+        <div className="flex items-center gap-1 text-xs text-slate-300 font-mono">
+          <Filter className="w-3 h-3 text-slate-400 shrink-0 hidden sm:inline" />
           <select
             value={filterRole}
             onChange={(e) => setFilterRole(e.target.value)}
-            className="bg-navy-950 border border-navy-700 text-slate-200 rounded px-1.5 py-0.5 text-[11px] focus:outline-none"
+            className="bg-navy-950 border border-navy-700 text-slate-200 rounded px-1 py-0.5 text-[10px] sm:text-[11px] focus:outline-none"
           >
             <option value="ALL">All Nodes ({nodes.length})</option>
             <option value="SUSPECT">Suspect</option>
@@ -351,7 +351,7 @@ export const FundFlowGraph: React.FC<FundFlowGraphProps> = ({
       </div>
 
       {/* Zoom / Pan Toolbar */}
-      <div className="absolute top-3 right-3 z-10 flex items-center gap-1 bg-navy-900/90 border border-navy-700 backdrop-blur p-1 rounded-lg shadow-lg">
+      <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-0.5 sm:gap-1 bg-navy-900/90 border border-navy-700 backdrop-blur p-0.5 sm:p-1 rounded-lg shadow-lg">
         <button
           onClick={() => setZoom((z) => Math.min(z * 1.2, 2.5))}
           className="p-1.5 text-slate-300 hover:text-cyan-400 hover:bg-navy-800 rounded transition-colors"

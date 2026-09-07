@@ -104,7 +104,7 @@ services:
     container_name: chaintrace_web
     restart: unless-stopped
     ports:
-      - "5173:5173"
+      - "5173:80"
     depends_on:
       - api
 

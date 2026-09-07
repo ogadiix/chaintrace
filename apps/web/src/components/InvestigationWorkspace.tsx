@@ -3,7 +3,7 @@ import {
   Play,
   RotateCw,
   FileText,
-  Sparkles,
+  RefreshCw,
   Layers,
   AlertCircle,
   Building2,
@@ -48,9 +48,6 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
   // Modals for selection
   const [selectedNode, setSelectedNode] = useState<GraphCanvasNode | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<GraphCanvasEdge | null>(null);
-
-  // Demo loading
-  const [loadingDemo, setLoadingDemo] = useState<boolean>(false);
 
   const startTrace = async () => {
     if (!activeCase || !authToken) return;
@@ -146,22 +143,6 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
     }
   };
 
-  const loadDemoScenario = async () => {
-    setLoadingDemo(true);
-    try {
-      const res = await fetch(`/api/v1/graph/demo-risk-scenario?chain=${activeCase.targetChain}`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
-      if (res.ok) {
-        // Auto-run trace after seeding demo
-        startTrace();
-      }
-    } finally {
-      setLoadingDemo(false);
-    }
-  };
-
   return (
     <div className="flex flex-col h-full space-y-4 font-mono">
       {/* 1. Case Investigation Header */}
@@ -194,7 +175,7 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
           <h2 className="text-base font-bold text-slate-100">{activeCase.title}</h2>
           <div className="flex items-center gap-2 text-xs text-slate-400">
             <span>Suspect Wallet:</span>
-            <code className="text-cyan-300 bg-navy-950 px-1.5 py-0.5 rounded border border-navy-800">
+            <code className="text-cyan-300 bg-navy-950 px-1.5 py-0.5 rounded border border-navy-800 truncate max-w-[180px] sm:max-w-none inline-block align-middle">
               {activeCase.suspectWallet}
             </code>
           </div>
@@ -221,13 +202,13 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
           </div>
 
           <button
-            onClick={loadDemoScenario}
-            disabled={loadingDemo}
-            className="flex items-center gap-1.5 bg-navy-800 hover:bg-navy-750 text-amber-300 border border-amber-500/30 px-3 py-1.5 rounded text-xs transition-colors"
-            title="Seed 5-hop fraud scenario (Victim -> Mule -> Consolidation -> VASP)"
+            onClick={startTrace}
+            disabled={loadingTrace}
+            className="flex items-center gap-1.5 bg-navy-800 hover:bg-navy-750 text-cyan-300 border border-cyan-500/30 px-3 py-1.5 rounded text-xs transition-colors"
+            title="Re-run recursive graph traversal on suspect address"
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            {loadingDemo ? 'Seeding...' : 'Load Demo Scenario'}
+            <RefreshCw className={`w-3.5 h-3.5 ${loadingTrace ? 'animate-spin' : ''}`} />
+            {loadingTrace ? 'Tracing...' : 'Refresh Graph'}
           </button>
 
           <button
@@ -308,7 +289,7 @@ export const InvestigationWorkspace: React.FC<InvestigationWorkspaceProps> = ({
         <button
           onClick={startTrace}
           disabled={loadingTrace}
-          className="ml-auto flex items-center gap-2 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-slate-950 font-bold px-4 py-1.5 rounded text-xs transition-colors shadow-lg shadow-cyan-900/30"
+          className="w-full sm:w-auto sm:ml-auto flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-slate-950 font-bold px-4 py-2 sm:py-1.5 rounded text-xs transition-colors shadow-lg shadow-cyan-900/30"
         >
           {loadingTrace ? <RotateCw className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5 fill-current" />}
           <span>{loadingTrace ? 'Tracing...' : 'Run Trace'}</span>

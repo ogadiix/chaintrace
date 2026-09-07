@@ -36,6 +36,12 @@ def _get_demo_users() -> list[dict]:
             "role": "INVESTIGATOR",
         },
         {
+            "email": "investigator@chaintrace.io",
+            "password": "Password123!",
+            "full_name": "Senior Investigator Alex Mercer",
+            "role": "INVESTIGATOR",
+        },
+        {
             "email": "admin@chaintrace.internal",
             "password": settings.DEMO_ADMIN_PASSWORD,
             "full_name": "Admin Director Sarah Vance",
@@ -58,6 +64,10 @@ def _get_demo_users() -> list[dict]:
 
 async def seed_demo_users_if_needed(db: AsyncSession):
     """Ensures demo accounts exist in database for seamless local and SIH evaluation."""
+    from apps.api.src.core.database import Base, engine
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
     for demo in _get_demo_users():
         stmt = select(User).where(User.email == demo["email"])
         result = await db.execute(stmt)

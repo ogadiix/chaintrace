@@ -90,8 +90,8 @@ export const CaseList: React.FC<CaseListProps> = ({
         </div>
 
         {/* Filters and New Case CTA */}
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-          <div className="flex items-center gap-1 bg-navy-950 p-1 rounded-md border border-navy-800">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+          <div className="flex items-center gap-1 bg-navy-950 p-1 rounded-md border border-navy-800 overflow-x-auto max-w-full">
             {['ALL', 'ACTIVE', 'UNDER_REVIEW', 'CLOSED'].map((st) => (
               <button
                 key={st}

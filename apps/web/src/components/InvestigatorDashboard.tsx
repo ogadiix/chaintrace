@@ -7,7 +7,6 @@ import {
   TrendingUp,
   CheckCircle2,
   ExternalLink,
-  Sparkles,
   ArrowUpRight,
   Search,
   Target,
@@ -21,8 +20,6 @@ interface InvestigatorDashboardProps {
   cases: Case[];
   onOpenCase: (caseItem: Case) => void;
   onNewCase: () => void;
-  onSeedDemo: () => void;
-  loadingDemo: boolean;
   onNavigateTab?: (tab: 'dashboard' | 'cases' | 'investigate' | 'reports' | 'integrations' | 'diagnostics') => void;
 }
 
@@ -30,8 +27,6 @@ export const InvestigatorDashboard: React.FC<InvestigatorDashboardProps> = ({
   cases,
   onOpenCase,
   onNewCase,
-  onSeedDemo,
-  loadingDemo,
   onNavigateTab,
 }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
@@ -75,16 +70,6 @@ export const InvestigatorDashboard: React.FC<InvestigatorDashboardProps> = ({
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
-          <button
-            onClick={onSeedDemo}
-            disabled={loadingDemo}
-            className="flex items-center gap-1.5 bg-navy-800 hover:bg-navy-750 text-amber-300 border border-amber-500/30 px-3 py-2 rounded text-xs transition-colors shadow-md"
-            title="Ingests deterministic 5-hop fraud network into Neo4j graph"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            {loadingDemo ? 'Seeding Demo Network...' : 'Seed Demo Scenario'}
-          </button>
-
           <button
             onClick={onNewCase}
             className="flex items-center gap-1.5 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold px-3.5 py-2 rounded text-xs transition-colors shadow-lg shadow-cyan-900/30"

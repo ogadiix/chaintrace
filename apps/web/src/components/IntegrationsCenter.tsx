@@ -212,8 +212,8 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
               <ShieldAlert className="w-5 h-5 text-cyan-400" />
               National Intelligence Integrations
             </h2>
-            <span className="px-2.5 py-0.5 rounded text-[11px] font-mono bg-amber-500/10 text-amber-400 border border-amber-500/30 uppercase tracking-wider font-semibold">
-              DEMO / SIMULATED INTEGRATION
+            <span className="px-2.5 py-0.5 rounded text-[11px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 uppercase tracking-wider font-semibold">
+              AGENCY GATEWAY SANDBOX
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-0.5">
@@ -283,14 +283,14 @@ export const IntegrationsCenter: React.FC<IntegrationsCenterProps> = ({
                       onClick={() => loadPreset('tron')}
                       className="px-2 py-1 text-[10px] rounded bg-navy-800 hover:bg-navy-700 text-cyan-300 border border-cyan-500/20 flex items-center gap-1"
                     >
-                      <Sparkles className="w-3 h-3" /> TRON Demo
+                      <Sparkles className="w-3 h-3" /> TRON Template
                     </button>
                     <button
                       type="button"
                       onClick={() => loadPreset('eth')}
                       className="px-2 py-1 text-[10px] rounded bg-navy-800 hover:bg-navy-700 text-purple-300 border border-purple-500/20 flex items-center gap-1"
                     >
-                      <Sparkles className="w-3 h-3" /> ETH Demo
+                      <Sparkles className="w-3 h-3" /> ETH Template
                     </button>
                   </div>
                 </div>

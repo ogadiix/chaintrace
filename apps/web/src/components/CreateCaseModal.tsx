@@ -98,7 +98,7 @@ export const CreateCaseModal: React.FC<CreateCaseModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-navy-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-navy-900 border border-navy-700/80 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col my-8">
+      <div className="bg-navy-900 border border-navy-700/80 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col my-auto">
         {/* Header */}
         <div className="px-6 py-4 border-b border-navy-700/80 flex items-center justify-between bg-navy-950/40">
           <div className="flex items-center gap-2 text-cyan-400">

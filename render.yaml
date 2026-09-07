@@ -1,0 +1,57 @@
+services:
+  # 1. FastAPI Web Backend
+  - type: web
+    name: chaintrace-api
+    runtime: python
+    buildCommand: pip install -r apps/api/requirements.txt
+    startCommand: uvicorn apps.api.src.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: PYTHONPATH
+        value: .
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: "*"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: chaintrace-db
+          property: connectionString
+      - key: DATABASE_FALLBACK_SQLITE
+        value: true
+      - key: NEO4J_MOCK_FALLBACK
+        value: true
+      - key: REDIS_MOCK_FALLBACK
+        value: true
+      - key: DEMO_INVESTIGATOR_PASSWORD
+        value: "Investigator123!"
+      - key: DEMO_ADMIN_PASSWORD
+        value: "AdminSecure123!"
+
+  # 2. Asynchronous Background Task Worker
+  - type: worker
+    name: chaintrace-worker
+    runtime: python
+    buildCommand: pip install -r apps/api/requirements.txt
+    startCommand: python apps/worker/src/main.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: PYTHONPATH
+        value: .
+      - key: DATABASE_URL
+        fromDatabase:
+          name: chaintrace-db
+          property: connectionString
+
+databases:
+  # Managed PostgreSQL Instance
+  - name: chaintrace-db
+    databaseName: chaintrace
+    user: chaintrace_user
+    plan: free
